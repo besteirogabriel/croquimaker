@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Configuracoes - JOBEL Croqui Engine{% endblock %}
+{% block heading %}Configuracoes{% endblock %}
+{% block content %}
+  <div class="split">
+    <section class="panel">
+      <h2>Catalogo de simbologia</h2>
+      <dl class="meta-list">
+        <dt>Versao</dt><dd>{{ catalog.version }}</dd>
+        <dt>Status</dt><dd>{{ "Heuristico" if catalog.is_heuristic else "Oficial" }}</dd>
+        <dt>Descricao</dt><dd>{{ catalog.description }}</dd>
+      </dl>
+    </section>
+    <section class="panel">
+      <h2>Ambiente local</h2>
+      <dl class="meta-list">
+        <dt>Uploads</dt><dd>{{ settings.upload_dir }}</dd>
+        <dt>Saidas</dt><dd>{{ settings.output_dir }}</dd>
+        <dt>Logo</dt><dd>{{ settings.jobel_logo_path }}</dd>
+      </dl>
+    </section>
+  </div>
+{% endblock %}

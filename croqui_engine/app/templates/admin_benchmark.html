@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Benchmark - JOBEL Croqui Engine{% endblock %}
+{% block heading %}Benchmark de fidelidade{% endblock %}
+{% block content %}
+  <section class="panel">
+    {% if not summary %}
+      <h2>Sem benchmark</h2>
+      <p>Execute <code>python -m croqui_engine.cli.run_benchmark --limit 3</code>.</p>
+    {% else %}
+      <h2>Resumo</h2>
+      <dl class="meta-list">
+        <dt>Casos</dt><dd>{{ summary.cases }}</dd>
+        <dt>Visual medio</dt><dd>{{ summary.average_visual_score }}</dd>
+        <dt>Texto medio</dt><dd>{{ summary.average_text_score }}</dd>
+        <dt>Equipamento medio</dt><dd>{{ summary.average_equipment_score }}</dd>
+      </dl>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Caso</th><th>Nivel</th><th>Visual</th><th>Texto</th><th>Equip.</th><th>Detalhe</th></tr></thead>
+          <tbody>
+            {% for item in summary.results %}
+              <tr>
+                <td>{{ item.case_id }}</td>
+                <td>{{ item.acceptance_level }}</td>
+                <td>{{ "%.3f"|format(item.visual_score) }}</td>
+                <td>{{ "%.3f"|format(item.text_score) }}</td>
+                <td>{{ "%.3f"|format(item.equipment_score) }}</td>
+                <td><a href="{{ url_for('jobs.admin_corpus_compare', case_id=item.case_id) }}">comparar</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

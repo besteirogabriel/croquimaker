@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Caso {{ case.case_id }} - Corpus{% endblock %}
+{% block heading %}Caso aprovado {{ case.case_id }}{% endblock %}
+{% block content %}
+  <div class="split">
+    <section class="panel">
+      <h2>Arquivos</h2>
+      <ul class="compact-list">
+        {% for file in case.project_pdfs %}
+          <li><strong>Projeto</strong><span>{{ file.name }}</span></li>
+        {% endfor %}
+        {% for file in case.target_croqui_pdfs %}
+          <li><strong>Croqui PDF</strong><span>{{ file.name }}</span></li>
+        {% endfor %}
+        {% if case.target_croqui_xls %}
+          <li><strong>Croqui XLS</strong><span>{{ case.target_croqui_xls.name }}</span></li>
+        {% endif %}
+      </ul>
+    </section>
+    <section class="panel">
+      <h2>Ground truth</h2>
+      {% if target_summary %}
+        <dl class="meta-list">
+          <dt>PDF</dt><dd>{{ target_summary.extracted_from_pdf }}</dd>
+          <dt>XLS</dt><dd>{{ target_summary.extracted_from_xls }}</dd>
+          <dt>Textos</dt><dd>{{ target_summary.texts|length }}</dd>
+          <dt>Linhas</dt><dd>{{ target_summary.lines|length }}</dd>
+        </dl>
+      {% else %}
+        <p>Ground truth ainda nao gerado para este caso.</p>
+      {% endif %}
+      <div class="actions">
+        <a class="btn" href="{{ url_for('jobs.admin_corpus_compare', case_id=case.case_id) }}">Comparar</a>
+      </div>
+    </section>
+  </div>
+{% endblock %}

@@ -1,0 +1,92 @@
+============================================================
+  SISTEMA GERADOR DE CROQUI RGE/CPFL
+============================================================
+
+REQUISITOS
+----------
+- Python 3.12 (instalado em C:\Users\Magdiel\AppData\Local\Programs\Python\Python312)
+- Pacotes: pdfplumber, openpyxl, reportlab, xlrd, xlwt, xlutils
+  (já instalados - rode "pip install pdfplumber openpyxl reportlab xlrd xlwt xlutils" se precisar)
+
+
+CONFIGURAÇÃO INICIAL (apenas uma vez)
+--------------------------------------
+Abra o PowerShell na pasta CroquiGerador e execute:
+
+    python main.py --setup
+
+Isso copia o template Excel dos exemplos.
+
+
+USO BÁSICO
+----------
+Para gerar o croqui de um projeto:
+
+    python main.py "caminho\do\projeto.pdf"
+
+Exemplo:
+
+    python main.py "E:\Projetos\CLAUDE IA\Croqui\Projeto 1 + Croqui\300001108116PROJETOA3_20260224172732.202_X.pdf"
+
+Os arquivos são gerados na pasta atual com nome:
+    croqui_TR_XXXXX_YYYYMMDD_HHMMSS.pdf
+    croqui_TR_XXXXX_YYYYMMDD_HHMMSS.xls
+
+
+OPÇÕES
+------
+  --saida "pasta"        Pasta onde os arquivos serão salvos (padrão: pasta atual)
+  --debug                Exibe dados extraídos do projeto na tela
+  --so-pdf               Gera apenas o PDF (sem Excel)
+  --so-excel             Gera apenas o Excel (sem PDF)
+  --template "arq.xls"   Usa template Excel alternativo
+
+Exemplos:
+
+    python main.py projeto.pdf --saida "C:\Croquis" --debug
+    python main.py projeto.pdf --so-pdf
+    python main.py projeto.pdf --saida ".\saida" --template "meu_template.xls"
+
+
+O QUE É GERADO
+--------------
+PDF (croqui_*.pdf):
+  - Cabeçalho RGE com Departamento, Município, Equipamento, Data
+  - Diagrama da rede elétrica com postes, transformadores e conexões
+  - Área de trabalho destacada (caixa vermelha pontilhada)
+  - Tabela de Avaliação de Viabilidade preenchida
+
+Excel (croqui_*.xls):
+  - Template RGE preenchido com os dados do projeto
+  - Aba "Croqui v1": dados do cabeçalho e viabilidade
+  - Aba "Simbologia": biblioteca completa de símbolos para desenho manual
+
+
+LIMITAÇÕES
+----------
+Os PDFs de projeto são gerados em CAD (formato complexo) com texto em posições
+aleatórias. A extração automática pode ser parcial em alguns casos:
+
+- Projetos com muitos postes/ramais: boa extração
+- Projetos com texto muito fragmentado: extração básica (lista de equipamentos)
+- Números de equipamento com prefixos de cabo podem aparecer incorretos
+
+Nesses casos, use o Excel gerado e complete o desenho manualmente na aba "Croqui v1"
+usando os símbolos da aba "Simbologia".
+
+
+ARQUIVOS DO SISTEMA
+-------------------
+main.py          - Ponto de entrada (interface de linha de comando)
+extrator.py      - Extração de dados do PDF do projeto
+topologia.py     - Construção do grafo da rede elétrica
+gerador_pdf.py   - Geração do croqui em PDF (ReportLab)
+gerador_excel.py - Preenchimento do template Excel
+templates/       - Templates Excel copiados dos exemplos
+saida_testes/    - Pasta com croquis de teste gerados
+
+
+SUPORTE
+-------
+Em caso de dúvidas ou melhorias, consulte o histórico do projeto com Claude Code.
+============================================================

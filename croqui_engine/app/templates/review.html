@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Revisao {{ job.id }} - JOBEL Croqui Engine{% endblock %}
+{% block heading %}Revisao e edicao manual{% endblock %}
+{% block content %}
+  <div
+    id="review-app"
+    data-job-id="{{ job.id }}"
+    data-can-edit="{{ '1' if can_edit else '0' }}"
+    data-can-generate="{{ '1' if can_generate else '0' }}"
+  >
+    <div class="review-layout">
+      <section class="review-canvas panel">
+        <div class="toolbar">
+          <div class="canvas-tools">
+            <select id="page-select" title="Pagina">
+              {% for overlay in overlays %}
+                <option value="{{ url_for('jobs.overlay_file', job_id=job.id, filename=overlay.name) }}">Pagina {{ loop.index }}</option>
+              {% endfor %}
+            </select>
+            <button class="tool-btn active" type="button" data-tool="select" title="Selecionar">↖</button>
+            <button class="tool-btn" type="button" data-tool="move" title="Mover">✥</button>
+            <button class="tool-btn" type="button" data-tool="node" title="Poste">○</button>
+            <button class="tool-btn" type="button" data-tool="span" title="Vao">╱</button>
+            <button class="tool-btn" type="button" data-tool="equipment" title="Equipamento">□</button>
+            <button class="tool-btn" type="button" data-tool="delete" title="Excluir">×</button>
+          </div>
+          <div class="segmented compact">
+            <label><input type="checkbox" checked data-filter="nodes"> Postes</label>
+            <label><input type="checkbox" checked data-filter="spans"> Vaos</label>
+            <label><input type="checkbox" checked data-filter="equipment"> Equipamentos</label>
+            <label><input type="checkbox" checked data-filter="warnings"> Alertas</label>
+          </div>
+        </div>
+        <div class="croqui-editor-shell">
+          {% if overlays %}
+            <img id="overlay-image" src="{{ url_for('jobs.overlay_file', job_id=job.id, filename=overlays[0].name) }}" alt="Overlay">
+          {% else %}
+            <div class="empty">Overlay indisponivel.</div>
+          {% endif %}
+          <svg id="edit-layer" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-label="Camada editavel do croqui"></svg>
+        </div>
+        <div class="canvas-status">
+          <span id="active-tool">Selecionar</span>
+          <span id="selection-status">Nenhum item selecionado</span>
+          <span>Zoom 100%</span>
+        </div>
+      </section>
+      <aside class="review-panel panel">
+        <div class="toolbar">
+          <div>
+            <h2>Editor manual</h2>
+            <small id="review-status">
+              {% if can_edit %}Altere os campos e salve antes de gerar.{% else %}Visualizacao liberada; edicao restrita ao responsavel pelo projeto.{% endif %}
+            </small>
+          </div>
+          {% if can_edit %}
+            <button class="btn primary small" id="save-review">Salvar</button>
+          {% endif %}
+        </div>
+        <div class="tabs">
+          <button class="active" data-tab="meta">Metadados</button>
+          <button data-tab="pages">Paginas</button>
+          <button data-tab="nodes">Postes</button>
+          <button data-tab="equipment">Equipamentos</button>
+          <button data-tab="spans">Vaos</button>
+          <button data-tab="validations">Validacoes</button>
+          <button data-tab="json">JSON</button>
+        </div>
+        <div id="review-content"></div>
+        <div class="review-actions">
+          {% if can_edit %}
+            <button class="btn" id="approve-review">Aprovar extracao</button>
+          {% endif %}
+          {% if can_generate %}
+            <button class="btn primary" id="generate-review">Gerar croqui final</button>
+          {% endif %}
+          <a class="btn" href="{{ url_for('jobs.download', job_id=job.id, kind='json') }}">Exportar JSON tecnico</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/review.js') }}"></script>
+{% endblock %}

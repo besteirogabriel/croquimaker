@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Comparacao {{ case_id }} - Corpus{% endblock %}
+{% block heading %}Comparacao {{ case_id }}{% endblock %}
+{% block content %}
+  <section class="panel">
+    <h2>Benchmark do caso</h2>
+    {% if comparison %}
+      <dl class="meta-list">
+        <dt>Nivel</dt><dd>{{ comparison.acceptance_level }}</dd>
+        <dt>Visual</dt><dd>{{ "%.3f"|format(comparison.visual_score) }}</dd>
+        <dt>Texto</dt><dd>{{ "%.3f"|format(comparison.text_score) }}</dd>
+        <dt>Equipamento</dt><dd>{{ "%.3f"|format(comparison.equipment_score) }}</dd>
+      </dl>
+      <div class="compare-grid">
+        {% for image in image_files %}
+          <article class="compare-frame">
+            <h3>{{ image.label }}</h3>
+            {% if image.exists %}
+              <a href="{{ url_for('jobs.benchmark_case_file', case_id=case_id, filename=image.filename) }}" target="_blank" rel="noreferrer">
+                <img src="{{ url_for('jobs.benchmark_case_file', case_id=case_id, filename=image.filename) }}" alt="{{ image.label }}">
+              </a>
+            {% else %}
+              <p class="empty">Imagem indisponivel.</p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+      <h2>Divergencias bloqueantes</h2>
+      <ul class="compact-list">
+        {% for diff in comparison.blocking_differences %}
+          <li><strong>{{ diff.code }}</strong><span>{{ diff }}</span></li>
+        {% else %}
+          <li>Nenhuma divergencia bloqueante registrada.</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Benchmark ainda nao rodado para este caso. Execute <code>python -m croqui_engine.cli.run_benchmark --case {{ case_id }}</code>.</p>
+    {% endif %}
+  </section>
+{% endblock %}

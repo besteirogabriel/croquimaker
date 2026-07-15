@@ -1,0 +1,10 @@
+.git
+.pytest_cache
+__pycache__
+*.py[cod]
+.env
+data
+croquisreais
+*.sqlite
+*.db
+.DS_Store

@@ -131,6 +131,21 @@ def _rewrite_workbook(source: Path, output: Path, graph: CroquiGraph) -> None:
     _set_inline_cell(croqui_sheet, "AH6", graph.header.responsavel)
 
     sources = _named_anchors(symbol_drawing)
+    required_sources = {
+        *(_symbol_name(node) for node in graph.nodes),
+        *(
+            source_name
+            for edge in graph.edges
+            for source_name in _edge_sources(edge.networkType, edge.style)
+        ),
+        *("Rectangle 334" for _ in graph.workZones),
+    }
+    missing_sources = sorted(source_name for source_name in required_sources if source_name not in sources)
+    if missing_sources:
+        raise NativeExcelTemplateUnavailable(
+            "A aba Simbologia nao contem os objetos oficiais exigidos: "
+            + ", ".join(missing_sources)
+        )
     kept = [
         copy.deepcopy(anchor)
         for anchor in croqui_drawing
@@ -180,10 +195,7 @@ def _rewrite_workbook(source: Path, output: Path, graph: CroquiGraph) -> None:
     for node in graph.nodes:
         source_name = _symbol_name(node)
         source_anchor = sources.get(source_name)
-        if source_anchor is None:
-            source_anchor = sources.get("Oval 148")
-        if source_anchor is None:
-            continue
+        assert source_anchor is not None
         center = mapper.point(node.x, node.y)
         anchor = _translated_anchor(source_anchor, center, metrics)
         next_id = _renumber(anchor, next_id, f"JOBEL-{node.id}")
@@ -442,10 +454,15 @@ def _node(graph: CroquiGraph, node_id: str) -> CroquiNode | None:
 
 
 def _symbol_name(node: CroquiNode) -> str:
-    if node.kind == "pole":
+    if node.kind in {"pole", "junction"}:
         return "Oval 148"
     equipment_type = str(node.equipmentType or ("TR" if node.kind == "transformer" else "")).upper()
-    return SYMBOL_NAMES.get(equipment_type, "Group 302")
+    source_name = SYMBOL_NAMES.get(equipment_type)
+    if source_name is None:
+        raise NativeExcelTemplateUnavailable(
+            f"Tipo de equipamento sem objeto oficial mapeado: {equipment_type or node.kind}."
+        )
+    return source_name
 
 
 def _edge_sources(network_type: str, style: str) -> list[str]:

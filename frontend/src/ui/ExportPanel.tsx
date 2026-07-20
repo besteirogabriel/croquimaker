@@ -14,7 +14,7 @@ export function ExportPanel({ disabled, result, onExport }: Props) {
       {result && (
         <div className="artifact-list">
           {result.artifacts
-            .filter((item) => ['pdf', 'xls', 'svg', 'report'].includes(item.kind))
+            .filter((item) => ['pdf', 'xls', 'xlsx', 'report'].includes(item.kind))
             .map((item) => (
               <a key={item.kind} href={item.download_url} target="_blank" rel="noreferrer">{item.label}</a>
             ))}

@@ -8,6 +8,7 @@ from flask import Blueprint, abort, jsonify, request, send_file, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash
 
+from croqui_engine.ai.openai_croqui_analyzer import ai_backend_status
 from croqui_engine.app.auth import user_can_edit_job, user_can_generate_job
 from croqui_engine.app.output_summary import (
     artifact_paths,
@@ -22,7 +23,7 @@ from croqui_engine.core.models import TechnicalPayload
 from croqui_engine.core.pipeline import ensure_output_contract, generate_outputs
 from croqui_engine.excel.official_template_assets import official_rge_logo_svg
 from croqui_engine.generators.json_exporter import export_payload_json, load_payload_json
-from croqui_engine.generators.svg_graph_exporter import export_from_croqui_graph_svg
+from croqui_engine.generators.svg_graph_exporter import export_from_excel_placement_plan
 from croqui_engine.graph.croqui_graph import CroquiGraph, croqui_graph_from_payload
 from croqui_engine.storage.file_store import job_output_dir, write_json
 from croqui_engine.storage.repositories import (
@@ -44,6 +45,13 @@ def rge_logo_asset():
         return send_file(official_rge_logo_svg(), mimetype="image/svg+xml", max_age=86400)
     except (FileNotFoundError, RuntimeError):
         abort(404)
+
+
+@bp.route("/system/ai-status")
+@login_required
+def system_ai_status():
+    """Expose safe backend readiness without ever returning the API key."""
+    return jsonify({"ok": True, **ai_backend_status()})
 
 
 @bp.route("/auth/login", methods=["POST"])
@@ -121,7 +129,9 @@ def extract_project_graph(job_id: str):
     payload = _load_job_payload(job)
     graph = _build_and_store_graph(job_id, payload, Path(job.original_pdf_path))
     jobs.update(
-        job_id, status=JobStatus.NEEDS_REVIEW.value, message="CroquiGraph atualizado para editor."
+        job_id,
+        status=JobStatus.NEEDS_REVIEW.value,
+        message="Plano editavel do croqui atualizado.",
     )
     return jsonify({"ok": True, "job_id": job_id, "graph": graph.as_dict()})
 
@@ -183,7 +193,7 @@ def export_project_graph(job_id: str):
     graph = CroquiGraph.model_validate(data.get("graph") or {})
     graph.id = job_id
     svg = str(data.get("svg") or "")
-    outputs = export_from_croqui_graph_svg(graph, svg, job_output_dir(job_id))
+    outputs = export_from_excel_placement_plan(graph, svg, job_output_dir(job_id))
     revision = revisions.create(
         job_id,
         json.dumps(graph.as_dict(), ensure_ascii=False),
@@ -199,9 +209,9 @@ def export_project_graph(job_id: str):
     if validation_status == "BLOCKED" or output_status == "blocked":
         status = JobStatus.NEEDS_REVIEW.value
     message = (
-        "PDF/XLS exportados a partir do SVG do editor."
+        "Excel oficial regenerado e PDF derivado desse mesmo Excel."
         if status == JobStatus.DONE.value
-        else "Exportacao gerada como rascunho/revisao a partir do SVG do editor."
+        else "Excel oficial e PDF derivados do estado editado; revisao tecnica ainda necessaria."
     )
     jobs.update(
         job_id,

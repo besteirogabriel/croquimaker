@@ -18,5 +18,7 @@ xlutils==2.0.0
 openpyxl==3.1.5
 python-dotenv==1.0.1
 pyyaml==6.0.2
+openai>=2.8.0,<3.0.0
+httpx[socks]>=0.28.0,<1.0.0
 pytest==8.3.3
 ruff==0.7.1

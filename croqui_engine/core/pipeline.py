@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from croqui_engine.ai.openai_croqui_analyzer import run_openai_fallback
 from croqui_engine.core.config import settings
 from croqui_engine.core.decision_engine import decide_main_equipment
 from croqui_engine.core.electrical_graph_builder import (
@@ -20,9 +21,9 @@ from croqui_engine.core.models import (
 from croqui_engine.corpus.reference_outputs import generate_reference_outputs_if_available
 from croqui_engine.extraction.raw_document import extract_raw_document
 from croqui_engine.extraction.vector_trace import build_project_vector_trace
-from croqui_engine.generators.excel_generator import generate_excel
 from croqui_engine.generators.json_exporter import export_payload_json
-from croqui_engine.generators.pdf_croqui_generator import generate_croqui_png
+from croqui_engine.generators.svg_graph_exporter import export_from_excel_placement_plan
+from croqui_engine.graph.croqui_graph import croqui_graph_from_payload
 from croqui_engine.ingestion.page_classifier import classify_pdf_pages
 from croqui_engine.ingestion.page_renderer import render_all_thumbnails
 from croqui_engine.layout.schematic_layout_engine import SchematicLayout, build_schematic_layout
@@ -42,7 +43,6 @@ from croqui_engine.output.validation import validate_output_contract, write_outp
 from croqui_engine.output.visual_quality import validate_schematic_visual_quality
 from croqui_engine.parser.project_text_parser import parse_project_text
 from croqui_engine.parser.tes_parser import parse_tes_text
-from croqui_engine.rendering.final_croqui_renderer import generate_final_croqui_pdf
 from croqui_engine.rendering.svg_croqui_renderer import generate_svg_croqui
 from croqui_engine.storage.file_store import job_output_dir, job_upload_dir
 from croqui_engine.topology.graph_builder import build_graph
@@ -103,6 +103,10 @@ def process_pdf(pdf_path: Path, job_id: str) -> TechnicalPayload:
     payload = build_graph(parsed["nodes"], parsed["spans"], parsed["equipment"], payload)
     payload = validate_graph(payload)
     payload = ensure_output_contract(payload, pdf_path, force_rebuild=True)
+    payload, escalated = run_openai_fallback(payload, pdf_path)
+    if escalated:
+        logger.info("Fallback OpenAI aplicado; revalidando decisao e foco localmente")
+        payload = ensure_output_contract(payload, pdf_path, force_rebuild=True)
 
     export_payload_json(payload, output_dir / "technical_payload.json")
     render_all_overlays(pdf_path, payload, output_dir / "overlays")
@@ -158,47 +162,24 @@ def generate_outputs(payload: TechnicalPayload, pdf_path: Path | None = None) ->
             "validation_report": validation_report_out,
         }
 
-    payload.meta["output_mode"] = "GENERATED_GENERIC_OUTPUT_FIRST"
-    payload.meta["renderer"] = "SCHEMATIC_SVG"
-    template_path = Path(settings.excel_template_path) if settings.excel_template_path else None
-    generate_excel(payload, xls_out, template_path, source_pdf_path=pdf_path)
+    payload.meta["output_mode"] = "OFFICIAL_EXCEL_CANONICAL"
+    payload.meta["renderer"] = "OFFICIAL_EXCEL_OBJECTS"
+    preview_path = output_dir / "croqui_editor_preview_source.svg"
     try:
-        generate_svg_croqui(payload, svg_out)
-        generate_final_croqui_pdf(payload, pdf_out)
-        _render_pdf_preview(pdf_out, png_out, payload)
+        generate_svg_croqui(payload, preview_path)
+        svg_preview = preview_path.read_text(encoding="utf-8")
     except Exception:
-        generate_final_croqui_pdf(payload, pdf_out)
-        _render_pdf_preview(pdf_out, png_out, payload)
-
-    contract = output_contract_from_payload(payload)
-    if contract:
-        generated_equipment = contract.header.get("equipment") or main_equipment_label_from_payload(payload)
-        contract = validate_output_contract(
-            contract,
-            generated_pdf_header_equipment=generated_equipment,
-            generated_xls_header_equipment=generated_equipment,
-        )
-        contract = validate_schematic_visual_quality(
-            contract,
-            payload.meta.get("schematic_layout"),
-        )
-        attach_output_contract(payload, contract)
-        write_output_validation_report(
-            contract,
-            validation_report_out,
-            generated_pdf_header_equipment=generated_equipment,
-            generated_xls_header_equipment=generated_equipment,
-        )
+        svg_preview = ""
+    graph = croqui_graph_from_payload(payload)
+    canonical_outputs = export_from_excel_placement_plan(graph, svg_preview, output_dir)
+    pdf_out = canonical_outputs["pdf"]
+    png_out = canonical_outputs["png"]
+    svg_out = canonical_outputs["svg"]
+    xls_out = canonical_outputs["xls"]
+    validation_report_out = canonical_outputs["validation_report"]
     _write_diff_report(payload, pdf_out, xls_out, output_dir)
     export_payload_json(payload, json_out)
-    return {
-        "pdf": pdf_out,
-        "png": png_out,
-        "svg": svg_out,
-        "xls": xls_out,
-        "json": json_out,
-        "validation_report": validation_report_out,
-    }
+    return {**canonical_outputs, "json": json_out}
 
 
 def _apply_corpus_reference_contract(payload: TechnicalPayload) -> CroquiOutputContract | None:
@@ -309,18 +290,6 @@ def _attach_schematic_state(
     payload.meta["electrical_graph"] = graph.as_dict()
     payload.meta["focus_subgraph"] = subgraph.as_dict()
     payload.meta["schematic_layout"] = layout.as_dict()
-
-
-def _render_pdf_preview(pdf_path: Path, png_path: Path, payload: TechnicalPayload) -> None:
-    try:
-        import fitz
-
-        with fitz.open(pdf_path) as doc:
-            pix = doc[0].get_pixmap(matrix=fitz.Matrix(1.35, 1.35), alpha=False)
-            png_path.parent.mkdir(parents=True, exist_ok=True)
-            pix.save(png_path)
-    except Exception:
-        generate_croqui_png(payload, png_path)
 
 
 def _write_diff_report(

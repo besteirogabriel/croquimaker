@@ -59,7 +59,7 @@ export function CroquiEditorPage() {
 
   async function handleUpload(file: File) {
     setBusy(true)
-    setMessage('Extraindo CroquiGraph no backend Python...')
+    setMessage('Engine local analisando e validando o projeto...')
     setExportResult(null)
     try {
       const result = await uploadProject(file)
@@ -84,7 +84,7 @@ export function CroquiEditorPage() {
   async function handleExport() {
     if (!graph || !jobId) return
     setBusy(true)
-    setMessage('Exportando PDF/XLS a partir do SVG do editor...')
+    setMessage('Regenerando o Excel oficial e o PDF derivado desse Excel...')
     try {
       const latest = canvasRef.current?.getGraph() ?? graph
       const svg = (await canvasRef.current?.exportSvg()) ?? ''

@@ -37,6 +37,21 @@ class Settings:
     excel_template_path: str = os.environ.get("CROQUI_EXCEL_TEMPLATE_PATH", "")
     golden_corpus_path: str = os.environ.get("CROQUI_GOLDEN_CORPUS_PATH", "CROQUI IA")
     engine_mode: str = os.environ.get("CROQUI_ENGINE_MODE", "v2")
+    openai_fallback_enabled: bool = os.environ.get(
+        "CROQUI_OPENAI_FALLBACK", "true"
+    ).lower() in {"1", "true", "yes", "on"}
+    openai_fallback_confidence: float = float(
+        os.environ.get("CROQUI_OPENAI_FALLBACK_CONFIDENCE", "0.72")
+    )
+    openai_api_key: str = os.environ.get("OPENAI_API_KEY", "").strip()
+    openai_model: str = os.environ.get("OPENAI_MODEL", "gpt-5.6-sol").strip()
+    openai_reasoning_effort: str = os.environ.get(
+        "OPENAI_REASONING_EFFORT", "high"
+    ).lower().strip()
+    openai_timeout_seconds: float = float(os.environ.get("OPENAI_TIMEOUT_SECONDS", "180"))
+    openai_max_retries: int = int(os.environ.get("OPENAI_MAX_RETRIES", "2"))
+    openai_pdf_detail: str = os.environ.get("OPENAI_PDF_DETAIL", "high").lower().strip()
+    openai_max_pdf_mb: int = int(os.environ.get("OPENAI_MAX_PDF_MB", "45"))
     use_official_catalog: bool = os.environ.get("CROQUI_USE_OFFICIAL_CATALOG", "true").lower() in {
         "1",
         "true",
@@ -63,7 +78,7 @@ class Settings:
         "yes",
         "on",
     }
-    engine_version: str = "0.1-local"
+    engine_version: str = "0.2-local-first-openai-fallback"
 
     @property
     def sqlalchemy_url(self) -> str:

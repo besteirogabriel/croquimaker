@@ -65,6 +65,17 @@ def decide_main_equipment(
             )
 
     candidates = resolve_equipment_candidates(payload, source_pdf_path=source_pdf_path)
+    ai_candidate = _openai_candidate(payload, candidates)
+    if ai_candidate:
+        candidates = [
+            item
+            for item in candidates
+            if not (
+                item.equipment_type == ai_candidate.equipment_type
+                and item.code == ai_candidate.code
+            )
+        ]
+        candidates.append(ai_candidate)
     if not candidates:
         return EquipmentDecision(warnings=[{"code": "NO_EQUIPMENT_CANDIDATE"}])
 
@@ -74,6 +85,9 @@ def decide_main_equipment(
     gap = score - (_decision_score(ranked[1]) if len(ranked) > 1 else 0.0)
     automatic = score >= 0.62 and gap >= 0.08
     warnings = []
+    if selected.source == "openai_pdf_analysis" and not _openai_corroborated(payload):
+        warnings.append({"code": "OPENAI_DECISION_NOT_CORROBORATED_LOCALLY"})
+        automatic = False
     if selected.equipment_type == "TR" and any(
         item.equipment_type in PROTECTIVE_TYPES for item in ranked[1:]
     ):
@@ -90,7 +104,11 @@ def decide_main_equipment(
     selected.confidence = round(min(score, 0.99), 4)
     return EquipmentDecision(
         candidate=selected,
-        strategy="deterministic_evidence",
+        strategy=(
+            "openai_pdf_analysis"
+            if selected.source == "openai_pdf_analysis"
+            else "deterministic_evidence"
+        ),
         automatic=automatic,
         confidence=selected.confidence,
         alternatives=ranked[1:6],
@@ -110,3 +128,62 @@ def _decision_score(candidate: EquipmentCandidate) -> float:
     if candidate.equipment_type == "TR" and kinds <= {"execution_plan", "equipment_table"}:
         score -= 0.18
     return max(0.0, min(score, 0.99))
+
+
+def _openai_candidate(
+    payload: TechnicalPayload,
+    local_candidates: list[EquipmentCandidate],
+) -> EquipmentCandidate | None:
+    analysis = payload.meta.get("openai_analysis") or {}
+    main = analysis.get("main_equipment") or {}
+    eq_type = normalize_equipment_type(str(main.get("equipment_type") or ""))
+    code = normalize_equipment_code(str(main.get("code") or ""))
+    if not eq_type or not code:
+        return None
+    ai_confidence = max(0.0, min(float(main.get("confidence") or 0.0), 1.0))
+    local = next(
+        (
+            item
+            for item in local_candidates
+            if item.equipment_type == eq_type and item.code == code
+        ),
+        None,
+    )
+    corroborated = bool(main.get("locally_corroborated"))
+    confidence = ai_confidence
+    evidence = [
+        EquipmentCandidateEvidence(
+            kind="openai_pdf_analysis",
+            weight=round(max(ai_confidence, 0.01), 4),
+            source=str((payload.meta.get("ai_backend") or {}).get("model") or "openai"),
+            detail=str(main.get("rationale") or "Analise visual e semantica do PDF."),
+        )
+    ]
+    for detail in main.get("evidence") or []:
+        evidence.append(
+            EquipmentCandidateEvidence(
+                kind="openai_visual_evidence",
+                weight=0.08,
+                source="structured_pdf_analysis",
+                detail=str(detail),
+            )
+        )
+    if local:
+        evidence.extend(local.evidence)
+        confidence = min(0.99, ai_confidence * 0.72 + local.confidence * 0.28 + 0.05)
+    elif corroborated:
+        confidence = min(0.99, ai_confidence + 0.05)
+    return EquipmentCandidate(
+        equipment_type=eq_type,
+        code=code,
+        label=make_equipment_label(eq_type, code),
+        confidence=round(confidence, 4),
+        evidence=evidence,
+        bbox=local.bbox if local else None,
+        source="openai_pdf_analysis",
+    )
+
+
+def _openai_corroborated(payload: TechnicalPayload) -> bool:
+    main = (payload.meta.get("openai_analysis") or {}).get("main_equipment") or {}
+    return bool(main.get("locally_corroborated"))

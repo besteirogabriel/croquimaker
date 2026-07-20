@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { exportProject, getSession, login, uploadProject } from '../api'
+import { exportProject, getProjectEditorState, getSession, login, uploadProject } from '../api'
 import { DiagramCanvas, type DiagramCanvasHandle } from '../ui/DiagramCanvas'
 import { ExportPanel } from '../ui/ExportPanel'
 import { PropertiesPanel } from '../ui/PropertiesPanel'
@@ -9,18 +9,39 @@ import type { CroquiEdge, CroquiGraph, CroquiNode, ExportResponse } from '../typ
 
 export function CroquiEditorPage() {
   const [authenticated, setAuthenticated] = useState(false)
-  const [email, setEmail] = useState('admin@jobel.local')
-  const [password, setPassword] = useState('Jobel@2026!')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [jobId, setJobId] = useState('')
   const [graph, setGraph] = useState<CroquiGraph | null>(null)
   const [selectedId, setSelectedId] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [exportResult, setExportResult] = useState<ExportResponse | null>(null)
+  const [revision, setRevision] = useState(0)
   const canvasRef = useRef<DiagramCanvasHandle>(null)
 
   useEffect(() => {
-    getSession().then((session) => setAuthenticated(session.authenticated)).catch(() => setAuthenticated(false))
+    getSession()
+      .then(async (session) => {
+        setAuthenticated(session.authenticated)
+        const existingJobId = window.location.pathname.match(/\/editor\/([^/]+)/)?.[1] ?? ''
+        if (!session.authenticated || !existingJobId) return
+        setBusy(true)
+        setMessage('Abrindo a última revisão do croqui...')
+        try {
+          const result = await getProjectEditorState(existingJobId)
+          setJobId(result.job_id)
+          setGraph(result.graph)
+          setRevision(result.revision)
+          setSelectedId(result.graph.mainEquipment.id)
+          setMessage(`Revisão ${result.revision} aberta para ajustes.`)
+        } catch (error) {
+          setMessage(error instanceof Error ? error.message : 'Falha ao abrir o projeto.')
+        } finally {
+          setBusy(false)
+        }
+      })
+      .catch(() => setAuthenticated(false))
   }, [])
 
   async function handleLogin() {
@@ -44,8 +65,10 @@ export function CroquiEditorPage() {
       const result = await uploadProject(file)
       setJobId(result.job_id)
       setGraph(result.graph)
+      setRevision(result.revision)
       setSelectedId(result.graph.mainEquipment.id)
-      setMessage('CroquiGraph carregado no editor.')
+      window.history.replaceState({}, '', `/editor/${result.job_id}`)
+      setMessage(`Croqui automático gerado. Revisão ${result.revision} aberta para ajustes.`)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Falha ao enviar PDF.')
     } finally {
@@ -68,7 +91,9 @@ export function CroquiEditorPage() {
       const result = await exportProject(jobId, latest, svg)
       setGraph(latest)
       setExportResult(result)
-      setMessage('Exportacao concluida.')
+      const nextRevision = Number((result as ExportResponse & { revision?: number }).revision ?? revision + 1)
+      setRevision(nextRevision)
+      setMessage(`Croqui regenerado. Revisão ${nextRevision} salva.`)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Falha na exportacao.')
     } finally {
@@ -82,7 +107,9 @@ export function CroquiEditorPage() {
 
   function patchHeader(key: keyof CroquiGraph['header'], value: string) {
     if (!graph) return
-    setGraph({ ...graph, header: { ...graph.header, [key]: value } })
+    const next = { ...graph.header, [key]: value }
+    canvasRef.current?.updateHeader(next)
+    setGraph(canvasRef.current?.getGraph() ?? { ...graph, header: next })
   }
 
   function patchSelected(patch: Partial<Record<string, unknown>>) {
@@ -136,6 +163,10 @@ export function CroquiEditorPage() {
   return (
     <main className="app-shell">
       <aside className="left-rail">
+        <a className="editor-brand" href="/dashboard" aria-label="Voltar ao dashboard">
+          <img src="/static/img/jobel_logo.png" alt="JOBEL Engenharia" />
+          <span>Editor técnico de croquis</span>
+        </a>
         <section className="panel compact">
           <div className="panel-title">Sessao</div>
           {authenticated ? (
@@ -165,10 +196,14 @@ export function CroquiEditorPage() {
       <section className="workspace">
         <div className="toolbar">
           <div>
-            <strong>{jobId ? `Projeto ${jobId}` : 'Novo projeto'}</strong>
+            <strong>{jobId ? `Projeto ${jobId} · revisão ${revision}` : 'Novo projeto'}</strong>
             <span>{message}</span>
           </div>
-          <button onClick={handleLayout} disabled={!graph || busy}>Auto-layout</button>
+          <div className="button-row">
+            <button onClick={() => canvasRef.current?.undo()} disabled={!graph || busy}>Desfazer</button>
+            <button onClick={() => canvasRef.current?.redo()} disabled={!graph || busy}>Refazer</button>
+            <button onClick={handleLayout} disabled={!graph || busy}>Reorganizar desenho</button>
+          </div>
         </div>
         <DiagramCanvas
           ref={canvasRef}

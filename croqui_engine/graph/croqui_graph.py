@@ -157,9 +157,10 @@ def validate_croqui_graph_for_export(graph: CroquiGraph, svg: str) -> CroquiGrap
         blocking.append({"code": "SVG_MAIN_EQUIPMENT_NOT_FOUND", "code_value": main.code})
     if "<svg" not in svg.lower() or "</svg>" not in svg.lower():
         blocking.append({"code": "SVG_INVALID_OR_MISSING"})
-    status: GraphStatus = "blocked" if blocking else graph.validation.status
-    if status == "final_candidate" and warnings:
-        status = "draft"
+    # This validator is called only after the engineer explicitly requests a
+    # regeneration. Warnings remain visible, but only blocking errors prevent
+    # the reviewed graph from becoming the final candidate.
+    status: GraphStatus = "blocked" if blocking else "final_candidate"
     return CroquiGraphValidation(
         status=status,
         warnings=_dedupe(warnings),

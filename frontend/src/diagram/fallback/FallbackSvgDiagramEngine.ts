@@ -8,6 +8,8 @@ const DRAWING = { x: 36, y: 112, w: 1048, h: 482 }
 export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
   private graph: CroquiGraph | null = null
   private selectedId = ''
+  private undoStack: CroquiGraph[] = []
+  private redoStack: CroquiGraph[] = []
 
   constructor(
     private readonly host: HTMLElement,
@@ -16,11 +18,15 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
 
   async loadGraph(graph: CroquiGraph): Promise<void> {
     this.graph = cloneGraph(graph)
+    this.undoStack = []
+    this.redoStack = []
     await this.applyAutoLayout()
+    this.undoStack = []
   }
 
   async applyAutoLayout(options?: LayoutOptions): Promise<void> {
     if (!this.graph) return
+    this.checkpoint()
     if (!(await this.tryElkLayout(options))) {
       this.applyDeterministicLayout(options)
     }
@@ -39,19 +45,54 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
     return this.host.querySelector('svg')?.outerHTML ?? ''
   }
 
+  undo(): void {
+    if (!this.graph || this.undoStack.length === 0) return
+    this.redoStack.push(cloneGraph(this.graph))
+    this.graph = this.undoStack.pop() ?? this.graph
+    this.render()
+    this.emitChange()
+  }
+
+  redo(): void {
+    if (!this.graph || this.redoStack.length === 0) return
+    this.undoStack.push(cloneGraph(this.graph))
+    this.graph = this.redoStack.pop() ?? this.graph
+    this.render()
+    this.emitChange()
+  }
+
   selectElement(id: string): void {
     this.selectedId = id
     this.render()
     this.events.onSelect?.(id)
   }
 
+  updateHeader(header: CroquiGraph['header']): void {
+    if (!this.graph) return
+    this.checkpoint()
+    this.graph.header = { ...header }
+    this.render()
+    this.emitChange()
+  }
+
   updateElement(id: string, patch: Partial<unknown>): void {
     if (!this.graph) return
+    this.checkpoint()
     const node = this.graph.nodes.find((item) => item.id === id)
     const edge = this.graph.edges.find((item) => item.id === id)
     const label = this.graph.labels.find((item) => item.id === id)
     const zone = this.graph.workZones.find((item) => item.id === id)
     Object.assign(node ?? edge ?? label ?? zone ?? {}, patch)
+    if (node && Object.hasOwn(patch, 'code')) {
+      const codeLabel = this.graph.labels.find((item) => item.attachedTo === node.id && item.kind === 'code')
+      if (codeLabel) codeLabel.text = node.code || node.id
+    }
+    if (node && (patch as { isMain?: boolean }).isMain === true) {
+      this.graph.nodes.forEach((item) => {
+        item.isMain = item.id === node.id
+      })
+      this.graph.mainEquipment.id = node.id
+    }
     this.syncMainEquipment()
     this.render()
     this.emitChange()
@@ -59,6 +100,7 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
 
   deleteElement(id: string): void {
     if (!this.graph) return
+    this.checkpoint()
     this.graph.nodes = this.graph.nodes.filter((item) => item.id !== id)
     this.graph.edges = this.graph.edges.filter((item) => item.id !== id && item.source !== id && item.target !== id)
     this.graph.labels = this.graph.labels.filter((item) => item.id !== id && item.attachedTo !== id)
@@ -70,6 +112,7 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
 
   addNode(node: CroquiNode): void {
     if (!this.graph) return
+    this.checkpoint()
     this.graph.nodes.push({ ...node, x: node.x ?? 180, y: node.y ?? 260, width: node.width ?? 56, height: node.height ?? 32 })
     this.graph.labels.push({ id: `LBL-${node.id}`, text: node.code || node.id, attachedTo: node.id, kind: 'code' })
     this.render()
@@ -78,6 +121,7 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
 
   addEdge(edge: CroquiEdge): void {
     if (!this.graph) return
+    this.checkpoint()
     this.graph.edges.push(edge)
     this.render()
     this.emitChange()
@@ -185,6 +229,18 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
     for (const element of Array.from(svg.querySelectorAll<SVGGElement>('[data-work-zone-id]'))) {
       element.addEventListener('pointerdown', (event) => this.beginDrag(event, element.dataset.workZoneId ?? '', 'zone'))
     }
+    for (const element of Array.from(svg.querySelectorAll<SVGElement>('[data-edge-id]'))) {
+      element.addEventListener('pointerdown', (event) => {
+        event.stopPropagation()
+        this.selectElement(element.dataset.edgeId ?? '')
+      })
+    }
+    for (const element of Array.from(svg.querySelectorAll<SVGElement>('[data-label-id]'))) {
+      element.addEventListener('pointerdown', (event) => {
+        event.stopPropagation()
+        this.selectElement(element.dataset.labelId ?? '')
+      })
+    }
   }
 
   private beginDrag(event: PointerEvent, id: string, kind: 'node' | 'zone'): void {
@@ -196,6 +252,7 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
       ? this.graph.nodes.find((item) => item.id === id)
       : this.graph.workZones.find((item) => item.id === id)
     if (!target) return
+    this.checkpoint()
     const startX = Number(target.x ?? 0)
     const startY = Number(target.y ?? 0)
     const move = (moveEvent: PointerEvent) => {
@@ -216,6 +273,16 @@ export class FallbackSvgDiagramEngine implements DiagramEngineAdapter {
   private emitChange(): void {
     if (this.graph) this.events.onGraphChange?.(cloneGraph(this.graph))
   }
+
+  private checkpoint(): void {
+    if (!this.graph) return
+    const previous = this.undoStack.at(-1)
+    if (!previous || JSON.stringify(previous) !== JSON.stringify(this.graph)) {
+      this.undoStack.push(cloneGraph(this.graph))
+      if (this.undoStack.length > 80) this.undoStack.shift()
+    }
+    this.redoStack = []
+  }
 }
 
 function buildSvg(graph: CroquiGraph, selectedId: string): string {
@@ -231,7 +298,7 @@ function buildSvg(graph: CroquiGraph, selectedId: string): string {
     <rect x="0" y="0" width="${PAGE_W}" height="${PAGE_H}" fill="#fff"/>
     <rect x="22" y="26" width="${PAGE_W - 44}" height="${PAGE_H - 52}" fill="#fff" stroke="#161616" stroke-width="1.4"/>
     <text x="${PAGE_W / 2}" y="46" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700">Croqui</text>
-    <text x="42" y="84" font-family="Arial, sans-serif" font-size="32" font-weight="700" font-style="italic">RGE</text>
+    <image href="/api/assets/rge-logo.svg" x="40" y="50" width="250" height="18" preserveAspectRatio="xMinYMid meet"/>
     ${headerSvg(graph)}
     <rect x="${DRAWING.x}" y="${DRAWING.y}" width="${DRAWING.w}" height="${DRAWING.h}" fill="#fff" stroke="#111" stroke-width="0.7"/>
     <g data-layer="edges">${edges}</g>
@@ -270,8 +337,15 @@ function edgeSvg(edge: CroquiEdge, nodes: CroquiNode[]): string {
   const ty = Number(target.y ?? 0)
   const midX = (sx + tx) / 2
   const points = `${sx},${sy} ${midX},${sy} ${midX},${ty} ${tx},${ty}`
-  const dash = edge.style === 'dashed' ? 'stroke-dasharray="8 7"' : ''
-  return `<polyline points="${points}" fill="none" stroke="#32363a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${dash}/>`
+  if (edge.networkType === 'AT_BT') {
+    return `<g data-edge-id="${escapeXml(edge.id)}" style="cursor:pointer">
+      <polyline points="${points}" transform="translate(0 -3)" fill="none" stroke="#111" stroke-width="1.5" stroke-dasharray="8 7"/>
+      <polyline points="${points}" transform="translate(0 3)" fill="none" stroke="#111" stroke-width="1.5"/>
+    </g>`
+  }
+  const dash = edge.networkType === 'AT' || edge.style === 'dashed' ? 'stroke-dasharray="8 7"' : ''
+  const color = edge.style === 'dashed' && edge.networkType === 'UNKNOWN' ? '#c56a24' : '#111'
+  return `<polyline data-edge-id="${escapeXml(edge.id)}" points="${points}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer" ${dash}/>`
 }
 
 function nodeSvg(node: CroquiNode, selectedId: string): string {
@@ -280,18 +354,32 @@ function nodeSvg(node: CroquiNode, selectedId: string): string {
   const selected = node.id === selectedId
   const focus = node.isMain ? `<circle cx="${x}" cy="${y}" r="28" fill="none" stroke="#d71920" stroke-width="2" stroke-dasharray="6 5"/>` : ''
   const ring = selected ? `<circle cx="${x}" cy="${y}" r="34" fill="none" stroke="#0b64c0" stroke-width="2"/>` : ''
-  let symbol = `<circle cx="${x}" cy="${y}" r="9" fill="#fff" stroke="#111" stroke-width="2"/>`
-  if (node.kind === 'transformer') {
-    symbol = `<rect x="${x - 20}" y="${y - 14}" width="40" height="28" rx="3" fill="#fff" stroke="#111" stroke-width="2"/>
-      <circle cx="${x - 7}" cy="${y}" r="7" fill="none" stroke="#111"/>
-      <circle cx="${x + 7}" cy="${y}" r="7" fill="none" stroke="#111"/>`
-  } else if (node.kind === 'switch' || node.kind === 'equipment') {
-    symbol = `<line x1="${x - 22}" y1="${y}" x2="${x + 22}" y2="${y}" stroke="#111" stroke-width="2.4"/>
-      <line x1="${x - 4}" y1="${y}" x2="${x + 13}" y2="${y - 13}" stroke="#111" stroke-width="2"/>
-      <circle cx="${x - 22}" cy="${y}" r="3" fill="#111"/>
-      <circle cx="${x + 22}" cy="${y}" r="3" fill="#111"/>`
-  }
+  const asset = officialSymbol(node)
+  const size = officialSymbolSize(node)
+  const symbol = `<image href="${asset}" x="${x - size.width / 2}" y="${y - size.height / 2}" width="${size.width}" height="${size.height}" preserveAspectRatio="xMidYMid meet"/>`
   return `<g data-node-id="${escapeXml(node.id)}" style="cursor:grab">${focus}${ring}${symbol}</g>`
+}
+
+function officialSymbol(node: CroquiNode): string {
+  const base = '/static/img/symbols/official/'
+  const type = (node.equipmentType || '').toUpperCase()
+  if (node.kind === 'pole') return `${base}poste_existente.png`
+  if (type === 'TR' || node.kind === 'transformer') return `${base}transformador_rge.png`
+  if (type === 'RL') return `${base}religador.png`
+  if (type === 'RG') return `${base}regulador_tensao.png`
+  if (type === 'OL') return `${base}chave_oleo_unipolar.png`
+  if (type === 'SC') return `${base}seccionalizadora.png`
+  if (type === 'FC') return `${base}chave_faca_sem_abertura.png`
+  return `${base}chave_fusivel_com_abertura.png`
+}
+
+function officialSymbolSize(node: CroquiNode): { width: number; height: number } {
+  const type = (node.equipmentType || '').toUpperCase()
+  if (node.kind === 'pole') return { width: 20, height: 19 }
+  if (type === 'TR' || node.kind === 'transformer') return { width: 25, height: 41 }
+  if (type === 'RL' || type === 'SC' || type === 'OL') return { width: 42, height: 34 }
+  if (type === 'RG') return { width: 52, height: 31 }
+  return { width: 70, height: 28 }
 }
 
 function labelSvg(label: { id: string; text: string; attachedTo: string }, nodes: CroquiNode[]): string {

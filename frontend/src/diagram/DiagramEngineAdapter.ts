@@ -9,7 +9,10 @@ export interface DiagramEngineAdapter {
   applyAutoLayout(options?: LayoutOptions): Promise<void>
   getGraph(): CroquiGraph
   exportSvg(): Promise<string>
+  undo(): void
+  redo(): void
   selectElement(id: string): void
+  updateHeader(header: CroquiGraph['header']): void
   updateElement(id: string, patch: Partial<unknown>): void
   deleteElement(id: string): void
   addNode(node: CroquiNode): void

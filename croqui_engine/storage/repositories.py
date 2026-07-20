@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import func
 
 from croqui_engine.core.cities import normalize_city_group
-from croqui_engine.storage.database import Job, SessionLocal, User
+from croqui_engine.storage.database import GraphRevision, Job, SessionLocal, User
 
 
 class UserRepository:
@@ -100,7 +100,9 @@ class JobRepository:
             done = sum(1 for job in jobs if job.status == "DONE")
             review = sum(1 for job in jobs if job.status == "NEEDS_REVIEW")
             failed = sum(1 for job in jobs if job.status == "FAILED")
-            alerts = sum(1 for job in jobs if (job.confidence or 0) < 0.85 and job.status != "FAILED")
+            alerts = sum(
+                1 for job in jobs if (job.confidence or 0) < 0.85 and job.status != "FAILED"
+            )
             pdf_ready = sum(1 for job in jobs if bool(job.croqui_pdf_path))
             excel_ready = sum(1 for job in jobs if bool(job.excel_path))
             avg_confidence = sum(job.confidence or 0 for job in jobs) / total if total else 0.0
@@ -123,5 +125,54 @@ class JobRepository:
         try:
             rows = db.query(Job.city_group, func.count(Job.id)).group_by(Job.city_group).all()
             return {normalize_city_group(city): count for city, count in rows}
+        finally:
+            db.close()
+
+
+class GraphRevisionRepository:
+    def create(self, job_id: str, graph_json: str, created_by: str, reason: str) -> GraphRevision:
+        db = SessionLocal()
+        try:
+            latest = (
+                db.query(func.max(GraphRevision.revision))
+                .filter(GraphRevision.job_id == job_id)
+                .scalar()
+                or 0
+            )
+            item = GraphRevision(
+                job_id=job_id,
+                revision=int(latest) + 1,
+                graph_json=graph_json,
+                created_by=created_by,
+                reason=reason,
+            )
+            db.add(item)
+            db.commit()
+            db.refresh(item)
+            return item
+        finally:
+            db.close()
+
+    def list(self, job_id: str) -> list[GraphRevision]:
+        db = SessionLocal()
+        try:
+            return (
+                db.query(GraphRevision)
+                .filter(GraphRevision.job_id == job_id)
+                .order_by(GraphRevision.revision.desc())
+                .all()
+            )
+        finally:
+            db.close()
+
+    def latest(self, job_id: str) -> GraphRevision | None:
+        db = SessionLocal()
+        try:
+            return (
+                db.query(GraphRevision)
+                .filter(GraphRevision.job_id == job_id)
+                .order_by(GraphRevision.revision.desc())
+                .first()
+            )
         finally:
             db.close()

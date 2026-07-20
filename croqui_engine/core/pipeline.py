@@ -3,14 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from croqui_engine.core.config import settings
+from croqui_engine.core.decision_engine import decide_main_equipment
 from croqui_engine.core.electrical_graph_builder import (
     ElectricalGraph,
     build_electrical_graph,
 )
-from croqui_engine.core.equipment_candidate_resolver import (
-    EquipmentCandidate,
-    resolve_main_equipment,
-)
+from croqui_engine.core.equipment_candidate_resolver import EquipmentCandidate
 from croqui_engine.core.focus_resolver import FocusResolution, resolve_focus
 from croqui_engine.core.focus_subgraph_selector import FocusSubgraph, select_focus_subgraph
 from croqui_engine.core.logging import configure_job_logger
@@ -244,7 +242,9 @@ def ensure_output_contract(
         )
         return attach_output_contract(payload, contract)
 
-    selected = resolve_main_equipment(payload, source_pdf_path=pdf_path)
+    decision = decide_main_equipment(payload, source_pdf_path=pdf_path)
+    selected = decision.candidate
+    payload.meta["equipment_decision"] = decision.as_dict()
     if selected:
         payload.meta["main_switching_equipment"] = selected.label
         payload.meta["selected_equipment_candidate"] = selected.as_dict()

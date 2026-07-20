@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -19,16 +20,30 @@ from croqui_engine.core.cities import normalize_city_group
 from croqui_engine.core.enums import JobStatus
 from croqui_engine.core.models import TechnicalPayload
 from croqui_engine.core.pipeline import ensure_output_contract, generate_outputs
+from croqui_engine.excel.official_template_assets import official_rge_logo_svg
 from croqui_engine.generators.json_exporter import export_payload_json, load_payload_json
 from croqui_engine.generators.svg_graph_exporter import export_from_croqui_graph_svg
 from croqui_engine.graph.croqui_graph import CroquiGraph, croqui_graph_from_payload
 from croqui_engine.storage.file_store import job_output_dir, write_json
-from croqui_engine.storage.repositories import JobRepository, UserRepository
+from croqui_engine.storage.repositories import (
+    GraphRevisionRepository,
+    JobRepository,
+    UserRepository,
+)
 from croqui_engine.topology.graph_builder import build_graph
 from croqui_engine.topology.graph_validator import validate_graph
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 jobs = JobRepository()
+revisions = GraphRevisionRepository()
+
+
+@bp.route("/assets/rge-logo.svg")
+def rge_logo_asset():
+    try:
+        return send_file(official_rge_logo_svg(), mimetype="image/svg+xml", max_age=86400)
+    except (FileNotFoundError, RuntimeError):
+        abort(404)
 
 
 @bp.route("/auth/login", methods=["POST"])
@@ -69,6 +84,17 @@ def upload_project():
         city_group=getattr(current_user, "city_group", ""),
         notes=request.form.get("notes", ""),
     )
+    graph = _build_and_store_graph(
+        result.job.id,
+        result.payload,
+        Path(result.job.original_pdf_path),
+    )
+    revision = revisions.create(
+        result.job.id,
+        json.dumps(graph.as_dict(), ensure_ascii=False),
+        current_user.email,
+        "automatic_generation",
+    )
     return jsonify(
         {
             "ok": True,
@@ -77,6 +103,9 @@ def upload_project():
             "message": result.job.message,
             "summary": result.summary,
             "artifacts": _artifact_links(result.job),
+            "graph": graph.as_dict(),
+            "revision": revision.revision,
+            "decision": result.payload.meta.get("equipment_decision") or {},
         }
     )
 
@@ -91,7 +120,9 @@ def extract_project_graph(job_id: str):
         abort(403)
     payload = _load_job_payload(job)
     graph = _build_and_store_graph(job_id, payload, Path(job.original_pdf_path))
-    jobs.update(job_id, status=JobStatus.NEEDS_REVIEW.value, message="CroquiGraph atualizado para editor.")
+    jobs.update(
+        job_id, status=JobStatus.NEEDS_REVIEW.value, message="CroquiGraph atualizado para editor."
+    )
     return jsonify({"ok": True, "job_id": job_id, "graph": graph.as_dict()})
 
 
@@ -111,6 +142,35 @@ def get_project_graph(job_id: str):
     return jsonify(graph.as_dict())
 
 
+@bp.route("/projects/<job_id>/editor-state")
+@login_required
+def project_editor_state(job_id: str):
+    job = jobs.get(job_id)
+    if not job:
+        abort(404)
+    if not user_can_edit_job(job):
+        abort(403)
+    latest = revisions.latest(job_id)
+    if latest:
+        graph = json.loads(latest.graph_json)
+        revision = latest.revision
+    else:
+        graph_path = _graph_path(job_id)
+        if graph_path.exists():
+            graph = json.loads(graph_path.read_text(encoding="utf-8"))
+        else:
+            payload = _load_job_payload(job)
+            graph = _build_and_store_graph(job_id, payload, Path(job.original_pdf_path)).as_dict()
+        initial = revisions.create(
+            job_id,
+            json.dumps(graph, ensure_ascii=False),
+            current_user.email,
+            "automatic_generation",
+        )
+        revision = initial.revision
+    return jsonify({"ok": True, "job_id": job_id, "graph": graph, "revision": revision})
+
+
 @bp.route("/projects/<job_id>/export", methods=["POST"])
 @login_required
 def export_project_graph(job_id: str):
@@ -124,10 +184,18 @@ def export_project_graph(job_id: str):
     graph.id = job_id
     svg = str(data.get("svg") or "")
     outputs = export_from_croqui_graph_svg(graph, svg, job_output_dir(job_id))
+    revision = revisions.create(
+        job_id,
+        json.dumps(graph.as_dict(), ensure_ascii=False),
+        current_user.email,
+        "engineer_regeneration",
+    )
     report = load_validation_report(job_id)
     output_status = str((report or {}).get("validation", {}).get("output_status") or "").lower()
     validation_status = str((report or {}).get("validation", {}).get("status") or "").upper()
-    status = JobStatus.DONE.value if output_status == "final_candidate" else JobStatus.NEEDS_REVIEW.value
+    status = (
+        JobStatus.DONE.value if output_status == "final_candidate" else JobStatus.NEEDS_REVIEW.value
+    )
     if validation_status == "BLOCKED" or output_status == "blocked":
         status = JobStatus.NEEDS_REVIEW.value
     message = (
@@ -139,6 +207,11 @@ def export_project_graph(job_id: str):
         job_id,
         status=status,
         message=message,
+        municipality=graph.header.municipio,
+        city_group=normalize_city_group(
+            graph.header.municipio,
+            fallback=normalize_city_group(job.city_group, fallback="caxias_do_sul"),
+        ),
         croqui_pdf_path=str(outputs["pdf"]),
         croqui_png_path=str(outputs["png"]),
         excel_path=str(outputs["xlsx"]),
@@ -149,6 +222,31 @@ def export_project_graph(job_id: str):
             "outputs": {key: str(value) for key, value in outputs.items()},
             "validation_report": report,
             "artifacts": _artifact_links(jobs.get(job_id)),
+            "revision": revision.revision,
+        }
+    )
+
+
+@bp.route("/projects/<job_id>/revisions")
+@login_required
+def graph_revisions(job_id: str):
+    job = jobs.get(job_id)
+    if not job:
+        abort(404)
+    if not user_can_edit_job(job):
+        abort(403)
+    return jsonify(
+        {
+            "ok": True,
+            "revisions": [
+                {
+                    "revision": item.revision,
+                    "created_by": item.created_by,
+                    "reason": item.reason,
+                    "created_at": item.created_at.isoformat(timespec="seconds"),
+                }
+                for item in revisions.list(job_id)
+            ],
         }
     )
 
@@ -272,7 +370,9 @@ def generate(job_id: str):
     summary = output_summary(payload, report)
     output_status = str(summary.get("output_status") or "").lower()
     validation_status = str(summary.get("validation_status") or "").upper()
-    status = JobStatus.DONE.value if output_status == "final_candidate" else JobStatus.NEEDS_REVIEW.value
+    status = (
+        JobStatus.DONE.value if output_status == "final_candidate" else JobStatus.NEEDS_REVIEW.value
+    )
     if validation_status == "BLOCKED" or output_status == "blocked":
         status = JobStatus.NEEDS_REVIEW.value
     message = (
@@ -314,7 +414,9 @@ def _load_job_payload(job) -> TechnicalPayload:
     return TechnicalPayload(job_id=job.id)
 
 
-def _build_and_store_graph(job_id: str, payload: TechnicalPayload, pdf_path: Path | None) -> CroquiGraph:
+def _build_and_store_graph(
+    job_id: str, payload: TechnicalPayload, pdf_path: Path | None
+) -> CroquiGraph:
     payload.job_id = job_id
     payload = ensure_output_contract(payload, pdf_path, force_rebuild=True)
     export_payload_json(payload, job_output_dir(job_id) / "technical_payload.json")

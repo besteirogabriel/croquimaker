@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from flask import Flask, redirect, url_for
-from flask_login import LoginManager
+from flask import Flask, redirect, send_from_directory, url_for
+from flask_login import LoginManager, login_required
 
 from croqui_engine.core.config import ensure_data_dirs, settings
 from croqui_engine.storage.database import init_db
@@ -31,6 +31,13 @@ def create_app() -> Flask:
     @app.route("/")
     def index():
         return redirect(url_for("jobs.dashboard"))
+
+    @app.route("/editor")
+    @app.route("/editor/<job_id>")
+    @login_required
+    def croqui_editor(job_id: str | None = None):
+        del job_id
+        return send_from_directory(app.static_folder + "/editor", "index.html")
 
     return app
 

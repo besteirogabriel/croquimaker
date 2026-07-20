@@ -72,6 +72,26 @@ label {
   overflow: auto;
 }
 
+.editor-brand {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #c8d0d9;
+  background: #fff;
+  padding: 10px;
+  color: #531697;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.editor-brand img {
+  display: block;
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+}
+
 .workspace {
   min-width: 0;
   display: grid;

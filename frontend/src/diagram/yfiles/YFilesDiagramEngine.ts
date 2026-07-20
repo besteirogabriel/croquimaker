@@ -27,8 +27,20 @@ export class YFilesDiagramEngine implements DiagramEngineAdapter {
     return this.fallback.exportSvg()
   }
 
+  undo(): void {
+    this.fallback.undo()
+  }
+
+  redo(): void {
+    this.fallback.redo()
+  }
+
   selectElement(id: string): void {
     this.fallback.selectElement(id)
+  }
+
+  updateHeader(header: CroquiGraph['header']): void {
+    this.fallback.updateHeader(header)
   }
 
   updateElement(id: string, patch: Partial<unknown>): void {

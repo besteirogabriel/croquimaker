@@ -20,6 +20,8 @@ export function PropertiesPanel({
   onDeleteSelected
 }: Props) {
   const selectedNode = graph.nodes.find((node) => node.id === selectedId)
+  const selectedEdge = graph.edges.find((edge) => edge.id === selectedId)
+  const selectedLabel = graph.labels.find((label) => label.id === selectedId)
   const selectedZone = graph.workZones.find((zone) => zone.id === selectedId)
 
   return (
@@ -49,6 +51,31 @@ export function PropertiesPanel({
         <div className="property-grid">
           <label>Largura<input type="number" value={selectedZone.width ?? 130} onChange={(event) => onSelectedPatch({ width: Number(event.target.value) })} /></label>
           <label>Altura<input type="number" value={selectedZone.height ?? 76} onChange={(event) => onSelectedPatch({ height: Number(event.target.value) })} /></label>
+        </div>
+      )}
+      {selectedEdge && (
+        <div className="property-grid">
+          <label>
+            Rede
+            <select value={selectedEdge.networkType} onChange={(event) => onSelectedPatch({ networkType: event.target.value })}>
+              <option value="AT">Primária (AT)</option>
+              <option value="BT">Secundária (BT)</option>
+              <option value="AT_BT">Primária + secundária</option>
+              <option value="UNKNOWN">A confirmar</option>
+            </select>
+          </label>
+          <label>
+            Traço
+            <select value={selectedEdge.style} onChange={(event) => onSelectedPatch({ style: event.target.value })}>
+              <option value="solid">Contínuo</option>
+              <option value="dashed">Projetado/tracejado</option>
+            </select>
+          </label>
+        </div>
+      )}
+      {selectedLabel && (
+        <div className="property-grid">
+          <label>Texto<input value={selectedLabel.text} onChange={(event) => onSelectedPatch({ text: event.target.value })} /></label>
         </div>
       )}
       {selectedId && <button className="danger" onClick={onDeleteSelected}>Remover selecionado</button>}

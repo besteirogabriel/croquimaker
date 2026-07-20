@@ -22,7 +22,7 @@ export async function login(email: string, password: string): Promise<SessionRes
   return { authenticated: true, user: data.user }
 }
 
-export async function uploadProject(pdf: File): Promise<{ job_id: string; graph: CroquiGraph }> {
+export async function uploadProject(pdf: File): Promise<{ job_id: string; graph: CroquiGraph; revision: number; decision: Record<string, unknown> }> {
   const form = new FormData()
   form.append('pdf', pdf)
   const response = await fetch('/api/projects/upload', {
@@ -32,7 +32,15 @@ export async function uploadProject(pdf: File): Promise<{ job_id: string; graph:
   })
   const data = await response.json()
   if (!response.ok || !data.ok) throw new Error(data.error || 'Falha no upload.')
-  return { job_id: data.job_id, graph: data.graph as CroquiGraph }
+  if (!data.graph) throw new Error('O backend processou o projeto, mas não devolveu o croqui editável.')
+  return { job_id: data.job_id, graph: data.graph as CroquiGraph, revision: data.revision ?? 1, decision: data.decision ?? {} }
+}
+
+export async function getProjectEditorState(jobId: string): Promise<{ job_id: string; graph: CroquiGraph; revision: number }> {
+  const response = await fetch(`/api/projects/${jobId}/editor-state`, { credentials: 'include' })
+  const data = await response.json()
+  if (!response.ok || !data.ok) throw new Error(data.error || 'Falha ao abrir o projeto no editor.')
+  return { job_id: data.job_id, graph: data.graph as CroquiGraph, revision: Number(data.revision ?? 0) }
 }
 
 export async function exportProject(jobId: string, graph: CroquiGraph, svg: string): Promise<ExportResponse> {

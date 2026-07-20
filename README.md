@@ -1,41 +1,63 @@
-# CroquiMaker V1 — Output-First Codex Pack
+# CroquiMaker JOBEL
 
-Este pacote substitui a orientação anterior centrada em `CroquiScene` como objetivo do produto.
+Sistema local para transformar projetos elétricos em croquis JOBEL/RGE, revisar o resultado no navegador e regenerar PDF e Excel a partir da mesma revisão técnica.
 
-A diretriz correta da V1 é **output-first**:
+## Fluxo operacional
 
-- o objetivo principal é gerar **PDF e XLSX finais 100% corretos no padrão Jobel/RGE**;
-- qualquer modelo intermediário só é válido se produzir output final fiel;
-- o editor online existe para corrigir o output, manter paridade visual e permitir exportação final correta;
-- os 155 pares reais `projeto + croqui ideal PDF + croqui ideal XLSX` são base de homologação, regressão e calibração;
-- não aceitar geração que “parece plausível” mas não entrega o croqui final correto.
+1. O engenheiro envia o PDF do projeto.
+2. O backend extrai os equipamentos e decide automaticamente o equipamento principal e o foco da isolação.
+3. O croqui gerado abre diretamente no editor; não existe etapa obrigatória de escolha manual antes da geração.
+4. O engenheiro pode mover, incluir ou remover elementos, trocar o equipamento principal, editar cabeçalho, rótulos, redes e área de trabalho.
+5. Ao regenerar, o backend usa exatamente o grafo editado, sem executar a inferência novamente.
+6. Cada geração é registrada como uma revisão e produz PDF, XLS e XLSX coerentes.
 
-## Ordem recomendada de execução no Codex
+O Excel usa um croqui oficial como template e clona objetos da aba `Simbologia`. Poste, equipamento, linha, área de trabalho e rótulo permanecem objetos separados; a planilha não é uma captura de tela do editor. O logo RGE também vem do template oficial.
 
-1. `prompts/00_DIRETRIZ_MESTRE_OUTPUT_FIRST.md`
-2. `prompts/01_MAPEAMENTO_ENGINE_ATUAL_E_CONTRATO_DE_OUTPUT.md`
-3. `prompts/02_EQUIPAMENTO_PRINCIPAL_E_FOCO_TECNICO.md`
-4. `prompts/03_RENDERIZACAO_FIEL_PDF_XLSX.md`
-5. `prompts/04_EDITOR_ONLINE_COM_PARIDADE_DE_OUTPUT.md`
-6. `prompts/05_CORPUS_155_HOMOLOGACAO_REGRESSAO.md`
-7. `prompts/06_VALIDACAO_BLOQUEANTE_E_SCORE_DE_ACEITE.md`
-8. `prompts/07_MIGRACAO_INCREMENTAL_SEM_REESCRITA_TOTAL.md`
-9. `prompts/08_CRITERIOS_DE_PRONTO_V1.md`
+## Execução com Docker
 
-## AGENTS.md
+```bash
+cp .env.example .env
+docker compose up --build
+```
 
-Os arquivos em `AGENTS/` devem ser copiados para o repositório conforme a estrutura indicada:
+Abra `http://localhost:5000`.
 
-- `AGENTS/root_AGENTS.md` → `AGENTS.md`
-- `AGENTS/croqui_engine_AGENTS.md` → `croqui_engine/AGENTS.md`
-- `AGENTS/frontend_AGENTS.md` → `frontend/AGENTS.md` quando o editor React existir
-- `AGENTS/exporters_AGENTS.md` → `croqui_engine/generators/AGENTS.md`
-- `AGENTS/tests_AGENTS.md` → `tests/AGENTS.md`
+Os projetos e usuários existentes continuam na base SQLite montada em `./data`. O dashboard separa os projetos por Caxias do Sul e Vacaria e atualiza a cidade usando o município extraído ou corrigido no editor.
 
-## Tese técnica da V1
+## Configuração importante
 
-A V1 não deve ser vendida como “o sistema que interpreta tudo sozinho”. A V1 deve ser o sistema que entrega um fluxo industrial:
+- `SECRET_KEY`: segredo de sessão do backend.
+- `CROQUI_ADMIN_EMAIL` e `CROQUI_ADMIN_PASSWORD`: acesso administrativo inicial.
+- `CROQUI_EXCEL_TEMPLATE_PATH`: caminho opcional para um XLS oficial com as abas `Croqui` e `Simbologia`.
+- `CROQUI_GOLDEN_CORPUS_PATH`: corpus homologado usado para decisões exatas e seleção automática de template.
+- `CROQUI_USE_CORPUS_REFERENCE_OUTPUTS=false`: mantém a geração ativa; os pares oficiais são usados como referência, não copiados como resposta.
 
-`projeto bruto → rascunho técnico calibrado → correção visual assistida → PDF/XLSX final homologável`.
+O engine de decisão desta versão funciona offline. Nenhuma chave de API é enviada ou gravada no frontend. Se um provedor de IA for conectado depois, a chave deve existir somente no `.env` do backend e nunca em variáveis `VITE_*`.
 
-A geração automática pode começar com uma meta operacional de 70% de confiabilidade, mas a entrega final só passa quando o PDF/XLSX exportado atende aos critérios de output. O editor não é acessório; ele é parte do mecanismo de garantia de qualidade do output.
+## Desenvolvimento
+
+Backend:
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+flask --app croqui_engine.app.web run --host=0.0.0.0 --port=5000
+```
+
+Editor:
+
+```bash
+cd frontend
+npm ci
+npm run test
+npm run build
+```
+
+Testes do engine:
+
+```bash
+pytest -q
+```
+
+O container inclui LibreOffice Calc/Draw porque a conversão dos objetos oficiais entre XLS, XLSX e PDF faz parte do pipeline de saída.

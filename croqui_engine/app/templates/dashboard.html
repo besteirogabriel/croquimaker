@@ -72,7 +72,10 @@
             <td>{{ "%.2f"|format(job.confidence or 0) }}</td>
             <td>{{ job.created_by or "-" }}</td>
             <td>{{ job.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
-            <td><a class="btn small" href="{{ url_for('jobs.job_detail', job_id=job.id) }}">Abrir</a></td>
+            <td>
+              <a class="btn small" href="{{ url_for('jobs.job_detail', job_id=job.id) }}">Detalhes</a>
+              <a class="btn small" href="{{ url_for('croqui_editor', job_id=job.id) }}">Editar croqui</a>
+            </td>
           </tr>
         {% else %}
           <tr><td colspan="9" class="empty">Nenhum projeto nesta fila.</td></tr>

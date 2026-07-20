@@ -3,11 +3,20 @@ from __future__ import annotations
 from datetime import datetime
 
 from flask_login import UserMixin
-from sqlalchemy import Boolean, DateTime, Float, String, Text, create_engine
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    create_engine,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash
 
-from croqui_engine.core.cities import normalize_city_group
 from croqui_engine.core.config import ensure_data_dirs, settings
 
 
@@ -70,11 +79,24 @@ class Job(Base):
     )
 
 
+class GraphRevision(Base):
+    __tablename__ = "graph_revisions"
+    __table_args__ = (UniqueConstraint("job_id", "revision", name="uq_graph_revision_job_version"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[str] = mapped_column(ForeignKey("jobs.id"), index=True)
+    revision: Mapped[int] = mapped_column(Integer)
+    graph_json: Mapped[str] = mapped_column(Text)
+    created_by: Mapped[str] = mapped_column(String(255), default="")
+    reason: Mapped[str] = mapped_column(String(80), default="manual_edit")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 def init_db() -> None:
     ensure_data_dirs()
     Base.metadata.create_all(engine)
     ensure_demo_columns()
-    upsert_demo_users()
+    upsert_configured_admin()
 
 
 def ensure_demo_columns() -> None:
@@ -91,68 +113,29 @@ def _ensure_column(conn, table: str, column: str, definition: str) -> None:
         conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
-def upsert_demo_users() -> None:
+def upsert_configured_admin() -> None:
+    if not settings.admin_email or not settings.admin_password:
+        return
     db = SessionLocal()
     try:
-        for item in _demo_users():
-            existing = db.query(User).filter(User.email == item["email"]).first()
-            if existing:
-                existing.name = item["name"]
-                existing.password_hash = generate_password_hash(item["password"])
-                existing.role = item["role"]
-                existing.city_group = normalize_city_group(item["city_group"], fallback="admin")
-                existing.active = True
-            else:
-                db.add(
-                    User(
-                        name=item["name"],
-                        email=item["email"],
-                        password_hash=generate_password_hash(item["password"]),
-                        role=item["role"],
-                        city_group=normalize_city_group(item["city_group"], fallback="admin"),
-                        active=True,
-                    )
+        existing = db.query(User).filter(User.email == settings.admin_email).first()
+        if existing:
+            existing.name = "Administrador JOBEL"
+            existing.password_hash = generate_password_hash(settings.admin_password)
+            existing.role = "admin"
+            existing.city_group = "admin"
+            existing.active = True
+        else:
+            db.add(
+                User(
+                    name="Administrador JOBEL",
+                    email=settings.admin_email,
+                    password_hash=generate_password_hash(settings.admin_password),
+                    role="admin",
+                    city_group="admin",
+                    active=True,
                 )
+            )
         db.commit()
     finally:
         db.close()
-
-
-def _demo_users() -> list[dict[str, str]]:
-    return [
-        {
-            "name": "Administrador JOBEL",
-            "email": settings.admin_email,
-            "password": settings.admin_password,
-            "role": "admin",
-            "city_group": "admin",
-        },
-        {
-            "name": "Caxias Operador 1",
-            "email": "caxias1@jobel.local",
-            "password": "Caxias@2026",
-            "role": "engineer",
-            "city_group": "caxias_do_sul",
-        },
-        {
-            "name": "Caxias Operador 2",
-            "email": "caxias2@jobel.local",
-            "password": "Caxias@2026",
-            "role": "engineer",
-            "city_group": "caxias_do_sul",
-        },
-        {
-            "name": "Vacaria Operador 1",
-            "email": "vacaria1@jobel.local",
-            "password": "Vacaria@2026",
-            "role": "engineer",
-            "city_group": "vacaria",
-        },
-        {
-            "name": "Vacaria Operador 2",
-            "email": "vacaria2@jobel.local",
-            "password": "Vacaria@2026",
-            "role": "engineer",
-            "city_group": "vacaria",
-        },
-    ]

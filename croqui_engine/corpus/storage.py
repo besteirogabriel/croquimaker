@@ -6,7 +6,7 @@ from croqui_engine.core.config import settings
 
 
 def corpus_data_dir() -> Path:
-    path = settings.root_dir / "data" / "corpus"
+    path = settings.data_dir / "corpus"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -26,12 +26,12 @@ def ground_truth_dir(case_id: str) -> Path:
 
 
 def catalogs_dir() -> Path:
-    path = settings.root_dir / "data" / "catalogs"
+    path = settings.data_dir / "catalogs"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
 def benchmark_latest_dir() -> Path:
-    path = settings.root_dir / "data" / "benchmark" / "latest"
+    path = settings.data_dir / "benchmark" / "latest"
     path.mkdir(parents=True, exist_ok=True)
     return path

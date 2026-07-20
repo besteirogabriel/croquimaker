@@ -8,7 +8,7 @@
       <p><span class="badge">{{ job.status }}</span> {{ job.message }}</p>
     </div>
     <div class="actions">
-      <a class="btn" href="{{ url_for('jobs.review', job_id=job.id) }}">{{ "Editar croqui" if can_edit else "Visualizar croqui" }}</a>
+      <a class="btn" href="{{ url_for('croqui_editor', job_id=job.id) }}">{{ "Editar croqui" if can_edit else "Visualizar croqui" }}</a>
       {% if can_generate %}
         <button class="btn primary" data-generate="{{ job.id }}">Regenerar saídas</button>
       {% endif %}

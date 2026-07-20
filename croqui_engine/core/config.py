@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,16 +22,17 @@ def _path_from_env(name: str, default: str) -> Path:
 @dataclass(frozen=True)
 class Settings:
     root_dir: Path = ROOT_DIR
-    secret_key: str = os.environ.get("SECRET_KEY", "change-me")
+    data_dir: Path = _path_from_env("CROQUI_DATA_DIR", "data")
+    secret_key: str = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(32)
     database_url: str = os.environ.get("DATABASE_URL", "sqlite:///data/croqui_engine.db")
     upload_dir: Path = _path_from_env("UPLOAD_DIR", "data/uploads")
     output_dir: Path = _path_from_env("OUTPUT_DIR", "data/outputs")
-    tmp_dir: Path = ROOT_DIR / "data" / "tmp"
+    tmp_dir: Path = _path_from_env("CROQUI_TMP_DIR", "data/tmp")
     jobel_logo_path: Path = _path_from_env(
         "JOBEL_LOGO_PATH", "croqui_engine/app/static/img/jobel_logo.png"
     )
-    admin_email: str = os.environ.get("CROQUI_ADMIN_EMAIL", "admin@jobel.local")
-    admin_password: str = os.environ.get("CROQUI_ADMIN_PASSWORD", "Jobel@2026!")
+    admin_email: str = os.environ.get("CROQUI_ADMIN_EMAIL", "").lower().strip()
+    admin_password: str = os.environ.get("CROQUI_ADMIN_PASSWORD", "")
     max_upload_mb: int = int(os.environ.get("MAX_UPLOAD_MB", "80"))
     excel_template_path: str = os.environ.get("CROQUI_EXCEL_TEMPLATE_PATH", "")
     golden_corpus_path: str = os.environ.get("CROQUI_GOLDEN_CORPUS_PATH", "CROQUI IA")

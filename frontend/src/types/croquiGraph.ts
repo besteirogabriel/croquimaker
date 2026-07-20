@@ -86,4 +86,5 @@ export interface ExportResponse {
   outputs: Record<string, string>
   validation_report: unknown
   artifacts: Array<{ kind: string; label: string; download_url: string }>
+  revision?: number
 }

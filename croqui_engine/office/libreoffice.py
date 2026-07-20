@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from croqui_engine.core.config import settings
@@ -21,33 +22,54 @@ def libreoffice_available() -> bool:
 
 
 def convert_to_pdf(input_path: Path, output_dir: Path, timeout: int = 120) -> Path:
+    return _convert(input_path, output_dir, "pdf", timeout)
+
+
+def convert_to_xlsx(input_path: Path, output_dir: Path, timeout: int = 120) -> Path:
+    return _convert(input_path, output_dir, "xlsx", timeout)
+
+
+def convert_to_xls(input_path: Path, output_dir: Path, timeout: int = 120) -> Path:
+    return _convert(input_path, output_dir, "xls", timeout)
+
+
+def convert_to_svg(input_path: Path, output_dir: Path, timeout: int = 120) -> Path:
+    return _convert(input_path, output_dir, "svg", timeout)
+
+
+def _convert(input_path: Path, output_dir: Path, extension: str, timeout: int) -> Path:
     soffice = soffice_path()
     if not soffice:
         raise RuntimeError("LibreOffice/soffice nao encontrado.")
     input_path = input_path.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run(
-        [
-            str(soffice),
-            "--headless",
-            "--convert-to",
-            "pdf",
-            "--outdir",
-            str(output_dir),
-            str(input_path),
-        ],
-        check=False,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-    expected = output_dir / f"{input_path.stem}.pdf"
-    if result.returncode != 0 or not expected.exists():
-        raise RuntimeError(
-            "Falha ao converter com LibreOffice: "
-            f"{result.stdout.strip()} {result.stderr.strip()}".strip()
+    profile = Path(tempfile.mkdtemp(prefix="lo-profile-", dir=output_dir))
+    try:
+        result = subprocess.run(
+            [
+                str(soffice),
+                f"-env:UserInstallation={profile.resolve().as_uri()}",
+                "--headless",
+                "--convert-to",
+                extension,
+                "--outdir",
+                str(output_dir),
+                str(input_path),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
         )
-    return expected
+        expected = output_dir / f"{input_path.stem}.{extension}"
+        if result.returncode != 0 or not expected.exists():
+            raise RuntimeError(
+                "Falha ao converter com LibreOffice: "
+                f"{result.stdout.strip()} {result.stderr.strip()}".strip()
+            )
+        return expected
+    finally:
+        shutil.rmtree(profile, ignore_errors=True)
 
 
 def render_pdf_pages(

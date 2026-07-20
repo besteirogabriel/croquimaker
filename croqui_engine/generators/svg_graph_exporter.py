@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import base64
 import json
+import re
+import shutil
 from pathlib import Path
 from typing import Any
 
+from croqui_engine.excel.native_graph_exporter import (
+    NativeExcelTemplateUnavailable,
+    export_native_graph_xlsx,
+)
+from croqui_engine.excel.official_template_assets import official_rge_logo_svg
 from croqui_engine.graph.croqui_graph import CroquiGraph, validate_croqui_graph_for_export
+from croqui_engine.office.libreoffice import convert_to_xls
+from croqui_engine.symbols.official_symbol_assets import default_symbol_assets_dir
 
 
 def export_from_croqui_graph_svg(
@@ -22,12 +32,27 @@ def export_from_croqui_graph_svg(
     xlsx_path = output_dir / "croqui_final.xlsx"
     report_path = output_dir / "output_validation_report.json"
 
-    graph_path.write_text(json.dumps(graph.as_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
+    svg = _embed_official_assets(svg)
+    graph_path.write_text(
+        json.dumps(graph.as_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     svg_path.write_text(svg, encoding="utf-8")
     _svg_to_pdf(svg, pdf_path)
     _pdf_to_png(pdf_path, png_path)
-    _write_xls_with_svg_image(graph, svg, xls_path)
-    _write_xlsx_with_svg_image(graph, png_path, xlsx_path)
+    try:
+        export_native_graph_xlsx(graph, xlsx_path)
+        converted_xls = convert_to_xls(xlsx_path, output_dir)
+        if converted_xls != xls_path:
+            shutil.copy2(converted_xls, xls_path)
+    except (NativeExcelTemplateUnavailable, RuntimeError, OSError, ValueError) as exc:
+        graph.validation.warnings.append(
+            {
+                "code": "NATIVE_EXCEL_FALLBACK",
+                "message": str(exc),
+            }
+        )
+        _write_xls_with_svg_image(graph, svg, xls_path)
+        _write_xlsx_with_svg_image(graph, png_path, xlsx_path)
     _write_validation_report(graph, report_path)
     return {
         "graph": graph_path,
@@ -38,6 +63,35 @@ def export_from_croqui_graph_svg(
         "xlsx": xlsx_path,
         "validation_report": report_path,
     }
+
+
+def _embed_official_assets(svg: str) -> str:
+    assets_dir = default_symbol_assets_dir().resolve()
+
+    def replace(match: re.Match[str]) -> str:
+        quote = match.group("quote")
+        filename = Path(match.group("path")).name
+        asset = (assets_dir / filename).resolve()
+        if asset.parent != assets_dir or not asset.is_file():
+            return match.group(0)
+        encoded = base64.b64encode(asset.read_bytes()).decode("ascii")
+        return f'{match.group("attr")}={quote}data:image/png;base64,{encoded}{quote}'
+
+    embedded = re.sub(
+        r'(?P<attr>(?:xlink:)?href)=(?P<quote>["\'])(?P<path>/static/img/symbols/official/[^"\']+)(?P=quote)',
+        replace,
+        svg,
+    )
+    if "/api/assets/rge-logo.svg" in embedded:
+        try:
+            logo = base64.b64encode(official_rge_logo_svg().read_bytes()).decode("ascii")
+            embedded = embedded.replace(
+                "/api/assets/rge-logo.svg",
+                f"data:image/svg+xml;base64,{logo}",
+            )
+        except (FileNotFoundError, RuntimeError, OSError):
+            pass
+    return embedded
 
 
 def _svg_to_pdf(svg: str, output_path: Path) -> Path:
@@ -97,7 +151,9 @@ def _write_xls_with_svg_image(graph: CroquiGraph, svg: str, output_path: Path) -
     try:
         sheet.insert_bitmap(str(bmp), 7, 1, x=8, y=4, scale_x=0.62, scale_y=0.62)
     except Exception:
-        sheet.write_merge(7, 29, 1, 47, "SVG final exportado pelo editor salvo ao lado deste XLS.", styles["note"])
+        sheet.write_merge(
+            7, 29, 1, 47, "SVG final exportado pelo editor salvo ao lado deste XLS.", styles["note"]
+        )
     _write_validation(sheet, graph, styles)
     workbook.save(str(output_path))
     return output_path
@@ -148,7 +204,8 @@ def _write_xlsx_with_svg_image(graph: CroquiGraph, png_path: Path, output_path: 
     ws.add_image(image, "A7")
     ws["A32"] = f"Status: {graph.validation.status}"
     ws["A33"] = "Avisos: " + "; ".join(
-        str(item.get("code") or item) for item in [*graph.validation.blockingErrors, *graph.validation.warnings]
+        str(item.get("code") or item)
+        for item in [*graph.validation.blockingErrors, *graph.validation.warnings]
     )
     wb.save(output_path)
     return output_path
@@ -237,7 +294,9 @@ def _write_validation(sheet: Any, graph: CroquiGraph, styles: dict[str, Any]) ->
 
 
 def _write_validation_report(graph: CroquiGraph, output_path: Path) -> Path:
-    final_allowed = graph.validation.status == "final_candidate" and not graph.validation.blockingErrors
+    final_allowed = (
+        graph.validation.status == "final_candidate" and not graph.validation.blockingErrors
+    )
     report = {
         "contract": {
             "project_id": graph.id,

@@ -71,7 +71,7 @@ def upload():
                 notes=request.form.get("notes", ""),
             )
             flash("PDF processado pelo fluxo output-first.", "success")
-            return redirect(url_for("jobs.job_detail", job_id=result.job.id))
+            return redirect(url_for("croqui_editor", job_id=result.job.id))
         except Exception as exc:
             flash(f"Falha no processamento: {exc}", "error")
             return redirect(url_for("jobs.dashboard"))

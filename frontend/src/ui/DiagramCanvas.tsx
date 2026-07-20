@@ -6,7 +6,10 @@ import type { CroquiEdge, CroquiGraph, CroquiNode } from '../types/croquiGraph'
 export interface DiagramCanvasHandle {
   applyAutoLayout: () => Promise<void>
   exportSvg: () => Promise<string>
+  undo: () => void
+  redo: () => void
   getGraph: () => CroquiGraph | null
+  updateHeader: (header: CroquiGraph['header']) => void
   updateElement: (id: string, patch: Partial<unknown>) => void
   deleteElement: (id: string) => void
   addNode: (node: CroquiNode) => void
@@ -45,7 +48,10 @@ export const DiagramCanvas = forwardRef<DiagramCanvasHandle, Props>(function Dia
   useImperativeHandle(ref, () => ({
     applyAutoLayout: () => engineRef.current?.applyAutoLayout() ?? Promise.resolve(),
     exportSvg: () => engineRef.current?.exportSvg() ?? Promise.resolve(''),
+    undo: () => engineRef.current?.undo(),
+    redo: () => engineRef.current?.redo(),
     getGraph: () => engineRef.current?.getGraph() ?? null,
+    updateHeader: (header) => engineRef.current?.updateHeader(header),
     updateElement: (id, patch) => engineRef.current?.updateElement(id, patch),
     deleteElement: (id) => engineRef.current?.deleteElement(id),
     addNode: (node) => engineRef.current?.addNode(node),

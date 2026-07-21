@@ -1,8 +1,23 @@
-# Croquimaker MVP
+# Croquimaker
 
-Aplicacao local para receber um PDF de projeto, interpretar a topologia no schema de grafo preservado do legado, gerar o croqui em PDF e disponibilizar Excel quando houver template real.
+Aplicacao local para receber um PROJETO PDF vetorial e gerar um croqui a partir
+da geometria CAD real da rede.
 
-## Login
+O pipeline preserva as coordenadas do projeto:
+
+```text
+PDF vetorial
+-> condutores CAD (azul=MT, verde=BT)
+-> projeto limpo
+-> identificacao semantica
+-> simbolos e areas de trabalho
+-> croqui A4 horizontal
+```
+
+Mapa, lotes, cotas, tabelas e carimbo nao participam da fonte geometrica. A
+identificacao semantica nao cria coordenadas.
+
+## Login inicial
 
 ```bash
 docker compose --profile login run --rm codex-login
@@ -11,24 +26,21 @@ docker compose --profile login run --rm codex-login
 ## Iniciar
 
 ```bash
-docker compose up --build web
+docker compose build
+docker compose up -d
+docker compose ps
+docker compose logs -f web
 ```
 
-Acesse `http://localhost:8081`.
+Acesse `http://localhost:8080`.
 
-Para usar outra porta livre:
+Para usar outra porta:
 
 ```bash
-CROQUIMAKER_HOST_PORT=8082 docker compose up --build web
+CROQUIMAKER_HOST_PORT=8082 docker compose up -d
 ```
 
-Para publicar especificamente em `8080`, somente se ela estiver livre:
-
-```bash
-CROQUIMAKER_HOST_PORT=8080 docker compose up --build web
-```
-
-## Desenvolvimento
+## Desenvolvimento e testes
 
 ```bash
 python3 -m venv .venv
@@ -36,16 +48,17 @@ python3 -m venv .venv
 .venv/bin/pytest -q
 ```
 
-Para teste local sem login externo:
+Teste local sem login externo:
 
 ```bash
 CROQUIMAKER_PROVIDER=fake docker compose up --build web
 ```
 
-## Corpus
+Cada job grava internamente `clean_projeto.pdf`, `clean_projeto.png`, inventario
+de cores e extracao geometrica para auditoria. O cache inclui a versao do motor,
+impedindo o reaproveitamento de resultados do gerador antigo.
 
-```bash
-python3 scripts/build_corpus_manifest.py
-```
-
-O manifesto fica em `data/corpus/manifest.json`. O template Excel foi derivado de um arquivo real do corpus e documentado em `data/templates/README.md`.
+O download de Excel permanece desabilitado. O arquivo anteriormente usado era
+uma copia de um croqui real de outro projeto e podia contaminar o resultado. Ele
+so deve voltar quando houver um template canonico vazio e um gerador que edite a
+mesma cena usada no PDF.

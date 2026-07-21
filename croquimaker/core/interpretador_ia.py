@@ -20,9 +20,10 @@ def _system_prompt() -> str:
         "Você é um engenheiro eletricista especialista em projetos de redes RGE/CPFL e em croquis Jobel. "
         "Você deve converter projeto elétrico PDF em JSON técnico para um motor Python de croqui.\n\n"
         "PRINCÍPIO CENTRAL:\n"
-        "O croqui não é uma lista linear. O croqui é um GRAFO ELÉTRICO ESPACIAL com modos de layout. "
-        "Extraia a topologia real e deixe o motor posicionar. REGRA VISUAL ABSOLUTA: o croqui final deve ser "
-        "ortogonal, com trechos somente horizontais e/ou verticais; nunca solicitar ou retornar layout diagonal/curvo.\n\n"
+        "A geometria do croqui já foi extraída deterministicamente dos vetores CAD do PDF. "
+        "Azul representa MT e verde representa BT. Você deve identificar apenas a semântica: equipamento "
+        "principal, equipamentos relevantes, ações, nós descritos no texto e áreas de trabalho. "
+        "Nunca invente coordenadas x/y e nunca redesenhe a rede. Deixe x e y vazios.\n\n"
         "APRENDIZADO DOS 5 EXEMPLOS FORNECIDOS PELO USUÁRIO:\n"
         "1) Projeto urbano simples/TR: tronco principal limpo, derivações acima/abaixo, TR destacado e área tracejada próxima ao trabalho.\n"
         "2) Projeto rural longo/FU: simplificar caminho orgânico do projeto para croqui ortogonal, usando somente segmentos horizontais e verticais; área tracejada cobre só o trecho ativo.\n"
@@ -59,8 +60,8 @@ def _system_prompt() -> str:
         "ENCABECAMENTO_PRIMARIO, ENCABECAMENTO_SECUNDARIO, ELEMENTO_RETIRAR, ELEMENTO_DESLOCAR, ESTAI, MEDIDOR_PRIMARIO.\n"
         "Use codigo para números operativos: TR 689726, FU 626460, RL/R3 116079, FC 1110594.\n"
         "Use estado para ABRIR, FECHAR, NA, NF, COM CARGA, SEM CARGA, FONTE, CARGA.\n\n"
-        "ÁREAS, MODOS E LAYOUT:\n"
-        "- Nunca use diagonais/curvas como orientação de croqui. Ramais devem sair em 90 graus e o tronco deve ser horizontal ou vertical.\n"
+        "ÁREAS E INTERVENÇÃO:\n"
+        "- A posição final vem exclusivamente da geometria CAD já extraída.\n"
         "- Para TR/FU/RL/FC pontual: área pequena em volta do equipamento/intervenção.\n"
         "- Para recondutoramento/obra longa: área envolvendo somente o trecho afetado, não o mapa todo.\n"
         "- Se houver LV/LM, crie áreas separadas quando possível.\n"
@@ -70,7 +71,8 @@ def _system_prompt() -> str:
         "2) Nunca criar trecho sem Vx-y explícito, exceto AUX para ligar equipamento visualmente quando necessário.\n"
         "3) Não reduzir a rede a P1-P2-P3 se existem outros vãos no projeto.\n"
         "4) Para projetos com várias páginas, unir todos os vãos de todas as páginas.\n"
-        "5) Retorne somente JSON válido conforme schema, sem markdown."
+        "5) Todos os campos x/y devem permanecer vazios; coordenadas pertencem ao extrator vetorial.\n"
+        "6) Retorne somente JSON válido conforme schema, sem markdown."
     )
 
 
@@ -95,11 +97,15 @@ def _extrair_pdf_bundle(caminho_pdf: str) -> dict:
         doc.close()
 
 
-def interpretar_pdf(caminho_pdf: str, progresso=None) -> dict:
+def interpretar_pdf(caminho_pdf: str, progresso=None, additional_image_paths: list[str] | None = None) -> dict:
     if progresso:
         progresso("Lendo projeto")
     bundle = _extrair_pdf_bundle(caminho_pdf)
-    return interpretar_texto(bundle["text"], bundle["image_paths"], progresso=progresso)
+    images = list(bundle["image_paths"][:3])
+    for path in additional_image_paths or []:
+        if path not in images:
+            images.append(path)
+    return interpretar_texto(bundle["text"], images[:4], progresso=progresso)
 
 
 def interpretar_texto(texto_pdf: str, imagens: list | None = None, progresso=None) -> dict:

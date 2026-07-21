@@ -1,13 +1,6 @@
 .git
-.pytest_cache
-__pycache__
-node_modules
-frontend/dist
-*.tsbuildinfo
-*.py[cod]
 .env
-data
-croquisreais
-*.sqlite
-*.db
-.DS_Store
+generated
+__pycache__
+.pytest_cache
+CROQUI IA

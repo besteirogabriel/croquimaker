@@ -1,0 +1,1897 @@
+{
+  "total": 155,
+  "casos": [
+    {
+      "id": "300000871351",
+      "equipamento": "religador",
+      "projeto_pdf": "CROQUI IA/300000871351/300000871351 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300000871351/croqui RL 910146.pdf",
+      "croqui_excel": "CROQUI IA/300000871351/croqui RL 910146.xls",
+      "arquivos": [
+        "CROQUI IA/300000871351/300000871351 PROJETO A2.pdf",
+        "CROQUI IA/300000871351/croqui RL 910146.pdf",
+        "CROQUI IA/300000871351/croqui RL 910146.xls"
+      ]
+    },
+    {
+      "id": "300000896747",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300000896747/300000896847_ PROJETO_ A1_DI_V2.pdf",
+      "croqui_pdf": "CROQUI IA/300000896747/CROQUI TR 1080456.pdf",
+      "croqui_excel": "CROQUI IA/300000896747/CROQUI TR 1080456.xls",
+      "arquivos": [
+        "CROQUI IA/300000896747/300000896847_ PROJETO_ A1_DI_V2.pdf",
+        "CROQUI IA/300000896747/CROQUI TR 1080456.pdf",
+        "CROQUI IA/300000896747/CROQUI TR 1080456.xls"
+      ]
+    },
+    {
+      "id": "300001039072",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001039072/300001039072 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001039072/CROQUI TR 631765.pdf",
+      "croqui_excel": "CROQUI IA/300001039072/CROQUI TR 631765.xls",
+      "arquivos": [
+        "CROQUI IA/300001039072/300001039072 PROJETO A2.pdf",
+        "CROQUI IA/300001039072/CROQUI TR 631765.pdf",
+        "CROQUI IA/300001039072/CROQUI TR 631765.xls"
+      ]
+    },
+    {
+      "id": "300001042269",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001042269/300001042269 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001042269/croqui FU 1070990 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001042269/croqui FU 1070990 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001042269/300001042269 PROJETO A2.pdf",
+        "CROQUI IA/300001042269/croqui FU 1070990 TES.pdf",
+        "CROQUI IA/300001042269/croqui FU 1070990 TES.xls"
+      ]
+    },
+    {
+      "id": "300001054367",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001054367/300001054367 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001054367/croqui FC 1273560 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001054367/croqui FC 1273560 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001054367/300001054367 PROJETO A1.pdf",
+        "CROQUI IA/300001054367/croqui FC 1273560 TES.pdf",
+        "CROQUI IA/300001054367/croqui FC 1273560 TES.xls"
+      ]
+    },
+    {
+      "id": "300001055109",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001055109/300001055109 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001055109/croqui FU 754726.pdf",
+      "croqui_excel": "CROQUI IA/300001055109/croqui FU 754726.xls",
+      "arquivos": [
+        "CROQUI IA/300001055109/300001055109 PROJETO A3.pdf",
+        "CROQUI IA/300001055109/croqui FU 754726.pdf",
+        "CROQUI IA/300001055109/croqui FU 754726.xls"
+      ]
+    },
+    {
+      "id": "300001055698",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001055698/300001055698 Projeto A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001055698/croqui FU 608929.pdf",
+      "croqui_excel": "CROQUI IA/300001055698/croqui FU 608929.xls",
+      "arquivos": [
+        "CROQUI IA/300001055698/300001055698 Projeto A1.pdf",
+        "CROQUI IA/300001055698/croqui FU 608929.pdf",
+        "CROQUI IA/300001055698/croqui FU 608929.xls"
+      ]
+    },
+    {
+      "id": "300001061186",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001061186/300001061186 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001061186/croqui FU 754881 TES 2.pdf",
+      "croqui_excel": "CROQUI IA/300001061186/croqui FU 754881 TES 2.xls",
+      "arquivos": [
+        "CROQUI IA/300001061186/300001061186 PROJETO A3.pdf",
+        "CROQUI IA/300001061186/croqui FU 754881 TES 2.pdf",
+        "CROQUI IA/300001061186/croqui FU 754881 TES 2.xls"
+      ]
+    },
+    {
+      "id": "300001062315",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001062315/300001062315 PROETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001062315/Croqui FU 608822 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001062315/Croqui FU 608822 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001062315/300001062315 PROETO A1.pdf",
+        "CROQUI IA/300001062315/Croqui FU 608822 TES.pdf",
+        "CROQUI IA/300001062315/Croqui FU 608822 TES.xls"
+      ]
+    },
+    {
+      "id": "300001064877",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001064877/300001064877 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001064877/croqui FU 613409.pdf",
+      "croqui_excel": "CROQUI IA/300001064877/croqui FU 613409.xls",
+      "arquivos": [
+        "CROQUI IA/300001064877/300001064877 PROJETO A3.pdf",
+        "CROQUI IA/300001064877/croqui FU 613409.pdf",
+        "CROQUI IA/300001064877/croqui FU 613409.xls"
+      ]
+    },
+    {
+      "id": "300001065048",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001065048/300001065048 PROJETO A1 V2.pdf",
+      "croqui_pdf": "CROQUI IA/300001065048/croqui FC 613421.pdf",
+      "croqui_excel": "CROQUI IA/300001065048/croqui FC 613421.xls",
+      "arquivos": [
+        "CROQUI IA/300001065048/300001065048 PROJETO A1 V2.pdf",
+        "CROQUI IA/300001065048/croqui FC 613421.pdf",
+        "CROQUI IA/300001065048/croqui FC 613421.xls"
+      ]
+    },
+    {
+      "id": "300001066304",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001066304/300001066304 PROJETO A3_V2.pdf",
+      "croqui_pdf": "CROQUI IA/300001066304/CROQUI TR 678622 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001066304/CROQUI TR 678622 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001066304/300001066304 PROJETO A3_V2.pdf",
+        "CROQUI IA/300001066304/CROQUI TR 678622 TES.pdf",
+        "CROQUI IA/300001066304/CROQUI TR 678622 TES.xls"
+      ]
+    },
+    {
+      "id": "300001068407",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001068407/300001068407 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001068407/croqui FC 1102396.pdf",
+      "croqui_excel": "CROQUI IA/300001068407/croqui FC 1102396.xls",
+      "arquivos": [
+        "CROQUI IA/300001068407/300001068407 PROJETO A1.pdf",
+        "CROQUI IA/300001068407/croqui FC 1102396.pdf",
+        "CROQUI IA/300001068407/croqui FC 1102396.xls"
+      ]
+    },
+    {
+      "id": "300001068506",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001068506/300001068506 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001068506/croqui FU 731043 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001068506/croqui FU 731043 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001068506/300001068506 PROJETO A3.pdf",
+        "CROQUI IA/300001068506/croqui FU 731043 TES.pdf",
+        "CROQUI IA/300001068506/croqui FU 731043 TES.xls"
+      ]
+    },
+    {
+      "id": "300001075770",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001075770/300001075770 PROJETO A2_02FL.pdf",
+      "croqui_pdf": "CROQUI IA/300001075770/CROQUI TR 1284881.pdf",
+      "croqui_excel": "CROQUI IA/300001075770/CROQUI TR 1284881.xls",
+      "arquivos": [
+        "CROQUI IA/300001075770/300001075770 PROJETO A2_02FL.pdf",
+        "CROQUI IA/300001075770/CROQUI TR 1284881.pdf",
+        "CROQUI IA/300001075770/CROQUI TR 1284881.xls"
+      ]
+    },
+    {
+      "id": "300001076155",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001076155/300001076155 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001076155/croqui FC 1062375.pdf",
+      "croqui_excel": "CROQUI IA/300001076155/croqui FC 1062375.xls",
+      "arquivos": [
+        "CROQUI IA/300001076155/300001076155 PROJETO A3.pdf",
+        "CROQUI IA/300001076155/croqui FC 1062375.pdf",
+        "CROQUI IA/300001076155/croqui FC 1062375.xls"
+      ]
+    },
+    {
+      "id": "300001076323",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001076323/300001076323 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001076323/Croqui TR 632542 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001076323/Croqui TR 632542 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001076323/300001076323 PROJETO A3.pdf",
+        "CROQUI IA/300001076323/Croqui TR 632542 TES.pdf",
+        "CROQUI IA/300001076323/Croqui TR 632542 TES.xls"
+      ]
+    },
+    {
+      "id": "300001077623",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001077623/300001077623 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001077623/croqui FU 117418 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001077623/croqui FU 117418 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001077623/300001077623 PROJETO A1.pdf",
+        "CROQUI IA/300001077623/croqui FU 117418 TES.pdf",
+        "CROQUI IA/300001077623/croqui FU 117418 TES.xls"
+      ]
+    },
+    {
+      "id": "300001078282",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001078282/300001078282 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001078282/croqui FU 698381.pdf",
+      "croqui_excel": "CROQUI IA/300001078282/croqui FU 698381.xls",
+      "arquivos": [
+        "CROQUI IA/300001078282/300001078282 PROJETO A3.pdf",
+        "CROQUI IA/300001078282/croqui FU 698381.pdf",
+        "CROQUI IA/300001078282/croqui FU 698381.xls"
+      ]
+    },
+    {
+      "id": "300001078424",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001078424/300001078424 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001078424/croqui FU 613438.pdf",
+      "croqui_excel": "CROQUI IA/300001078424/croqui FU 613438.xls",
+      "arquivos": [
+        "CROQUI IA/300001078424/300001078424 PROJETO A3.pdf",
+        "CROQUI IA/300001078424/croqui FU 613438.pdf",
+        "CROQUI IA/300001078424/croqui FU 613438.xls"
+      ]
+    },
+    {
+      "id": "300001079278",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001079278/300001079278 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001079278/croqui TR 635371.pdf",
+      "croqui_excel": "CROQUI IA/300001079278/croqui TR 635371.xls",
+      "arquivos": [
+        "CROQUI IA/300001079278/300001079278 PROJETO A3.pdf",
+        "CROQUI IA/300001079278/croqui TR 635371.pdf",
+        "CROQUI IA/300001079278/croqui TR 635371.xls"
+      ]
+    },
+    {
+      "id": "300001079691",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001079691/300001079691 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001079691/croqui FC 1005906.pdf",
+      "croqui_excel": "CROQUI IA/300001079691/croqui FC 1005906.xls",
+      "arquivos": [
+        "CROQUI IA/300001079691/300001079691 PROJETO A2.pdf",
+        "CROQUI IA/300001079691/croqui FC 1005906.pdf",
+        "CROQUI IA/300001079691/croqui FC 1005906.xls"
+      ]
+    },
+    {
+      "id": "300001079974",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001079974/300001079974 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001079974/CROQUI TR 632140.pdf",
+      "croqui_excel": "CROQUI IA/300001079974/CROQUI TR 632140.xls",
+      "arquivos": [
+        "CROQUI IA/300001079974/300001079974 PROJETO A3.pdf",
+        "CROQUI IA/300001079974/CROQUI TR 632140.pdf",
+        "CROQUI IA/300001079974/CROQUI TR 632140.xls"
+      ]
+    },
+    {
+      "id": "300001082616",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001082616/300001082616 Projeto A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001082616/croqui FU 735607 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001082616/croqui FU 735607 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001082616/300001082616 Projeto A3.pdf",
+        "CROQUI IA/300001082616/croqui FU 735607 TES.pdf",
+        "CROQUI IA/300001082616/croqui FU 735607 TES.xls"
+      ]
+    },
+    {
+      "id": "300001082699",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001082699/300001082699 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001082699/croqui TR 633287.pdf",
+      "croqui_excel": "CROQUI IA/300001082699/croqui TR 633287.xls",
+      "arquivos": [
+        "CROQUI IA/300001082699/300001082699 PROJETO A2.pdf",
+        "CROQUI IA/300001082699/croqui TR 633287.pdf",
+        "CROQUI IA/300001082699/croqui TR 633287.xls"
+      ]
+    },
+    {
+      "id": "300001082889",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001082889/300001082889 PROJETO A3 DI.pdf",
+      "croqui_pdf": "CROQUI IA/300001082889/CROQUI FU 609400 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001082889/CROQUI FU 609400 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001082889/300001082889 PROJETO A3 DI.pdf",
+        "CROQUI IA/300001082889/CROQUI FU 609400 TES.pdf",
+        "CROQUI IA/300001082889/CROQUI FU 609400 TES.xls"
+      ]
+    },
+    {
+      "id": "300001083037",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001083037/300001083037 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001083037/croqui FU 608951 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001083037/croqui FU 608951 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001083037/300001083037 PROJETO A3.pdf",
+        "CROQUI IA/300001083037/croqui FU 608951 TES.pdf",
+        "CROQUI IA/300001083037/croqui FU 608951 TES.xls"
+      ]
+    },
+    {
+      "id": "300001084372",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001084372/300001084372 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001084372/Croqui TR 1186254.pdf",
+      "croqui_excel": "CROQUI IA/300001084372/Croqui TR 1186254.xls",
+      "arquivos": [
+        "CROQUI IA/300001084372/300001084372 PROJETO A3.pdf",
+        "CROQUI IA/300001084372/Croqui TR 1186254.pdf",
+        "CROQUI IA/300001084372/Croqui TR 1186254.xls"
+      ]
+    },
+    {
+      "id": "300001084373",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001084373/300001084373 PROJETO A4.pdf",
+      "croqui_pdf": "CROQUI IA/300001084373/croqui FU 897542.pdf",
+      "croqui_excel": "CROQUI IA/300001084373/croqui FU 897542.xls",
+      "arquivos": [
+        "CROQUI IA/300001084373/300001084373 PROJETO A4.pdf",
+        "CROQUI IA/300001084373/croqui FU 897542.pdf",
+        "CROQUI IA/300001084373/croqui FU 897542.xls"
+      ]
+    },
+    {
+      "id": "300001085257",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001085257/300001085257 Projeto A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001085257/CROQUI TR 635603 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001085257/CROQUI TR 635603 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001085257/300001085257 Projeto A3.pdf",
+        "CROQUI IA/300001085257/CROQUI TR 635603 TES.pdf",
+        "CROQUI IA/300001085257/CROQUI TR 635603 TES.xls"
+      ]
+    },
+    {
+      "id": "300001085976",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001085976/300001085976 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001085976/croqui TR 649184 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001085976/croqui TR 649184 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001085976/300001085976 PROJETO A2.pdf",
+        "CROQUI IA/300001085976/croqui TR 649184 TES.pdf",
+        "CROQUI IA/300001085976/croqui TR 649184 TES.xls"
+      ]
+    },
+    {
+      "id": "300001088003",
+      "equipamento": "religador",
+      "projeto_pdf": "CROQUI IA/300001088003/300001088003 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001088003/croqui RL 1007569.pdf",
+      "croqui_excel": "CROQUI IA/300001088003/croqui RL 1007569.xls",
+      "arquivos": [
+        "CROQUI IA/300001088003/300001088003 PROJETO A3.pdf",
+        "CROQUI IA/300001088003/croqui RL 1007569.pdf",
+        "CROQUI IA/300001088003/croqui RL 1007569.xls"
+      ]
+    },
+    {
+      "id": "300001090238",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001090238/300001090238 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001090238/croqui FU 608837 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001090238/croqui FU 608837 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001090238/300001090238 PROJETO A2.pdf",
+        "CROQUI IA/300001090238/croqui FU 608837 TES.pdf",
+        "CROQUI IA/300001090238/croqui FU 608837 TES.xls"
+      ]
+    },
+    {
+      "id": "300001090718",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001090718/300001090718 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001090718/Croqui TR 649420 TLE.pdf",
+      "croqui_excel": "CROQUI IA/300001090718/Croqui TR 649420 TLE.xls",
+      "arquivos": [
+        "CROQUI IA/300001090718/300001090718 PROJETO A3.pdf",
+        "CROQUI IA/300001090718/Croqui TR 649420 TLE.pdf",
+        "CROQUI IA/300001090718/Croqui TR 649420 TLE.xls"
+      ]
+    },
+    {
+      "id": "300001091200",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001091200/300001091200 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001091200/croqui TR 956824.pdf",
+      "croqui_excel": "CROQUI IA/300001091200/croqui TR 956824.xls",
+      "arquivos": [
+        "CROQUI IA/300001091200/300001091200 PROJETO A3.pdf",
+        "CROQUI IA/300001091200/croqui TR 956824.pdf",
+        "CROQUI IA/300001091200/croqui TR 956824.xls"
+      ]
+    },
+    {
+      "id": "300001091508",
+      "equipamento": "religador",
+      "projeto_pdf": "CROQUI IA/300001091508/300001091508 PROJETO A1 1FL.pdf",
+      "croqui_pdf": "CROQUI IA/300001091508/croqui RL 1006403 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001091508/croqui RL 1006403 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001091508/300001091508 PROJETO A1 1FL.pdf",
+        "CROQUI IA/300001091508/croqui RL 1006403 TES.pdf",
+        "CROQUI IA/300001091508/croqui RL 1006403 TES.xls"
+      ]
+    },
+    {
+      "id": "300001092300",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001092300/300001092300 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001092300/croqui FU 613469.pdf",
+      "croqui_excel": "CROQUI IA/300001092300/croqui FU 613469.xls",
+      "arquivos": [
+        "CROQUI IA/300001092300/300001092300 PROJETO A3.pdf",
+        "CROQUI IA/300001092300/croqui FU 613469.pdf",
+        "CROQUI IA/300001092300/croqui FU 613469.xls"
+      ]
+    },
+    {
+      "id": "300001092946",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001092946/300001092946 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001092946/Croqui FU 608971.pdf",
+      "croqui_excel": "CROQUI IA/300001092946/Croqui FU 608971.xls",
+      "arquivos": [
+        "CROQUI IA/300001092946/300001092946 PROJETO A3.pdf",
+        "CROQUI IA/300001092946/Croqui FU 608971.pdf",
+        "CROQUI IA/300001092946/Croqui FU 608971.xls"
+      ]
+    },
+    {
+      "id": "300001093311",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001093311/300001093311 PROJETO A3 1FL.pdf",
+      "croqui_pdf": "CROQUI IA/300001093311/croqui TR 633138 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001093311/croqui TR 633138 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001093311/300001093311 PROJETO A3 1FL.pdf",
+        "CROQUI IA/300001093311/croqui TR 633138 TES.pdf",
+        "CROQUI IA/300001093311/croqui TR 633138 TES.xls"
+      ]
+    },
+    {
+      "id": "300001093798",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001093798/300001093798 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001093798/CROQUI TR 635580.pdf",
+      "croqui_excel": "CROQUI IA/300001093798/CROQUI TR 635580.xls",
+      "arquivos": [
+        "CROQUI IA/300001093798/300001093798 PROJETO A3.pdf",
+        "CROQUI IA/300001093798/CROQUI TR 635580.pdf",
+        "CROQUI IA/300001093798/CROQUI TR 635580.xls"
+      ]
+    },
+    {
+      "id": "300001094825",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001094825/300001094825 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001094825/CROQUI TR 1295950 TLE.pdf",
+      "croqui_excel": "CROQUI IA/300001094825/CROQUI TR 1295950.xls",
+      "arquivos": [
+        "CROQUI IA/300001094825/300001094825 PROJETO A3.pdf",
+        "CROQUI IA/300001094825/CROQUI TR 1295950 TLE.pdf",
+        "CROQUI IA/300001094825/CROQUI TR 1295950.xls"
+      ]
+    },
+    {
+      "id": "300001095855",
+      "equipamento": "religador",
+      "projeto_pdf": "CROQUI IA/300001095855/300001095855 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001095855/croqui RL 758136.pdf",
+      "croqui_excel": "CROQUI IA/300001095855/croqui RL 758136.xls",
+      "arquivos": [
+        "CROQUI IA/300001095855/300001095855 PROJETO A3.pdf",
+        "CROQUI IA/300001095855/croqui RL 758136.pdf",
+        "CROQUI IA/300001095855/croqui RL 758136.xls"
+      ]
+    },
+    {
+      "id": "300001096155",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001096155/300001096155 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001096155/croqui TR 1044654 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001096155/croqui TR 1044654 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001096155/300001096155 PROJETO A3.pdf",
+        "CROQUI IA/300001096155/croqui TR 1044654 TES.pdf",
+        "CROQUI IA/300001096155/croqui TR 1044654 TES.xls"
+      ]
+    },
+    {
+      "id": "300001096550",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001096550/300001096550 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001096550/croqui TR 1084080.pdf",
+      "croqui_excel": "CROQUI IA/300001096550/croqui TR 1084080.xls",
+      "arquivos": [
+        "CROQUI IA/300001096550/300001096550 PROJETO A2.pdf",
+        "CROQUI IA/300001096550/croqui TR 1084080.pdf",
+        "CROQUI IA/300001096550/croqui TR 1084080.xls"
+      ]
+    },
+    {
+      "id": "300001097415",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001097415/300001097415 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001097415/croqui FU 1219873.pdf",
+      "croqui_excel": "CROQUI IA/300001097415/croqui FU 1219873.xls",
+      "arquivos": [
+        "CROQUI IA/300001097415/300001097415 PROJETO A3.pdf",
+        "CROQUI IA/300001097415/croqui FU 1219873.pdf",
+        "CROQUI IA/300001097415/croqui FU 1219873.xls"
+      ]
+    },
+    {
+      "id": "300001097712",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001097712/300001097712 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001097712/CROQUI TR 632896 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001097712/CROQUI TR 632896 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001097712/300001097712 PROJETO A3.pdf",
+        "CROQUI IA/300001097712/CROQUI TR 632896 TES.pdf",
+        "CROQUI IA/300001097712/CROQUI TR 632896 TES.xls"
+      ]
+    },
+    {
+      "id": "300001098064",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001098064/300001098064 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001098064/CROQUI TR 633509 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001098064/CROQUI TR 633509.xls",
+      "arquivos": [
+        "CROQUI IA/300001098064/300001098064 PROJETO A3.pdf",
+        "CROQUI IA/300001098064/CROQUI TR 633509 TES.pdf",
+        "CROQUI IA/300001098064/CROQUI TR 633509.xls"
+      ]
+    },
+    {
+      "id": "300001099704",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001099704/300001099704 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001099704/Croqui FU 608971.pdf",
+      "croqui_excel": "CROQUI IA/300001099704/Croqui FU 608971.xls",
+      "arquivos": [
+        "CROQUI IA/300001099704/300001099704 PROJETO A3.pdf",
+        "CROQUI IA/300001099704/Croqui FU 608971.pdf",
+        "CROQUI IA/300001099704/Croqui FU 608971.xls"
+      ]
+    },
+    {
+      "id": "300001099995",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001099995/300001099995 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001099995/croqui FU 1107048.pdf",
+      "croqui_excel": "CROQUI IA/300001099995/croqui FU 1107048.xls",
+      "arquivos": [
+        "CROQUI IA/300001099995/300001099995 PROJETO A1.pdf",
+        "CROQUI IA/300001099995/croqui FU 1107048.pdf",
+        "CROQUI IA/300001099995/croqui FU 1107048.xls"
+      ]
+    },
+    {
+      "id": "300001100053",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001100053/300001100053 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001100053/croqui FU 622431.pdf",
+      "croqui_excel": "CROQUI IA/300001100053/croqui FU 622431.xls",
+      "arquivos": [
+        "CROQUI IA/300001100053/300001100053 PROJETO A3.pdf",
+        "CROQUI IA/300001100053/croqui FU 622431.pdf",
+        "CROQUI IA/300001100053/croqui FU 622431.xls"
+      ]
+    },
+    {
+      "id": "300001101207",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001101207/300001101207 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001101207/CROQUI TR 634087.pdf",
+      "croqui_excel": "CROQUI IA/300001101207/CROQUI TR 634087.xls",
+      "arquivos": [
+        "CROQUI IA/300001101207/300001101207 PROJETO A1.pdf",
+        "CROQUI IA/300001101207/CROQUI TR 634087.pdf",
+        "CROQUI IA/300001101207/CROQUI TR 634087.xls"
+      ]
+    },
+    {
+      "id": "300001101423",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001101423/300001101423 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001101423/CROQUI TR 923495 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001101423/CROQUI TR 923495.xls",
+      "arquivos": [
+        "CROQUI IA/300001101423/300001101423 PROJETO A3.pdf",
+        "CROQUI IA/300001101423/CROQUI TR 923495 TES.pdf",
+        "CROQUI IA/300001101423/CROQUI TR 923495.xls"
+      ]
+    },
+    {
+      "id": "300001101611",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001101611/300001101611 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001101611/Croqui FC 1244426 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001101611/Croqui FC 1244426 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001101611/300001101611 PROJETO A2.pdf",
+        "CROQUI IA/300001101611/Croqui FC 1244426 TES.pdf",
+        "CROQUI IA/300001101611/Croqui FC 1244426 TES.xls"
+      ]
+    },
+    {
+      "id": "300001101640",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001101640/300001101640 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001101640/croqui FC 1129944.pdf",
+      "croqui_excel": "CROQUI IA/300001101640/croqui FC 1129944.xls",
+      "arquivos": [
+        "CROQUI IA/300001101640/300001101640 PROJETO A3.pdf",
+        "CROQUI IA/300001101640/croqui FC 1129944.pdf",
+        "CROQUI IA/300001101640/croqui FC 1129944.xls"
+      ]
+    },
+    {
+      "id": "300001101773",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001101773/300001101773 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001101773/croqui FU 1156407 .pdf",
+      "croqui_excel": "CROQUI IA/300001101773/croqui FU 1156407 .xls",
+      "arquivos": [
+        "CROQUI IA/300001101773/300001101773 PROJETO A2.pdf",
+        "CROQUI IA/300001101773/croqui FU 1156407 .pdf",
+        "CROQUI IA/300001101773/croqui FU 1156407 .xls"
+      ]
+    },
+    {
+      "id": "300001101827",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001101827/300001101827 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001101827/croqui FU 613512.pdf",
+      "croqui_excel": "CROQUI IA/300001101827/croqui FU 613512.xls",
+      "arquivos": [
+        "CROQUI IA/300001101827/300001101827 PROJETO A3.pdf",
+        "CROQUI IA/300001101827/croqui FU 613512.pdf",
+        "CROQUI IA/300001101827/croqui FU 613512.xls"
+      ]
+    },
+    {
+      "id": "300001102228",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001102228/300001102228 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001102228/croqui FU 609276.pdf",
+      "croqui_excel": "CROQUI IA/300001102228/croqui FU 609276.xls",
+      "arquivos": [
+        "CROQUI IA/300001102228/300001102228 PROJETO A2.pdf",
+        "CROQUI IA/300001102228/croqui FU 609276.pdf",
+        "CROQUI IA/300001102228/croqui FU 609276.xls"
+      ]
+    },
+    {
+      "id": "300001102835",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001102835/300001102835 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001102835/croqui TR 1033136.pdf",
+      "croqui_excel": "CROQUI IA/300001102835/croqui TR 1033136.xls",
+      "arquivos": [
+        "CROQUI IA/300001102835/300001102835 PROJETO A3.pdf",
+        "CROQUI IA/300001102835/croqui TR 1033136.pdf",
+        "CROQUI IA/300001102835/croqui TR 1033136.xls"
+      ]
+    },
+    {
+      "id": "300001104014",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001104014/300001104014 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001104014/CROQUI TR 736027.pdf",
+      "croqui_excel": "CROQUI IA/300001104014/CROQUI TR 736027.xls",
+      "arquivos": [
+        "CROQUI IA/300001104014/300001104014 PROJETO A2.pdf",
+        "CROQUI IA/300001104014/CROQUI TR 736027.pdf",
+        "CROQUI IA/300001104014/CROQUI TR 736027.xls"
+      ]
+    },
+    {
+      "id": "300001104995",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001104995/300001104995 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001104995/croqui FC 1116107.pdf",
+      "croqui_excel": "CROQUI IA/300001104995/croqui FC 1116107.xls",
+      "arquivos": [
+        "CROQUI IA/300001104995/300001104995 PROJETO A2.pdf",
+        "CROQUI IA/300001104995/croqui FC 1116107.pdf",
+        "CROQUI IA/300001104995/croqui FC 1116107.xls"
+      ]
+    },
+    {
+      "id": "300001105568",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001105568/300001105568 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001105568/CROQUI TR 635712.pdf",
+      "croqui_excel": "CROQUI IA/300001105568/CROQUI TR 635712.xls",
+      "arquivos": [
+        "CROQUI IA/300001105568/300001105568 PROJETO A3.pdf",
+        "CROQUI IA/300001105568/CROQUI TR 635712.pdf",
+        "CROQUI IA/300001105568/CROQUI TR 635712.xls"
+      ]
+    },
+    {
+      "id": "300001106069",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001106069/300001106069 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001106069/croqui TR 678275 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001106069/croqui TR 678275 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001106069/300001106069 PROJETO A2.pdf",
+        "CROQUI IA/300001106069/croqui TR 678275 TES.pdf",
+        "CROQUI IA/300001106069/croqui TR 678275 TES.xls"
+      ]
+    },
+    {
+      "id": "300001106363",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001106363/300001106363 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001106363/croqui TR 631739.pdf",
+      "croqui_excel": "CROQUI IA/300001106363/croqui TR 631739.xls",
+      "arquivos": [
+        "CROQUI IA/300001106363/300001106363 PROJETO A3.pdf",
+        "CROQUI IA/300001106363/croqui TR 631739.pdf",
+        "CROQUI IA/300001106363/croqui TR 631739.xls"
+      ]
+    },
+    {
+      "id": "300001106880",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001106880/300001106880 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001106880/CROQUI TR 632819 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001106880/CROQUI TR 632819 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001106880/300001106880 PROJETO A3.pdf",
+        "CROQUI IA/300001106880/CROQUI TR 632819 TES.pdf",
+        "CROQUI IA/300001106880/CROQUI TR 632819 TES.xls"
+      ]
+    },
+    {
+      "id": "300001106934",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/300001106934/300001106934 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001106934/croqui FC 911027.pdf",
+      "croqui_excel": "CROQUI IA/300001106934/croqui FC 911027.xls",
+      "arquivos": [
+        "CROQUI IA/300001106934/300001106934 PROJETO A1.pdf",
+        "CROQUI IA/300001106934/croqui FC 911027.pdf",
+        "CROQUI IA/300001106934/croqui FC 911027.xls"
+      ]
+    },
+    {
+      "id": "300001108145",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001108145/300001108145 PROJETO A3_V1.pdf",
+      "croqui_pdf": "CROQUI IA/300001108145/croqui FU 622424.pdf",
+      "croqui_excel": "CROQUI IA/300001108145/croqui FU 622424.xls",
+      "arquivos": [
+        "CROQUI IA/300001108145/300001108145 PROJETO A3_V1.pdf",
+        "CROQUI IA/300001108145/croqui FU 622424.pdf",
+        "CROQUI IA/300001108145/croqui FU 622424.xls"
+      ]
+    },
+    {
+      "id": "300001109502",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001109502/300001109502 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001109502/croqui TR 1160103.pdf",
+      "croqui_excel": "CROQUI IA/300001109502/croqui TR 1160103.xls",
+      "arquivos": [
+        "CROQUI IA/300001109502/300001109502 PROJETO A3.pdf",
+        "CROQUI IA/300001109502/croqui TR 1160103.pdf",
+        "CROQUI IA/300001109502/croqui TR 1160103.xls"
+      ]
+    },
+    {
+      "id": "300001111012",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001111012/300001111012 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001111012/croqui FU 1187906.pdf",
+      "croqui_excel": "CROQUI IA/300001111012/croqui FU 1187906.xls",
+      "arquivos": [
+        "CROQUI IA/300001111012/300001111012 PROJETO A2.pdf",
+        "CROQUI IA/300001111012/croqui FU 1187906.pdf",
+        "CROQUI IA/300001111012/croqui FU 1187906.xls"
+      ]
+    },
+    {
+      "id": "300001111101",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001111101/300001111101 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001111101/croqui FU 1130054.pdf",
+      "croqui_excel": "CROQUI IA/300001111101/croqui FU 1130054.xls",
+      "arquivos": [
+        "CROQUI IA/300001111101/300001111101 PROJETO A3.pdf",
+        "CROQUI IA/300001111101/croqui FU 1130054.pdf",
+        "CROQUI IA/300001111101/croqui FU 1130054.xls"
+      ]
+    },
+    {
+      "id": "300001111506",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/300001111506/300001111506 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001111506/croqui FU 1230173.pdf",
+      "croqui_excel": "CROQUI IA/300001111506/croqui FU 1230173.xls",
+      "arquivos": [
+        "CROQUI IA/300001111506/300001111506 PROJETO A3.pdf",
+        "CROQUI IA/300001111506/croqui FU 1230173.pdf",
+        "CROQUI IA/300001111506/croqui FU 1230173.xls"
+      ]
+    },
+    {
+      "id": "300001113603",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001113603/300001113603 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001113603/croqui TR 1172480.pdf",
+      "croqui_excel": "CROQUI IA/300001113603/croqui TR 1172480.xls",
+      "arquivos": [
+        "CROQUI IA/300001113603/300001113603 PROJETO A2.pdf",
+        "CROQUI IA/300001113603/croqui TR 1172480.pdf",
+        "CROQUI IA/300001113603/croqui TR 1172480.xls"
+      ]
+    },
+    {
+      "id": "300001134401",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/300001134401/300001134401 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/300001134401/croqui TR 631892 TES.pdf",
+      "croqui_excel": "CROQUI IA/300001134401/croqui TR 631892 TES.xls",
+      "arquivos": [
+        "CROQUI IA/300001134401/300001134401 PROJETO A3.pdf",
+        "CROQUI IA/300001134401/croqui TR 631892 TES.pdf",
+        "CROQUI IA/300001134401/croqui TR 631892 TES.xls"
+      ]
+    },
+    {
+      "id": "5083678",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/5083678/5083678 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/5083678/CROQUI TR 649338.pdf",
+      "croqui_excel": "CROQUI IA/5083678/CROQUI TR 649338.xls",
+      "arquivos": [
+        "CROQUI IA/5083678/5083678 PROJETO A3.pdf",
+        "CROQUI IA/5083678/CROQUI TR 649338.pdf",
+        "CROQUI IA/5083678/CROQUI TR 649338.xls"
+      ]
+    },
+    {
+      "id": "5485715",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/5485715/5485715 PROJETO A2 1°DI.pdf",
+      "croqui_pdf": "CROQUI IA/5485715/croqui TR 649196.pdf",
+      "croqui_excel": "CROQUI IA/5485715/croqui TR 649196.xls",
+      "arquivos": [
+        "CROQUI IA/5485715/5485715 PROJETO A2 1°DI.pdf",
+        "CROQUI IA/5485715/croqui TR 649196.pdf",
+        "CROQUI IA/5485715/croqui TR 649196.xls"
+      ]
+    },
+    {
+      "id": "5693836",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/5693836/5693836 PROJETO A2_2FL 1ºDI (2).pdf",
+      "croqui_pdf": "CROQUI IA/5693836/CROQUI TR 665096.pdf",
+      "croqui_excel": "CROQUI IA/5693836/CROQUI TR 665096.xls",
+      "arquivos": [
+        "CROQUI IA/5693836/5693836 PROJETO A2_2FL 1ºDI (2).pdf",
+        "CROQUI IA/5693836/CROQUI TR 665096.pdf",
+        "CROQUI IA/5693836/CROQUI TR 665096.xls"
+      ]
+    },
+    {
+      "id": "5750106",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/5750106/5750106 PROJETO A4.pdf",
+      "croqui_pdf": "CROQUI IA/5750106/CROQUI TR 634881.pdf",
+      "croqui_excel": "CROQUI IA/5750106/CROQUI TR 634881.xls",
+      "arquivos": [
+        "CROQUI IA/5750106/5750106 PROJETO A4.pdf",
+        "CROQUI IA/5750106/CROQUI TR 634881.pdf",
+        "CROQUI IA/5750106/CROQUI TR 634881.xls"
+      ]
+    },
+    {
+      "id": "6052567",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6052567/6052567 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6052567/CROQUI TR 699432.pdf",
+      "croqui_excel": "CROQUI IA/6052567/CROQUI TR 699432.xls",
+      "arquivos": [
+        "CROQUI IA/6052567/6052567 PROJETO A3.pdf",
+        "CROQUI IA/6052567/CROQUI TR 699432.pdf",
+        "CROQUI IA/6052567/CROQUI TR 699432.xls"
+      ]
+    },
+    {
+      "id": "6387498",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6387498/6387498 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6387498/CROQUI TR 678340 TES.pdf",
+      "croqui_excel": "CROQUI IA/6387498/CROQUI TR 678340 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6387498/6387498 PROJETO A2.pdf",
+        "CROQUI IA/6387498/CROQUI TR 678340 TES.pdf",
+        "CROQUI IA/6387498/CROQUI TR 678340 TES.xls"
+      ]
+    },
+    {
+      "id": "6553359",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6553359/6553359 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6553359/croqui TR 634221 TES.pdf",
+      "croqui_excel": "CROQUI IA/6553359/croqui TR 634221 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6553359/6553359 PROJETO A2.pdf",
+        "CROQUI IA/6553359/croqui TR 634221 TES.pdf",
+        "CROQUI IA/6553359/croqui TR 634221 TES.xls"
+      ]
+    },
+    {
+      "id": "6620693",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6620693/6620693 PROJETO A2_4FL.pdf",
+      "croqui_pdf": "CROQUI IA/6620693/croqui FC 1281072 TLE.pdf",
+      "croqui_excel": "CROQUI IA/6620693/croqui FC 1281072 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6620693/6620693 PROJETO A2_4FL.pdf",
+        "CROQUI IA/6620693/croqui FC 1281072 TES.xls",
+        "CROQUI IA/6620693/croqui FC 1281072 TLE.pdf"
+      ]
+    },
+    {
+      "id": "6622647",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6622647/6622647 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6622647/croqui FC 1083793.pdf",
+      "croqui_excel": "CROQUI IA/6622647/croqui FC 1083793.xls",
+      "arquivos": [
+        "CROQUI IA/6622647/6622647 PROJETO A2.pdf",
+        "CROQUI IA/6622647/croqui FC 1083793.pdf",
+        "CROQUI IA/6622647/croqui FC 1083793.xls",
+        "CROQUI IA/6622647/desktop.ini"
+      ]
+    },
+    {
+      "id": "6686230",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6686230/6686230 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6686230/croqui TR 633332.pdf",
+      "croqui_excel": "CROQUI IA/6686230/croqui TR 633332.xls",
+      "arquivos": [
+        "CROQUI IA/6686230/6686230 PROJETO A3.pdf",
+        "CROQUI IA/6686230/croqui TR 633332.pdf",
+        "CROQUI IA/6686230/croqui TR 633332.xls"
+      ]
+    },
+    {
+      "id": "6722545",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6722545/6722545 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6722545/CROQUI TR 631802 TES.pdf",
+      "croqui_excel": "CROQUI IA/6722545/CROQUI TR 631802 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6722545/6722545 PROJETO A2.pdf",
+        "CROQUI IA/6722545/CROQUI TR 631802 TES.pdf",
+        "CROQUI IA/6722545/CROQUI TR 631802 TES.xls"
+      ]
+    },
+    {
+      "id": "6722811",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6722811/6722811 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/6722811/croqui FU 600865 TES.pdf",
+      "croqui_excel": "CROQUI IA/6722811/croqui FU 600865 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6722811/6722811 PROJETO A1.pdf",
+        "CROQUI IA/6722811/croqui FU 600865 TES.pdf",
+        "CROQUI IA/6722811/croqui FU 600865 TES.xls"
+      ]
+    },
+    {
+      "id": "6723382",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6723382/6723382 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6723382/CROQUI TR 631716 B.pdf",
+      "croqui_excel": "CROQUI IA/6723382/CROQUI TR 631716 B.xls",
+      "arquivos": [
+        "CROQUI IA/6723382/6723382 PROJETO A3.pdf",
+        "CROQUI IA/6723382/CROQUI TR 631716 B.pdf",
+        "CROQUI IA/6723382/CROQUI TR 631716 B.xls"
+      ]
+    },
+    {
+      "id": "6723408",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6723408/6723408 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/6723408/CROQUI TR 732617.pdf",
+      "croqui_excel": "CROQUI IA/6723408/CROQUI TR 732617.xls",
+      "arquivos": [
+        "CROQUI IA/6723408/6723408 PROJETO A1.pdf",
+        "CROQUI IA/6723408/CROQUI TR 732617.pdf",
+        "CROQUI IA/6723408/CROQUI TR 732617.xls"
+      ]
+    },
+    {
+      "id": "6723443",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6723443/6723443 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6723443/CROQUI TR 648249 TES.pdf",
+      "croqui_excel": "CROQUI IA/6723443/CROQUI TR 648249 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6723443/6723443 PROJETO A2.pdf",
+        "CROQUI IA/6723443/CROQUI TR 648249 TES.pdf",
+        "CROQUI IA/6723443/CROQUI TR 648249 TES.xls"
+      ]
+    },
+    {
+      "id": "6770555",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6770555/6770555 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6770555/croqui FU 953951 TES.pdf",
+      "croqui_excel": "CROQUI IA/6770555/croqui FU 953951 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6770555/6770555 PROJETO A2.pdf",
+        "CROQUI IA/6770555/croqui FU 953951 TES.pdf",
+        "CROQUI IA/6770555/croqui FU 953951 TES.xls"
+      ]
+    },
+    {
+      "id": "6783017",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6783017/6783017 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6783017/CROQUI TR 632294.pdf",
+      "croqui_excel": "CROQUI IA/6783017/CROQUI TR 632294.xls",
+      "arquivos": [
+        "CROQUI IA/6783017/6783017 PROJETO A3.pdf",
+        "CROQUI IA/6783017/CROQUI TR 632294.pdf",
+        "CROQUI IA/6783017/CROQUI TR 632294.xls"
+      ]
+    },
+    {
+      "id": "6783032",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6783032/6783032 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6783032/croqui TR 1082528 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783032/croqui TR 1082528 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783032/6783032 PROJETO A2.pdf",
+        "CROQUI IA/6783032/croqui TR 1082528 TES.pdf",
+        "CROQUI IA/6783032/croqui TR 1082528 TES.xls"
+      ]
+    },
+    {
+      "id": "6783034",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6783034/6783034 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6783034/croqui TR 632209 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783034/croqui TR 632209 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783034/6783034 PROJETO A2.pdf",
+        "CROQUI IA/6783034/croqui TR 632209 TES.pdf",
+        "CROQUI IA/6783034/croqui TR 632209 TES.xls"
+      ]
+    },
+    {
+      "id": "6783037",
+      "equipamento": "religador",
+      "projeto_pdf": "CROQUI IA/6783037/6783037 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6783037/croqui RL 764008 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783037/croqui RL 764008 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783037/6783037 PROJETO A3.pdf",
+        "CROQUI IA/6783037/croqui RL 764008 TES.pdf",
+        "CROQUI IA/6783037/croqui RL 764008 TES.xls"
+      ]
+    },
+    {
+      "id": "6783039",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6783039/6783039 Projeto A2.pdf",
+      "croqui_pdf": "CROQUI IA/6783039/croqui FU 1226696 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783039/croqui FU 1226696 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783039/6783039 Projeto A2.pdf",
+        "CROQUI IA/6783039/croqui FU 1226696 TES.pdf",
+        "CROQUI IA/6783039/croqui FU 1226696 TES.xls"
+      ]
+    },
+    {
+      "id": "6783048",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6783048/6783048 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/6783048/CROQUI TR 632267.pdf",
+      "croqui_excel": "CROQUI IA/6783048/CROQUI TR 632267.xls",
+      "arquivos": [
+        "CROQUI IA/6783048/6783048 PROJETO A1.pdf",
+        "CROQUI IA/6783048/CROQUI TR 632267.pdf",
+        "CROQUI IA/6783048/CROQUI TR 632267.xls"
+      ]
+    },
+    {
+      "id": "6783051",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6783051/6783051 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/6783051/croqui FC 1285873 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783051/croqui FC 1285873 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783051/6783051 PROJETO A1.pdf",
+        "CROQUI IA/6783051/croqui FC 1285873 TES.pdf",
+        "CROQUI IA/6783051/croqui FC 1285873 TES.xls"
+      ]
+    },
+    {
+      "id": "6783053",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6783053/6783053 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6783053/croqui FU 608769.pdf",
+      "croqui_excel": "CROQUI IA/6783053/croqui FU 608769.xls",
+      "arquivos": [
+        "CROQUI IA/6783053/6783053 PROJETO A3.pdf",
+        "CROQUI IA/6783053/croqui FU 608769.pdf",
+        "CROQUI IA/6783053/croqui FU 608769.xls"
+      ]
+    },
+    {
+      "id": "6783060",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6783060/6783060 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6783060/croqui TR 1295389 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783060/croqui TR 1295389 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783060/6783060 PROJETO A3.pdf",
+        "CROQUI IA/6783060/croqui TR 1295389 TES.pdf",
+        "CROQUI IA/6783060/croqui TR 1295389 TES.xls"
+      ]
+    },
+    {
+      "id": "6783061",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6783061/6783061 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6783061/croqui FC 603553.pdf",
+      "croqui_excel": "CROQUI IA/6783061/croqui FC 603553.xls",
+      "arquivos": [
+        "CROQUI IA/6783061/6783061 PROJETO A3.pdf",
+        "CROQUI IA/6783061/croqui FC 603553.pdf",
+        "CROQUI IA/6783061/croqui FC 603553.xls"
+      ]
+    },
+    {
+      "id": "6783125",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6783125/6783125 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6783125/croqui FU 721320 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783125/croqui FU 721320 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783125/6783125 PROJETO A2.pdf",
+        "CROQUI IA/6783125/croqui FU 721320 TES.pdf",
+        "CROQUI IA/6783125/croqui FU 721320 TES.xls"
+      ]
+    },
+    {
+      "id": "6783136",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6783136/6783136 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6783136/CROQUI TR 635237 TES.pdf",
+      "croqui_excel": "CROQUI IA/6783136/CROQUI TR 635237 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6783136/6783136 PROJETO A3.pdf",
+        "CROQUI IA/6783136/CROQUI TR 635237 TES.pdf",
+        "CROQUI IA/6783136/CROQUI TR 635237 TES.xls"
+      ]
+    },
+    {
+      "id": "6789081",
+      "equipamento": "indefinido",
+      "projeto_pdf": "CROQUI IA/6789081/6789081 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6789081/croqui CF 296122.pdf",
+      "croqui_excel": "CROQUI IA/6789081/croqui CF 296122.xls",
+      "arquivos": [
+        "CROQUI IA/6789081/6789081 PROJETO A3.pdf",
+        "CROQUI IA/6789081/croqui CF 296122.pdf",
+        "CROQUI IA/6789081/croqui CF 296122.xls"
+      ]
+    },
+    {
+      "id": "6789535",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6789535/6789535 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6789535/CROQUI TR 632439.pdf",
+      "croqui_excel": "CROQUI IA/6789535/CROQUI TR 632439.xls",
+      "arquivos": [
+        "CROQUI IA/6789535/6789535 PROJETO A2.pdf",
+        "CROQUI IA/6789535/CROQUI TR 632439.pdf",
+        "CROQUI IA/6789535/CROQUI TR 632439.xls"
+      ]
+    },
+    {
+      "id": "6789537",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6789537/6789537 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/6789537/CROQUI TR 632437 TES.pdf",
+      "croqui_excel": "CROQUI IA/6789537/CROQUI TR 632437 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6789537/6789537 PROJETO A1.pdf",
+        "CROQUI IA/6789537/CROQUI TR 632437 TES.pdf",
+        "CROQUI IA/6789537/CROQUI TR 632437 TES.xls"
+      ]
+    },
+    {
+      "id": "6790906",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6790906/6790906 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6790906/croqui tr 632535.pdf",
+      "croqui_excel": "CROQUI IA/6790906/croqui tr 632535.xls",
+      "arquivos": [
+        "CROQUI IA/6790906/6790906 PROJETO A2.pdf",
+        "CROQUI IA/6790906/croqui tr 632535.pdf",
+        "CROQUI IA/6790906/croqui tr 632535.xls"
+      ]
+    },
+    {
+      "id": "6824255",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6824255/6824255 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6824255/croqui TR 761065.pdf",
+      "croqui_excel": "CROQUI IA/6824255/croqui TR 761065.xls",
+      "arquivos": [
+        "CROQUI IA/6824255/6824255 PROJETO A3.pdf",
+        "CROQUI IA/6824255/croqui TR 761065.pdf",
+        "CROQUI IA/6824255/croqui TR 761065.xls"
+      ]
+    },
+    {
+      "id": "6824322",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6824322/6824322 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6824322/croqui  TR  601184.pdf",
+      "croqui_excel": "CROQUI IA/6824322/croqui  TR  601184.xls",
+      "arquivos": [
+        "CROQUI IA/6824322/6824322 PROJETO A2.pdf",
+        "CROQUI IA/6824322/croqui  TR  601184.pdf",
+        "CROQUI IA/6824322/croqui  TR  601184.xls"
+      ]
+    },
+    {
+      "id": "6824331",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6824331/6824331 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6824331/CROQUI TR 746177.pdf",
+      "croqui_excel": "CROQUI IA/6824331/CROQUI TR 746177.xls",
+      "arquivos": [
+        "CROQUI IA/6824331/6824331 PROJETO A2.pdf",
+        "CROQUI IA/6824331/CROQUI TR 746177.pdf",
+        "CROQUI IA/6824331/CROQUI TR 746177.xls"
+      ]
+    },
+    {
+      "id": "6824336",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6824336/6824336 PROJETO A1 1FL.pdf",
+      "croqui_pdf": "CROQUI IA/6824336/croqui TR 678316 TES.pdf",
+      "croqui_excel": "CROQUI IA/6824336/croqui TR 678316 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6824336/6824336 PROJETO A1 1FL.pdf",
+        "CROQUI IA/6824336/croqui TR 678316 TES.pdf",
+        "CROQUI IA/6824336/croqui TR 678316 TES.xls"
+      ]
+    },
+    {
+      "id": "6824340",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6824340/6824340 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6824340/croqui TR 632608 TES.pdf",
+      "croqui_excel": "CROQUI IA/6824340/croqui TR 632608 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6824340/6824340 PROJETO A2.pdf",
+        "CROQUI IA/6824340/croqui TR 632608 TES.pdf",
+        "CROQUI IA/6824340/croqui TR 632608 TES.xls"
+      ]
+    },
+    {
+      "id": "6824347",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6824347/6824347 PROJETO A2_2FL.pdf",
+      "croqui_pdf": "CROQUI IA/6824347/croqui FU 732515 TES.pdf",
+      "croqui_excel": "CROQUI IA/6824347/croqui FU 732515 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6824347/6824347 PROJETO A2_2FL.pdf",
+        "CROQUI IA/6824347/croqui FU 732515 TES.pdf",
+        "CROQUI IA/6824347/croqui FU 732515 TES.xls"
+      ]
+    },
+    {
+      "id": "6824659",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6824659/6824659 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/6824659/croqui fc 1026552 (1).pdf",
+      "croqui_excel": "CROQUI IA/6824659/croqui fc 1026552 (1).xls",
+      "arquivos": [
+        "CROQUI IA/6824659/6824659 PROJETO A1.pdf",
+        "CROQUI IA/6824659/croqui fc 1026552 (1).pdf",
+        "CROQUI IA/6824659/croqui fc 1026552 (1).xls"
+      ]
+    },
+    {
+      "id": "6856840",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6856840/6856840 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6856840/croqui fu 309387.pdf",
+      "croqui_excel": "CROQUI IA/6856840/croqui fu 309387.xls",
+      "arquivos": [
+        "CROQUI IA/6856840/6856840 PROJETO A2.pdf",
+        "CROQUI IA/6856840/croqui fu 309387.pdf",
+        "CROQUI IA/6856840/croqui fu 309387.xls"
+      ]
+    },
+    {
+      "id": "6867310",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6867310/6867310 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6867310/croqui TR 678469 TES.pdf",
+      "croqui_excel": "CROQUI IA/6867310/croqui TR 678469 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6867310/6867310 PROJETO A3.pdf",
+        "CROQUI IA/6867310/croqui TR 678469 TES.pdf",
+        "CROQUI IA/6867310/croqui TR 678469 TES.xls"
+      ]
+    },
+    {
+      "id": "6868210",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6868210/6868210 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6868210/CROQUI TR 678351 TES.pdf",
+      "croqui_excel": "CROQUI IA/6868210/CROQUI TR 678351 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6868210/6868210 PROJETO A2.pdf",
+        "CROQUI IA/6868210/CROQUI TR 678351 TES.pdf",
+        "CROQUI IA/6868210/CROQUI TR 678351 TES.xls"
+      ]
+    },
+    {
+      "id": "6868902",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6868902/6868902 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6868902/croqui TR 678469 TES.pdf",
+      "croqui_excel": "CROQUI IA/6868902/croqui TR 678469 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6868902/6868902 PROJETO A2.pdf",
+        "CROQUI IA/6868902/croqui TR 678469 TES.pdf",
+        "CROQUI IA/6868902/croqui TR 678469 TES.xls"
+      ]
+    },
+    {
+      "id": "6886224",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6886224/6886224 Projeto_A4.pdf",
+      "croqui_pdf": "CROQUI IA/6886224/CROQUI TR 740342 TES.pdf",
+      "croqui_excel": "CROQUI IA/6886224/CROQUI TR 740342 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6886224/6886224 Projeto_A4.pdf",
+        "CROQUI IA/6886224/CROQUI TR 740342 TES.pdf",
+        "CROQUI IA/6886224/CROQUI TR 740342 TES.xls"
+      ]
+    },
+    {
+      "id": "6888589",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6888589/6888589 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6888589/CROQUI TR 632475.pdf",
+      "croqui_excel": "CROQUI IA/6888589/CROQUI TR 632475.xls",
+      "arquivos": [
+        "CROQUI IA/6888589/6888589 PROJETO A3.pdf",
+        "CROQUI IA/6888589/CROQUI TR 632475.pdf",
+        "CROQUI IA/6888589/CROQUI TR 632475.xls",
+        "CROQUI IA/6888589/desktop.ini"
+      ]
+    },
+    {
+      "id": "6894194",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6894194/6894194 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6894194/croqui TR 665136.pdf",
+      "croqui_excel": "CROQUI IA/6894194/croqui TR 665136.xls",
+      "arquivos": [
+        "CROQUI IA/6894194/6894194 PROJETO A2.pdf",
+        "CROQUI IA/6894194/croqui TR 665136.pdf",
+        "CROQUI IA/6894194/croqui TR 665136.xls"
+      ]
+    },
+    {
+      "id": "6913863",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6913863/6913863 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6913863/croqui FU 608681 TES.pdf",
+      "croqui_excel": "CROQUI IA/6913863/croqui FU 608681 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6913863/6913863 PROJETO A2.pdf",
+        "CROQUI IA/6913863/croqui FU 608681 TES.pdf",
+        "CROQUI IA/6913863/croqui FU 608681 TES.xls"
+      ]
+    },
+    {
+      "id": "6913876",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6913876/6913876 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6913876/croqui TR 1301112 TES.pdf",
+      "croqui_excel": "CROQUI IA/6913876/croqui TR 1301112 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6913876/6913876 PROJETO A3.pdf",
+        "CROQUI IA/6913876/croqui TR 1301112 TES.pdf",
+        "CROQUI IA/6913876/croqui TR 1301112 TES.xls"
+      ]
+    },
+    {
+      "id": "6913906",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6913906/6913906 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6913906/CROQUI TR 633141 TES.pdf",
+      "croqui_excel": "CROQUI IA/6913906/CROQUI TR 633141 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6913906/6913906 PROJETO A3.pdf",
+        "CROQUI IA/6913906/CROQUI TR 633141 TES.pdf",
+        "CROQUI IA/6913906/CROQUI TR 633141 TES.xls"
+      ]
+    },
+    {
+      "id": "6914043",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6914043/6914043 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6914043/CROQUI TR 632765 TES.pdf",
+      "croqui_excel": "CROQUI IA/6914043/CROQUI TR 632765 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6914043/6914043 PROJETO A3.pdf",
+        "CROQUI IA/6914043/CROQUI TR 632765 TES.pdf",
+        "CROQUI IA/6914043/CROQUI TR 632765 TES.xls"
+      ]
+    },
+    {
+      "id": "6914081",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6914081/6914081 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6914081/croqui TR 632320.pdf",
+      "croqui_excel": "CROQUI IA/6914081/croqui TR 632320.xls",
+      "arquivos": [
+        "CROQUI IA/6914081/6914081 PROJETO A3.pdf",
+        "CROQUI IA/6914081/croqui TR 632320.pdf",
+        "CROQUI IA/6914081/croqui TR 632320.xls"
+      ]
+    },
+    {
+      "id": "6914087",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6914087/6914087 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6914087/croqui TR 769834 TES.pdf",
+      "croqui_excel": "CROQUI IA/6914087/croqui TR 769834 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6914087/6914087 PROJETO A3.pdf",
+        "CROQUI IA/6914087/croqui TR 769834 TES.pdf",
+        "CROQUI IA/6914087/croqui TR 769834 TES.xls"
+      ]
+    },
+    {
+      "id": "6914093",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6914093/6914093 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6914093/croqui TR 631735 A.pdf",
+      "croqui_excel": "CROQUI IA/6914093/croqui TR 631735 A.xls",
+      "arquivos": [
+        "CROQUI IA/6914093/6914093 PROJETO A2.pdf",
+        "CROQUI IA/6914093/croqui TR 631735 A.pdf",
+        "CROQUI IA/6914093/croqui TR 631735 A.xls"
+      ]
+    },
+    {
+      "id": "6914098",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6914098/6914098 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6914098/CROQUI TR 632496 TES.pdf",
+      "croqui_excel": "CROQUI IA/6914098/CROQUI TR 632496 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6914098/6914098 PROJETO A2.pdf",
+        "CROQUI IA/6914098/CROQUI TR 632496 TES.pdf",
+        "CROQUI IA/6914098/CROQUI TR 632496 TES.xls"
+      ]
+    },
+    {
+      "id": "6930182",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6930182/6930182 PROJETO A1 1FL.pdf",
+      "croqui_pdf": "CROQUI IA/6930182/croqui FC 1247637 TES.pdf",
+      "croqui_excel": "CROQUI IA/6930182/croqui FC 1247637 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6930182/6930182 PROJETO A1 1FL.pdf",
+        "CROQUI IA/6930182/croqui FC 1247637 TES.pdf",
+        "CROQUI IA/6930182/croqui FC 1247637 TES.xls"
+      ]
+    },
+    {
+      "id": "6954450",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6954450/6954450 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6954450/CROQUI TR 722171 TES.pdf",
+      "croqui_excel": "CROQUI IA/6954450/CROQUI TR 722171 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6954450/6954450 PROJETO A2.pdf",
+        "CROQUI IA/6954450/CROQUI TR 722171 TES.pdf",
+        "CROQUI IA/6954450/CROQUI TR 722171 TES.xls"
+      ]
+    },
+    {
+      "id": "6954577",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/6954577/6954577 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6954577/croqui FC 761380.pdf",
+      "croqui_excel": "CROQUI IA/6954577/croqui FC 761380.xls",
+      "arquivos": [
+        "CROQUI IA/6954577/6954577 PROJETO A3.pdf",
+        "CROQUI IA/6954577/croqui FC 761380.pdf",
+        "CROQUI IA/6954577/croqui FC 761380.xls"
+      ]
+    },
+    {
+      "id": "6954592",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/6954592/6954592 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/6954592/croqui FU 740489.pdf",
+      "croqui_excel": "CROQUI IA/6954592/croqui FU 740489.xls",
+      "arquivos": [
+        "CROQUI IA/6954592/6954592 PROJETO A2.pdf",
+        "CROQUI IA/6954592/croqui FU 740489.pdf",
+        "CROQUI IA/6954592/croqui FU 740489.xls"
+      ]
+    },
+    {
+      "id": "6954706",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6954706/6954706 PROJETO A4.pdf",
+      "croqui_pdf": "CROQUI IA/6954706/croqui TR 744394.pdf",
+      "croqui_excel": "CROQUI IA/6954706/croqui TR 744394.xls",
+      "arquivos": [
+        "CROQUI IA/6954706/6954706 PROJETO A4.pdf",
+        "CROQUI IA/6954706/croqui TR 744394.pdf",
+        "CROQUI IA/6954706/croqui TR 744394.xls"
+      ]
+    },
+    {
+      "id": "6955033",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6955033/6955033 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6955033/croqui TR 631842.pdf",
+      "croqui_excel": "CROQUI IA/6955033/croqui TR 631842.xls",
+      "arquivos": [
+        "CROQUI IA/6955033/6955033 PROJETO A3.pdf",
+        "CROQUI IA/6955033/croqui TR 631842.pdf",
+        "CROQUI IA/6955033/croqui TR 631842.xls"
+      ]
+    },
+    {
+      "id": "6960542",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6960542/6960542 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6960542/CROQUI TR 634843 TES.pdf",
+      "croqui_excel": "CROQUI IA/6960542/CROQUI TR 634843 TES.xls",
+      "arquivos": [
+        "CROQUI IA/6960542/6960542 PROJETO A3.pdf",
+        "CROQUI IA/6960542/CROQUI TR 634843 TES.pdf",
+        "CROQUI IA/6960542/CROQUI TR 634843 TES.xls"
+      ]
+    },
+    {
+      "id": "6960622",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6960622/6960622 PROJETO A3 1FL.pdf",
+      "croqui_pdf": "CROQUI IA/6960622/croqui tr 633350.pdf",
+      "croqui_excel": "CROQUI IA/6960622/croqui tr 633350.xls",
+      "arquivos": [
+        "CROQUI IA/6960622/6960622 PROJETO A3 1FL.pdf",
+        "CROQUI IA/6960622/croqui tr 633350.pdf",
+        "CROQUI IA/6960622/croqui tr 633350.xls"
+      ]
+    },
+    {
+      "id": "6980481",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/6980481/6980481 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/6980481/croqui TR 757867.pdf",
+      "croqui_excel": "CROQUI IA/6980481/croqui TR 757867.xls",
+      "arquivos": [
+        "CROQUI IA/6980481/6980481 PROJETO A3.pdf",
+        "CROQUI IA/6980481/croqui TR 757867.pdf",
+        "CROQUI IA/6980481/croqui TR 757867.xls"
+      ]
+    },
+    {
+      "id": "7025527",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/7025527/7025527 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/7025527/croqui FU 608899.pdf",
+      "croqui_excel": "CROQUI IA/7025527/croqui FU 608899.xls",
+      "arquivos": [
+        "CROQUI IA/7025527/7025527 PROJETO A1.pdf",
+        "CROQUI IA/7025527/croqui FU 608899.pdf",
+        "CROQUI IA/7025527/croqui FU 608899.xls"
+      ]
+    },
+    {
+      "id": "7070408",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7070408/7070408 Projeto A1_2F.pdf",
+      "croqui_pdf": "CROQUI IA/7070408/CROQUI TR 985816.pdf",
+      "croqui_excel": "CROQUI IA/7070408/CROQUI TR 985816.xls",
+      "arquivos": [
+        "CROQUI IA/7070408/7070408 Projeto A1_2F.pdf",
+        "CROQUI IA/7070408/CROQUI TR 985816.pdf",
+        "CROQUI IA/7070408/CROQUI TR 985816.xls"
+      ]
+    },
+    {
+      "id": "7074294",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7074294/7074294 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/7074294/CROQUI FC 1232502 TES.pdf",
+      "croqui_excel": "CROQUI IA/7074294/CROQUI FC 1232502 TES.xls",
+      "arquivos": [
+        "CROQUI IA/7074294/7074294 PROJETO A2.pdf",
+        "CROQUI IA/7074294/CROQUI FC 1232502 TES.pdf",
+        "CROQUI IA/7074294/CROQUI FC 1232502 TES.xls"
+      ]
+    },
+    {
+      "id": "7083640",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7083640/7083640 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7083640/croqui TR 632261 TES.pdf",
+      "croqui_excel": "CROQUI IA/7083640/croqui TR 632261 TES.xls",
+      "arquivos": [
+        "CROQUI IA/7083640/7083640 PROJETO A3.pdf",
+        "CROQUI IA/7083640/croqui TR 632261 TES.pdf",
+        "CROQUI IA/7083640/croqui TR 632261 TES.xls"
+      ]
+    },
+    {
+      "id": "7083800",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7083800/7083800 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7083800/croqui TR 115791 TES.pdf",
+      "croqui_excel": "CROQUI IA/7083800/croqui TR 115791 TES.xls",
+      "arquivos": [
+        "CROQUI IA/7083800/7083800 PROJETO A3.pdf",
+        "CROQUI IA/7083800/croqui TR 115791 TES.pdf",
+        "CROQUI IA/7083800/croqui TR 115791 TES.xls"
+      ]
+    },
+    {
+      "id": "7114224",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7114224/7114224 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7114224/croqui FC 603966 TES.pdf",
+      "croqui_excel": "CROQUI IA/7114224/croqui FC 603966 TES.xls",
+      "arquivos": [
+        "CROQUI IA/7114224/7114224 PROJETO A3.pdf",
+        "CROQUI IA/7114224/croqui FC 603966 TES.pdf",
+        "CROQUI IA/7114224/croqui FC 603966 TES.xls"
+      ]
+    },
+    {
+      "id": "7143264",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/7143264/7143264 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7143264/croqui FU 704215.pdf",
+      "croqui_excel": "CROQUI IA/7143264/croqui FU 704215.xls",
+      "arquivos": [
+        "CROQUI IA/7143264/7143264 PROJETO A3.pdf",
+        "CROQUI IA/7143264/croqui FU 704215.pdf",
+        "CROQUI IA/7143264/croqui FU 704215.xls"
+      ]
+    },
+    {
+      "id": "7144035",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7144035/7144035 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/7144035/croqui FC 1128363.pdf",
+      "croqui_excel": "CROQUI IA/7144035/croqui FC 1128363.xls",
+      "arquivos": [
+        "CROQUI IA/7144035/7144035 PROJETO A2.pdf",
+        "CROQUI IA/7144035/croqui FC 1128363.pdf",
+        "CROQUI IA/7144035/croqui FC 1128363.xls"
+      ]
+    },
+    {
+      "id": "7152833",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7152833/7152833 PROJETO A2.pdf",
+      "croqui_pdf": null,
+      "croqui_excel": "CROQUI IA/7152833/CROQUI TR 635369.xls",
+      "arquivos": [
+        "CROQUI IA/7152833/7152833 PROJETO A2.pdf",
+        "CROQUI IA/7152833/CROQUI TR 635369.xls"
+      ]
+    },
+    {
+      "id": "7158123",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7158123/7158123 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7158123/croqui TR 893626.pdf",
+      "croqui_excel": "CROQUI IA/7158123/croqui TR 893626.xls",
+      "arquivos": [
+        "CROQUI IA/7158123/7158123 PROJETO A3.pdf",
+        "CROQUI IA/7158123/croqui TR 893626.pdf",
+        "CROQUI IA/7158123/croqui TR 893626.xls"
+      ]
+    },
+    {
+      "id": "7183558",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7183558/7183558 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/7183558/croqui FC 1156281.pdf",
+      "croqui_excel": "CROQUI IA/7183558/croqui FC 1156281.xls",
+      "arquivos": [
+        "CROQUI IA/7183558/7183558 PROJETO A2.pdf",
+        "CROQUI IA/7183558/croqui FC 1156281.pdf",
+        "CROQUI IA/7183558/croqui FC 1156281.xls"
+      ]
+    },
+    {
+      "id": "7374095",
+      "equipamento": "chave_fusivel",
+      "projeto_pdf": "CROQUI IA/7374095/7374095 PROJETO A4.pdf",
+      "croqui_pdf": "CROQUI IA/7374095/croqui FU 622553.pdf",
+      "croqui_excel": "CROQUI IA/7374095/croqui FU 622553.xls",
+      "arquivos": [
+        "CROQUI IA/7374095/7374095 PROJETO A4.pdf",
+        "CROQUI IA/7374095/croqui FU 622553.pdf",
+        "CROQUI IA/7374095/croqui FU 622553.xls"
+      ]
+    },
+    {
+      "id": "7399726",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7399726/7399726 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7399726/CROQUI FC 1315784.pdf",
+      "croqui_excel": "CROQUI IA/7399726/CROQUI FC 1315784.xls",
+      "arquivos": [
+        "CROQUI IA/7399726/7399726 PROJETO A3.pdf",
+        "CROQUI IA/7399726/CROQUI FC 1315784.pdf",
+        "CROQUI IA/7399726/CROQUI FC 1315784.xls"
+      ]
+    },
+    {
+      "id": "7399792",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7399792/7399792 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7399792/CROQUI FC 1315797.pdf",
+      "croqui_excel": "CROQUI IA/7399792/CROQUI FC 1315797.xls",
+      "arquivos": [
+        "CROQUI IA/7399792/7399792 PROJETO A3.pdf",
+        "CROQUI IA/7399792/CROQUI FC 1315797.pdf",
+        "CROQUI IA/7399792/CROQUI FC 1315797.xls"
+      ]
+    },
+    {
+      "id": "7436971",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7436971/7436971 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/7436971/CROQUI TR 632993.pdf",
+      "croqui_excel": "CROQUI IA/7436971/CROQUI TR 632993.xls",
+      "arquivos": [
+        "CROQUI IA/7436971/7436971 PROJETO A1.pdf",
+        "CROQUI IA/7436971/CROQUI TR 632993.pdf",
+        "CROQUI IA/7436971/CROQUI TR 632993.xls"
+      ]
+    },
+    {
+      "id": "7437009",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7437009/7437009 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7437009/croqui TR 635099.pdf",
+      "croqui_excel": "CROQUI IA/7437009/croqui TR 635099.xls",
+      "arquivos": [
+        "CROQUI IA/7437009/7437009 PROJETO A3.pdf",
+        "CROQUI IA/7437009/croqui TR 635099.pdf",
+        "CROQUI IA/7437009/croqui TR 635099.xls"
+      ]
+    },
+    {
+      "id": "7511769",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7511769/7511769 PROJETO A2.pdf",
+      "croqui_pdf": null,
+      "croqui_excel": "CROQUI IA/7511769/CROQUI TR 633237.xls",
+      "arquivos": [
+        "CROQUI IA/7511769/7511769 PROJETO A2.pdf",
+        "CROQUI IA/7511769/CROQUI TR 633237.xls"
+      ]
+    },
+    {
+      "id": "7514669",
+      "equipamento": "transformador",
+      "projeto_pdf": "CROQUI IA/7514669/7514669 PROJETO A3.pdf",
+      "croqui_pdf": "CROQUI IA/7514669/croqui TR 631830 TES.pdf",
+      "croqui_excel": "CROQUI IA/7514669/croqui TR 631830 TES.xls",
+      "arquivos": [
+        "CROQUI IA/7514669/7514669 PROJETO A3.pdf",
+        "CROQUI IA/7514669/croqui TR 631830 TES.pdf",
+        "CROQUI IA/7514669/croqui TR 631830 TES.xls"
+      ]
+    },
+    {
+      "id": "7544818",
+      "equipamento": "chave_faca",
+      "projeto_pdf": "CROQUI IA/7544818/7544818 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/7544818/croqui FC 1050134.pdf",
+      "croqui_excel": "CROQUI IA/7544818/croqui FC 1050134.xls",
+      "arquivos": [
+        "CROQUI IA/7544818/7544818 PROJETO A1.pdf",
+        "CROQUI IA/7544818/croqui FC 1050134.pdf",
+        "CROQUI IA/7544818/croqui FC 1050134.xls"
+      ]
+    },
+    {
+      "id": "7585796",
+      "equipamento": "religador",
+      "projeto_pdf": "CROQUI IA/7585796/7585796 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/7585796/croqui RL 1310240.pdf",
+      "croqui_excel": "CROQUI IA/7585796/croqui RL 1310240.xls",
+      "arquivos": [
+        "CROQUI IA/7585796/7585796 PROJETO A2.pdf",
+        "CROQUI IA/7585796/croqui RL 1310240.pdf",
+        "CROQUI IA/7585796/croqui RL 1310240.xls"
+      ]
+    }
+  ],
+  "regressao": [
+    {
+      "perfil": "transformador",
+      "id": "300000896747",
+      "projeto_pdf": "CROQUI IA/300000896747/300000896847_ PROJETO_ A1_DI_V2.pdf",
+      "croqui_pdf": "CROQUI IA/300000896747/CROQUI TR 1080456.pdf"
+    },
+    {
+      "perfil": "chave_fusivel",
+      "id": "300001042269",
+      "projeto_pdf": "CROQUI IA/300001042269/300001042269 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300001042269/croqui FU 1070990 TES.pdf"
+    },
+    {
+      "perfil": "religador",
+      "id": "300000871351",
+      "projeto_pdf": "CROQUI IA/300000871351/300000871351 PROJETO A2.pdf",
+      "croqui_pdf": "CROQUI IA/300000871351/croqui RL 910146.pdf"
+    },
+    {
+      "perfil": "projeto_rural_longo",
+      "id": "300001055698",
+      "projeto_pdf": "CROQUI IA/300001055698/300001055698 Projeto A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001055698/croqui FU 608929.pdf"
+    },
+    {
+      "perfil": "projeto_urbano_ramificacoes",
+      "id": "300001054367",
+      "projeto_pdf": "CROQUI IA/300001054367/300001054367 PROJETO A1.pdf",
+      "croqui_pdf": "CROQUI IA/300001054367/croqui FC 1273560 TES.pdf"
+    }
+  ]
+}

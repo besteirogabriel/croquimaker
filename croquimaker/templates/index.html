@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerador de Croquis</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <h1>Gerador de Croquis</h1>
+      <form id="form">
+        <label id="drop" class="drop">
+          <input id="file" name="arquivo" type="file" accept="application/pdf,.pdf">
+          <span id="fileText">Selecione ou arraste um PDF</span>
+        </label>
+        <button id="submit" type="submit">Gerar croqui</button>
+      </form>
+      <div id="progress" class="progress" hidden>
+        <div class="bar"><span id="bar"></span></div>
+        <p id="message">Recebendo projeto</p>
+      </div>
+      <div id="result" class="result" hidden>
+        <p>Croqui concluído</p>
+        <a id="pdf" class="button" href="#">Baixar PDF</a>
+        <a id="xls" class="button secondary" href="#" hidden>Baixar Excel</a>
+        <button id="again" type="button" class="ghost">Processar outro projeto</button>
+      </div>
+      <p id="error" class="error" hidden>Não foi possível processar este projeto</p>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

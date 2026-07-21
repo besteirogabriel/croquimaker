@@ -1,10 +1,25 @@
 services:
-  croqui-engine:
+  web:
     build: .
     ports:
-      - "5000:5000"
-    env_file:
-      - .env
+      - "${CROQUIMAKER_HOST_PORT:-8081}:8080"
+    environment:
+      CODEX_HOME: /codex-auth
+      CROQUIMAKER_TIMEOUT_SECONDS: ${CROQUIMAKER_TIMEOUT_SECONDS:-240}
+      CROQUIMAKER_MAX_UPLOAD_MB: ${CROQUIMAKER_MAX_UPLOAD_MB:-80}
+      CROQUIMAKER_CODEX_MODEL: ${CROQUIMAKER_CODEX_MODEL:-gpt-5.6-sol}
+      CROQUIMAKER_PROVIDER: ${CROQUIMAKER_PROVIDER:-codex}
     volumes:
-      - ./data:/app/data
-      - ./docs:/app/docs
+      - croquimaker_generated:/app/generated
+      - croquimaker_codex_auth:/codex-auth
+  codex-login:
+    build: .
+    profiles: ["login"]
+    environment:
+      CODEX_HOME: /codex-auth
+    volumes:
+      - croquimaker_codex_auth:/codex-auth
+    command: ["codex", "login", "--device-auth"]
+volumes:
+  croquimaker_generated:
+  croquimaker_codex_auth:

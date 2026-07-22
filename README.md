@@ -10,12 +10,13 @@ PDF vetorial
 -> condutores CAD (azul=MT, verde=BT)
 -> projeto limpo
 -> identificacao semantica
--> simbolos e areas de trabalho
+-> somente linhas e postes
 -> croqui A4 horizontal
 ```
 
 Mapa, lotes, cotas, tabelas e carimbo nao participam da fonte geometrica. A
-identificacao semantica nao cria coordenadas.
+identificacao semantica nao cria coordenadas. O desenho final nao adiciona
+areas de trabalho, contornos, legendas ou equipamentos inferidos.
 
 ## Login inicial
 

@@ -21,22 +21,18 @@ def _system_prompt() -> str:
         "Você deve converter projeto elétrico PDF em JSON técnico para um motor Python de croqui.\n\n"
         "PRINCÍPIO CENTRAL:\n"
         "A geometria do croqui já foi extraída deterministicamente dos vetores CAD do PDF. "
-        "Azul representa MT e verde representa BT. Você deve identificar apenas a semântica: equipamento "
-        "principal, equipamentos relevantes, ações, nós descritos no texto e áreas de trabalho. "
+        "Azul representa MT e verde representa BT. Você deve identificar apenas o equipamento "
+        "principal, os equipamentos relevantes, as ações e os nós descritos no texto. "
         "Nunca invente coordenadas x/y e nunca redesenhe a rede. Deixe x e y vazios.\n\n"
-        "APRENDIZADO DOS 5 EXEMPLOS FORNECIDOS PELO USUÁRIO:\n"
-        "1) Projeto urbano simples/TR: tronco principal limpo, derivações acima/abaixo, TR destacado e área tracejada próxima ao trabalho.\n"
-        "2) Projeto rural longo/FU: simplificar caminho orgânico do projeto para croqui ortogonal, usando somente segmentos horizontais e verticais; área tracejada cobre só o trecho ativo.\n"
-        "3) Projeto urbano complexo/RL: muitos ramos e múltiplas áreas; usar hierarquia tronco + ramais; pode haver mais de uma área LV/LM.\n"
-        "4) Projeto pontual/religador: foco no equipamento; mostrar vizinhança, setas fonte/carga, observações e círculo/área de destaque.\n"
-        "5) Projeto área de intervenção/FU: contorno vermelho tracejado envolvendo o trecho de intervenção; rede completa contextual visível; setas/manobras quando existirem.\n\n"
+        "RESTRIÇÃO DO CROQUI:\n"
+        "O desenho final contém exclusivamente as linhas MT/BT extraídas e os postes detectados. "
+        "Não proponha contornos, destaques, legendas operacionais ou símbolos adicionais.\n\n"
         "REGRAS DE EXTRAÇÃO OBRIGATÓRIAS:\n"
-        "- Use SOMENTE pontos com legenda técnica clara: P1, P2, P3 etc. Não use ruas, endereços, clientes, área de trabalho, números soltos ou textos livres como nós.\n"
+        "- Use SOMENTE pontos com legenda técnica clara: P1, P2, P3 etc. Não use ruas, endereços, clientes, números soltos ou textos livres como nós.\n"
         "- Todo vão explícito Vx-y deve virar trecho Px -> Py. Exemplo V5-6 => de P5 para P6.\n"
         "- Extraia todos os Vx-y explícitos. Eles são a base do grafo elétrico.\n"
         "- Todo de/para de trechos deve existir em nos.id.\n"
         "- Todo equipamento deve apontar para um no_id existente.\n"
-        "- Áreas devem referenciar apenas nós existentes em formato P1|P2|P3.\n"
         "- Se o texto/OCR estiver confuso, use as imagens das páginas para confirmar P, V, símbolos e localização.\n\n"
         "NÓS:\n"
         "Tipos permitidos: POSTE_EXISTENTE, POSTE_NOVO.\n"
@@ -60,16 +56,6 @@ def _system_prompt() -> str:
         "ENCABECAMENTO_PRIMARIO, ENCABECAMENTO_SECUNDARIO, ELEMENTO_RETIRAR, ELEMENTO_DESLOCAR, ESTAI, MEDIDOR_PRIMARIO.\n"
         "Use codigo para números operativos: TR 689726, FU 626460, RL/R3 116079, FC 1110594.\n"
         "Use estado para ABRIR, FECHAR, NA, NF, COM CARGA, SEM CARGA, FONTE, CARGA.\n\n"
-        "ÁREAS E INTERVENÇÃO:\n"
-        "- A posição final vem exclusivamente da geometria CAD já extraída.\n"
-        "- Não crie área de trabalho por padrão. Só retorne uma área quando LM, LV, linha viva, linha morta, área de trabalho ou área de intervenção estiver comprovada no projeto.\n"
-        "- Nunca crie simultaneamente LM e LV apenas porque ambas existem na simbologia dos croquis.\n"
-        "- Para TR/FU/RL/FC pontual: área pequena em volta do equipamento/intervenção.\n"
-        "- Para recondutoramento/obra longa: área envolvendo somente o trecho afetado, não o mapa todo.\n"
-        "- Preencha tipo com LM ou LV somente quando isso estiver explícito; caso contrário use INTERVENCAO.\n"
-        "- Preencha nos com os P# que realmente delimitam cada área e observacao com a instrução operacional vinculada.\n"
-        "- Se não houver evidência suficiente, retorne areas como lista vazia.\n"
-        "- Se houver setas FONTE/CARGA/fluxo, colocar observação em textos e estado do equipamento.\n\n"
         "VALIDAÇÃO FINAL ANTES DE RESPONDER:\n"
         "1) Nunca inventar nós que não aparecem como P#.\n"
         "2) Nunca criar trecho sem Vx-y explícito, exceto AUX para ligar equipamento visualmente quando necessário.\n"
@@ -133,7 +119,7 @@ def _run_codex(texto_pdf: str, image_paths: list[str]) -> dict:
             + "TEXTO EXTRAÍDO DO PDF:\n"
             + texto_pdf
             + "\n\nRetorne SOMENTE JSON válido, sem markdown, sem explicações. "
-            + "Estrutura obrigatória: {meta, nos, trechos, equipamentos, areas, textos}. "
+            + "Estrutura obrigatória: {meta, nos, trechos, equipamentos, textos}. "
             + "Preencha campos desconhecidos com string vazia."
         )
         cmd = [
@@ -173,26 +159,10 @@ def _fake_response(texto_pdf: str) -> dict:
     if not spans:
         spans = [(1, 2), (2, 3)]
     ids = sorted({p for span in spans for p in span})
-    area_kinds = list(
-        dict.fromkeys(
-            match.upper()
-            for match in re.findall(r"\b(LM|LV)\b", texto_pdf, re.I)
-        )
-    )
-    areas = [
-        {
-            "nome": kind,
-            "tipo": kind,
-            "nos": "|".join(f"P{i}" for i in ids[:3]),
-            "observacao": "",
-        }
-        for kind in area_kinds
-    ]
     return {
         "meta": {"tipo": "MVP", "equipamento": "Teste"},
         "nos": [{"id": f"P{i}", "tipo": "POSTE_EXISTENTE", "label": f"P{i}"} for i in ids],
         "trechos": [{"de": f"P{a}", "para": f"P{b}", "tipo": "MT", "cabo": ""} for a, b in spans],
         "equipamentos": [{"tipo": "TRANSFORMADOR_RGE", "codigo": "TR TESTE", "no_id": f"P{ids[0]}"}],
-        "areas": areas,
         "textos": [],
     }

@@ -13,10 +13,8 @@ BT_COLOR = (0, 0.6, 0)
 MARK_COLOR = (0, 0, 0)
 
 
-def _mark(page: fitz.Page, x: float, y_pdf: float, label: str) -> None:
+def _mark(page: fitz.Page, x: float, y_pdf: float) -> None:
     page.draw_circle((x, y_pdf), 3, color=MARK_COLOR, width=0.75)
-    if label:
-        page.insert_text((x + 4, y_pdf - 4), label, fontsize=6, color=MARK_COLOR)
 
 
 def render_clean_projeto(
@@ -27,7 +25,7 @@ def render_clean_projeto(
     inventory_path: Path | None = None,
     png_path: Path | None = None,
 ) -> Path:
-    """Executa o algoritmo fornecido por Labanino com saidas auditaveis."""
+    """Mantem somente condutores CAD e marcadores de postes."""
 
     src = fitz.open(source_path)
     out = fitz.open()
@@ -49,22 +47,15 @@ def render_clean_projeto(
                     if item[0] == "l":
                         new_page.draw_line(item[1], item[2], color=color, width=1)
 
-        def mark_position(position, label: str) -> None:
+        def mark_position(position) -> None:
             if position is None or position.page not in page_heights:
                 return
-            _mark(out[position.page], position.x, position.y_pdf(page_heights[position.page]), label)
+            _mark(out[position.page], position.x, position.y_pdf(page_heights[position.page]))
 
         # Postes recebem apenas o marcador. Codigos sequenciais nao sao rotulos
         # reais do projeto e por isso nao sao impressos.
         for pole in extraction.poles:
-            mark_position(pole.position, "")
-        for transformer in extraction.transformers:
-            mark_position(transformer.position, transformer.numero)
-        for structure in extraction.structure_types:
-            mark_position(structure.position, structure.codigo)
-        for equipment in extraction.existing_equipment:
-            mark_position(equipment.position, equipment.numero)
-
+            mark_position(pole.position)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out.save(str(out_path))
     finally:

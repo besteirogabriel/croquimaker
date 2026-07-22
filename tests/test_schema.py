@@ -14,5 +14,5 @@ def test_sanitizar_normaliza_vaos_e_cria_nos():
     assert projeto["trechos"][0]["de"] == "P1"
     assert projeto["trechos"][0]["para"] == "P2"
     assert projeto["equipamentos"][0]["no_id"] in {"P1", "P2"}
-    assert projeto["areas"][0]["nos"] == "P1|P2"
+    assert "areas" not in projeto
     assert_schema(projeto)

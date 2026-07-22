@@ -21,7 +21,7 @@ def test_classificacao_usa_cores_cad_comprovadas():
     assert classify_conductor_color((0, 0, 0)) is None
 
 
-def test_regressao_300001134401_preserva_geometria_real(tmp_path):
+def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
     extraction = base.get_extractor("projeto_pdf").extract("300001134401", PROJECT)
     assert sum(segment.tensao == "MT" for segment in extraction.conductors) == 125
     assert sum(segment.tensao == "BT" for segment in extraction.conductors) == 96
@@ -37,6 +37,8 @@ def test_regressao_300001134401_preserva_geometria_real(tmp_path):
     clean_png = tmp_path / "clean_projeto.png"
     render_clean_projeto(PROJECT, extraction, clean_pdf, png_path=clean_png)
     assert clean_pdf.exists() and clean_png.exists()
+    with fitz.open(clean_pdf) as clean_doc:
+        assert clean_doc[0].get_text().strip() == ""
 
     projeto = {
         "meta": {"equipamento": "TR 631892", "municipio": "CAXIAS DO SUL"},
@@ -51,21 +53,33 @@ def test_regressao_300001134401_preserva_geometria_real(tmp_path):
     }
     croqui = tmp_path / "croqui.pdf"
     render_croqui_geometrico(extraction, projeto, croqui)
+    sem_areas = tmp_path / "croqui_sem_areas.pdf"
+    render_croqui_geometrico(
+        extraction,
+        {**projeto, "areas": []},
+        sem_areas,
+    )
     doc = fitz.open(croqui)
+    baseline = fitz.open(sem_areas)
     try:
         assert doc.page_count == 1
         assert round(doc[0].rect.width, 1) == 841.9
         assert round(doc[0].rect.height, 1) == 595.3
         text = doc[0].get_text().upper()
-        assert text.count("AREA DE TRABALHO 1 LM") == 1
-        assert text.count("AREA DE TRABALHO 2 LV") == 1
-        assert "INSTALAR TRANSFORMADOR" in text
-        assert "ABRIR CIRCUITO DE BT" in text
+        assert "AREA DE TRABALHO" not in text
+        assert "INSTALAR TRANSFORMADOR" not in text
+        assert "ABRIR CIRCUITO DE BT" not in text
+        assert "1317501" not in text
+        assert "744770" not in text
+        assert doc[0].get_pixmap(dpi=120, alpha=False).samples == baseline[0].get_pixmap(
+            dpi=120, alpha=False
+        ).samples
     finally:
         doc.close()
+        baseline.close()
 
 
-def test_sem_areas_declaradas_nao_inventa_lm_ou_lv(tmp_path):
+def test_metadados_nao_reintroduzem_elementos_no_desenho(tmp_path):
     extraction = base.get_extractor("projeto_pdf").extract("300001134401", PROJECT)
     croqui = tmp_path / "sem_areas.pdf"
     render_croqui_geometrico(
@@ -80,4 +94,6 @@ def test_sem_areas_declaradas_nao_inventa_lm_ou_lv(tmp_path):
     with fitz.open(croqui) as doc:
         text = doc[0].get_text().upper()
         assert "AREA DE TRABALHO" not in text
+        assert "1317501" not in text
+        assert "744770" not in text
         assert " SERRA" not in text

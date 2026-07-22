@@ -2,7 +2,7 @@ import copy
 import re
 
 
-REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "areas", "textos"]
+REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "textos"]
 
 STRING_FIELD = {"type": "string"}
 
@@ -55,15 +55,6 @@ PROJECT_SCHEMA = {
                 "required": ["tipo", "codigo", "no_id", "estado", "observacao"],
             },
         },
-        "areas": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": False,
-                "properties": {"nome": STRING_FIELD, "nos": STRING_FIELD, "tipo": STRING_FIELD, "observacao": STRING_FIELD},
-                "required": ["nome", "nos", "tipo", "observacao"],
-            },
-        },
         "textos": {
             "type": "array",
             "items": {
@@ -79,6 +70,9 @@ PROJECT_SCHEMA = {
 
 def sanitizar_projeto(obj: dict) -> dict:
     obj = copy.deepcopy(obj if isinstance(obj, dict) else {})
+    # Compatibilidade com respostas antigas: areas de trabalho nao fazem mais
+    # parte do contrato e nunca seguem para a geracao.
+    obj.pop("areas", None)
     for key in REQUIRED_KEYS:
         esperado_dict = key == "meta"
         val = obj.get(key)
@@ -91,7 +85,6 @@ def sanitizar_projeto(obj: dict) -> dict:
     obj["nos"] = _dedupe_by_id(_normalize_nodes(obj["nos"]))
     obj["trechos"] = _normalize_trechos(obj["trechos"])
     obj["equipamentos"] = _normalize_equipamentos(obj["equipamentos"])
-    obj["areas"] = _normalize_areas(obj["areas"])
 
     node_set = {n["id"] for n in obj["nos"]}
     for t in obj["trechos"]:
@@ -186,21 +179,6 @@ def _normalize_equipamentos(rows: list) -> list:
         p = _extract_p(str(row.get("no_id", "")))
         if p:
             row["no_id"] = p
-        out.append(row)
-    return out
-
-
-def _normalize_areas(rows: list) -> list:
-    out = []
-    for row in rows:
-        if not isinstance(row, dict):
-            continue
-        ids = []
-        for part in re.split(r"[|,;\s]+", str(row.get("nos", ""))):
-            p = _extract_p(part)
-            if p:
-                ids.append(p)
-        row["nos"] = "|".join(dict.fromkeys(ids))
         out.append(row)
     return out
 

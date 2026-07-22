@@ -18,11 +18,12 @@ def test_pipeline_com_provedor_simulado(tmp_path, monkeypatch):
     doc.close()
     result = gerar(pdf, tmp_path / "job")
     assert result["sha256"]
-    assert result["engine"] == "geometry-cad-v3-poles-lines-only"
+    assert result["engine"] == "geometry-cad-v4-service-subgraph"
     assert (tmp_path / "job/croqui.pdf").exists()
     assert (tmp_path / "job/clean_projeto.pdf").exists()
     assert (tmp_path / "job/clean_projeto.png").exists()
     assert (tmp_path / "job/projeto.json").exists()
+    assert (tmp_path / "job/network_selection.json").exists()
     assert not (tmp_path / "job/croqui.xls").exists()
     with fitz.open(tmp_path / "job/croqui.pdf") as result_pdf:
         assert "AREA DE TRABALHO" not in result_pdf[0].get_text().upper()

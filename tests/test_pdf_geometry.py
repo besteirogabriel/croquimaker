@@ -6,6 +6,7 @@ from sistema.extractors import base
 from sistema.extractors._pdf_geometry import classify_conductor_color
 from sistema.generation.clean_projeto import render_clean_projeto
 from sistema.generation.croqui_geometrico import render_croqui_geometrico
+from sistema.topology.network import select_service_network
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,14 +46,33 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
         "equipamentos": [
             {"codigo": "1317501", "no_id": "P2"},
             {"codigo": "631892", "no_id": "P5"},
+            {"codigo": "744770", "no_id": "AUTO5"},
+            {"codigo": "1291687", "no_id": "AUTO22"},
+            {"codigo": "748794", "no_id": "AUTO43"},
         ],
         "areas": [
             {"nome": "LM", "tipo": "LM", "nos": "P2", "observacao": "Instalar transformador"},
             {"nome": "LV", "tipo": "LV", "nos": "P5", "observacao": "Abrir circuito de BT"},
         ],
     }
+    selection = select_service_network(extraction, projeto, 0)
+    assert selection.primary_code == "631892"
+    assert {"631892", "1317501", "744770", "1291687", "748794"} <= set(
+        selection.anchor_codes
+    )
+    assert len(selection.pole_indexes) == 25
+    assert len(selection.pole_indexes) < len(extraction.poles)
+    assert len(selection.segment_indexes) < len(extraction.conductors)
     croqui = tmp_path / "croqui.pdf"
-    render_croqui_geometrico(extraction, projeto, croqui)
+    selection_json = tmp_path / "network_selection.json"
+    render_croqui_geometrico(
+        extraction,
+        projeto,
+        croqui,
+        selection=selection,
+        selection_path=selection_json,
+    )
+    assert selection_json.exists()
     sem_areas = tmp_path / "croqui_sem_areas.pdf"
     render_croqui_geometrico(
         extraction,

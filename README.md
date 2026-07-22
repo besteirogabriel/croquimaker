@@ -10,6 +10,8 @@ PDF vetorial
 -> condutores CAD (azul=MT, verde=BT)
 -> projeto limpo
 -> identificacao semantica
+-> grafo de conectividade
+-> subgrafo relacionado ao servico
 -> somente linhas e postes
 -> croqui A4 horizontal
 ```
@@ -56,8 +58,12 @@ CROQUIMAKER_PROVIDER=fake docker compose up --build web
 ```
 
 Cada job grava internamente `clean_projeto.pdf`, `clean_projeto.png`, inventario
-de cores e extracao geometrica para auditoria. O cache inclui a versao do motor,
-impedindo o reaproveitamento de resultados do gerador antigo.
+de cores, extracao geometrica e `network_selection.json` para auditoria. O JSON
+registra componentes, ancoras, postes, trechos selecionados e avisos de cobertura.
+Quando o projeto nao contem geometria suficiente ou o equipamento principal nao
+pode ser posicionado, o diagnostico fica como `needs_review`; o motor nao completa
+a rede com coordenadas inventadas. O cache inclui a versao do motor, impedindo o
+reaproveitamento de resultados do gerador antigo.
 
 O download de Excel permanece desabilitado. O arquivo anteriormente usado era
 uma copia de um croqui real de outro projeto e podia contaminar o resultado. Ele

@@ -13,13 +13,14 @@ from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v3-poles-lines-only"
+ENGINE_VERSION = "geometry-cad-v4-service-subgraph"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "clean_projeto.pdf",
     "clean_projeto.png",
     "color_inventory.json",
     "extraction.json",
+    "network_selection.json",
     "projeto.json",
 )
 
@@ -86,7 +87,12 @@ def gerar(caminho_pdf: Path, job_dir: Path, progresso=None) -> dict:
     t = time.perf_counter()
     if progresso:
         progresso("Finalizando")
-    render_croqui_geometrico(extraction, projeto, job_dir / "croqui.pdf")
+    render_croqui_geometrico(
+        extraction,
+        projeto,
+        job_dir / "croqui.pdf",
+        selection_path=job_dir / "network_selection.json",
+    )
     tempos["geracao_pdf"] = time.perf_counter() - t
 
     cache_dir.mkdir(parents=True, exist_ok=True)

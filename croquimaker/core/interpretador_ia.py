@@ -62,9 +62,13 @@ def _system_prompt() -> str:
         "Use estado para ABRIR, FECHAR, NA, NF, COM CARGA, SEM CARGA, FONTE, CARGA.\n\n"
         "ÁREAS E INTERVENÇÃO:\n"
         "- A posição final vem exclusivamente da geometria CAD já extraída.\n"
+        "- Não crie área de trabalho por padrão. Só retorne uma área quando LM, LV, linha viva, linha morta, área de trabalho ou área de intervenção estiver comprovada no projeto.\n"
+        "- Nunca crie simultaneamente LM e LV apenas porque ambas existem na simbologia dos croquis.\n"
         "- Para TR/FU/RL/FC pontual: área pequena em volta do equipamento/intervenção.\n"
         "- Para recondutoramento/obra longa: área envolvendo somente o trecho afetado, não o mapa todo.\n"
-        "- Se houver LV/LM, crie áreas separadas quando possível.\n"
+        "- Preencha tipo com LM ou LV somente quando isso estiver explícito; caso contrário use INTERVENCAO.\n"
+        "- Preencha nos com os P# que realmente delimitam cada área e observacao com a instrução operacional vinculada.\n"
+        "- Se não houver evidência suficiente, retorne areas como lista vazia.\n"
         "- Se houver setas FONTE/CARGA/fluxo, colocar observação em textos e estado do equipamento.\n\n"
         "VALIDAÇÃO FINAL ANTES DE RESPONDER:\n"
         "1) Nunca inventar nós que não aparecem como P#.\n"
@@ -169,11 +173,26 @@ def _fake_response(texto_pdf: str) -> dict:
     if not spans:
         spans = [(1, 2), (2, 3)]
     ids = sorted({p for span in spans for p in span})
+    area_kinds = list(
+        dict.fromkeys(
+            match.upper()
+            for match in re.findall(r"\b(LM|LV)\b", texto_pdf, re.I)
+        )
+    )
+    areas = [
+        {
+            "nome": kind,
+            "tipo": kind,
+            "nos": "|".join(f"P{i}" for i in ids[:3]),
+            "observacao": "",
+        }
+        for kind in area_kinds
+    ]
     return {
         "meta": {"tipo": "MVP", "equipamento": "Teste"},
         "nos": [{"id": f"P{i}", "tipo": "POSTE_EXISTENTE", "label": f"P{i}"} for i in ids],
         "trechos": [{"de": f"P{a}", "para": f"P{b}", "tipo": "MT", "cabo": ""} for a, b in spans],
         "equipamentos": [{"tipo": "TRANSFORMADOR_RGE", "codigo": "TR TESTE", "no_id": f"P{ids[0]}"}],
-        "areas": [{"nome": "Area de trabalho", "nos": "|".join(f"P{i}" for i in ids[:3])}],
+        "areas": areas,
         "textos": [],
     }

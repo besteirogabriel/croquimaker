@@ -13,7 +13,15 @@ from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v1"
+ENGINE_VERSION = "geometry-cad-v2-dynamic-areas"
+JOB_ARTIFACTS = (
+    "croqui.pdf",
+    "clean_projeto.pdf",
+    "clean_projeto.png",
+    "color_inventory.json",
+    "extraction.json",
+    "projeto.json",
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -33,7 +41,7 @@ def gerar(caminho_pdf: Path, job_dir: Path, progresso=None) -> dict:
 
     if (cache_dir / "croqui.pdf").exists():
         t = time.perf_counter()
-        for name in ("croqui.pdf", "clean_projeto.pdf", "clean_projeto.png", "color_inventory.json", "extraction.json"):
+        for name in JOB_ARTIFACTS:
             if (cache_dir / name).exists():
                 shutil.copy2(cache_dir / name, job_dir / name)
         tempos["cache"] = time.perf_counter() - t
@@ -82,7 +90,7 @@ def gerar(caminho_pdf: Path, job_dir: Path, progresso=None) -> dict:
     tempos["geracao_pdf"] = time.perf_counter() - t
 
     cache_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("croqui.pdf", "clean_projeto.pdf", "clean_projeto.png", "color_inventory.json", "extraction.json"):
+    for name in JOB_ARTIFACTS:
         if (job_dir / name).exists():
             shutil.copy2(job_dir / name, cache_dir / name)
     tempos["total"] = time.perf_counter() - start

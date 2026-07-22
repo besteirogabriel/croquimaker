@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -148,6 +149,63 @@ def _cluster_points(points: Iterable[tuple[float, float]], radius: float = 8.0) 
     return clusters
 
 
+def _explicit_node_labels(page: fitz.Page) -> list[tuple[str, float, float]]:
+    """Return explicit P-number labels with their PDF-space text positions."""
+
+    labels: dict[str, tuple[str, float, float]] = {}
+    for word in page.get_text("words"):
+        token = re.sub(r"[^A-Za-z0-9]", "", str(word[4])).upper()
+        match = re.fullmatch(r"P0*(\d{1,3})", token)
+        if not match:
+            continue
+        code = f"P{int(match.group(1))}"
+        x = (float(word[0]) + float(word[2])) / 2
+        y = (float(word[1]) + float(word[3])) / 2
+        labels.setdefault(code, (code, x, y))
+    return list(labels.values())
+
+
+def _name_detected_poles(
+    page: fitz.Page, accepted: list[tuple[float, float]]
+) -> list[tuple[str, float, float]]:
+    """Associate real P# labels to detected symbols without inventing node IDs.
+
+    CAD labels are often offset from the pole by a structure-description block,
+    so association uses a bounded nearest-neighbour match. Unlabelled symbols get
+    an internal AUTO identifier and can still be rendered, but they cannot be
+    mistaken for a semantic P# returned by the interpreter.
+    """
+
+    labels = _explicit_node_labels(page)
+    max_distance = min(page.rect.width, page.rect.height) * 0.18
+    candidates: list[tuple[float, str, int]] = []
+    for code, lx, ly in labels:
+        for index, (px, py) in enumerate(accepted):
+            distance = math.hypot(px - lx, py - ly)
+            if distance <= max_distance:
+                candidates.append((distance, code, index))
+
+    assigned_codes: set[str] = set()
+    assigned_indexes: set[int] = set()
+    names: dict[int, str] = {}
+    for _, code, index in sorted(candidates):
+        if code in assigned_codes or index in assigned_indexes:
+            continue
+        names[index] = code
+        assigned_codes.add(code)
+        assigned_indexes.add(index)
+
+    result = []
+    auto_index = 1
+    for index, (x, y) in enumerate(accepted):
+        code = names.get(index)
+        if code is None:
+            code = f"AUTO{auto_index}"
+            auto_index += 1
+        result.append((code, x, y))
+    return result
+
+
 def detect_poles(doc: fitz.Document, segments: list[ConductorSegment]) -> list[Pole]:
     """Detecta o marcador CAD repetido de poste e o confirma pela rede."""
 
@@ -181,10 +239,10 @@ def detect_poles(doc: fitz.Document, segments: list[ConductorSegment]) -> list[P
                 continue
             accepted.append((x, y))
         accepted.sort(key=lambda p: (p[1], p[0]))
-        for index, (x, y) in enumerate(accepted, start=1):
+        for code, x, y in _name_detected_poles(doc[page_no], accepted):
             poles.append(
                 Pole(
-                    codigo=f"P{index}",
+                    codigo=code,
                     position=Position.from_pdf(page_no, x, y, page_height),
                 )
             )

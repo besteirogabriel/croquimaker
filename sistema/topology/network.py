@@ -425,11 +425,11 @@ def _anchor_nodes(
             continue
         anchors.append((code, pole_index, graph.pole_nodes[pole_index]))
 
-    # A response that contains only the primary equipment still needs circuit
-    # context. Add a bounded set of verified CAD equipment nearest to that
-    # anchor. This avoids both the five-pole local crop and a whole-sheet crop
-    # on dense projects with dozens of unrelated equipment labels.
-    if len(anchors) <= 1 and equipment:
+    # Semantic extraction can miss secondary labels even when their positions
+    # and codes are verified in the CAD PDF. Complete the anchor set with a
+    # bounded number of source assets nearest to the service. This preserves
+    # required transformer and switch context without selecting the whole map.
+    if len(anchors) < max_equipment_anchors and equipment:
         origin_position = equipment.get(primary_code)
         if origin_position is None and anchors:
             origin_pole = extraction.poles[anchors[0][1]]

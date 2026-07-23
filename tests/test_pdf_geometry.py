@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import fitz
@@ -9,6 +10,7 @@ from sistema.generation.croqui_geometrico import (
     _viability_percentage,
     render_croqui_geometrico,
 )
+from sistema.generation.equipment_scene import resolve_equipment_scene
 from sistema.topology.network import select_service_network
 
 
@@ -32,7 +34,7 @@ def test_viabilidade_repete_formula_do_template_rge():
     ) == "12,5%"
 
 
-def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
+def test_regressao_300001134401_preserva_rede_postes_e_equipamentos(tmp_path):
     extraction = base.get_extractor("projeto_pdf").extract("300001134401", PROJECT)
     assert sum(segment.tensao == "MT" for segment in extraction.conductors) == 125
     assert sum(segment.tensao == "BT" for segment in extraction.conductors) == 96
@@ -42,6 +44,8 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
     assert {"P2", "P3", "P4", "P5"} <= {pole.codigo for pole in extraction.poles}
     transformer_codes = {item.numero for item in extraction.transformers}
     assert {"1317501", "744770", "631892"} <= transformer_codes
+    switch_codes = {item.numero for item in extraction.existing_equipment}
+    assert {"1291687", "748794"} <= switch_codes
     assert extraction.metadata["equipamento"] == "TR 631892"
 
     clean_pdf = tmp_path / "clean_projeto.pdf"
@@ -53,12 +57,42 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
 
     projeto = {
         "meta": {"equipamento": "TR 631892", "municipio": "CAXIAS DO SUL"},
+        "nos": [
+            {"id": "P2", "tipo": "POSTE_NOVO"},
+            {"id": "P3", "tipo": "POSTE_NOVO"},
+            {"id": "P5", "tipo": "POSTE_NOVO"},
+        ],
         "equipamentos": [
-            {"codigo": "1317501", "no_id": "P2"},
-            {"codigo": "631892", "no_id": "P5"},
-            {"codigo": "744770", "no_id": "AUTO5"},
-            {"codigo": "1291687", "no_id": "AUTO22"},
-            {"codigo": "748794", "no_id": "AUTO43"},
+            {
+                "tipo": "TRANSFORMADOR_RGE",
+                "codigo": "1317501",
+                "no_id": "P3",
+                "estado": "INSTALAR",
+            },
+            {
+                "tipo": "TRANSFORMADOR_RGE",
+                "codigo": "631892",
+                "no_id": "P5",
+                "estado": "ABRIR",
+            },
+            {
+                "tipo": "TRANSFORMADOR_RGE",
+                "codigo": "744770",
+                "no_id": "AUTO5",
+                "estado": "",
+            },
+            {
+                "tipo": "CHAVE_FUSIVEL_SEM_CARGA",
+                "codigo": "1291687",
+                "no_id": "AUTO22",
+                "estado": "",
+            },
+            {
+                "tipo": "CHAVE_FUSIVEL_SEM_CARGA",
+                "codigo": "748794",
+                "no_id": "AUTO43",
+                "estado": "",
+            },
         ],
         "areas": [
             {"nome": "LM", "tipo": "LM", "nos": "P2", "observacao": "Instalar transformador"},
@@ -85,6 +119,19 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
     assert selection.to_dict(extraction)["selected_voltage_segment_counts"] == (
         selected_tensions
     )
+    scene = resolve_equipment_scene(extraction, projeto, selection)
+    resolved_codes = {item.code for item in scene.equipment}
+    assert {
+        "631892",
+        "1317501",
+        "744770",
+        "748794",
+        "1291687",
+    } <= resolved_codes
+    assert "1060277" not in resolved_codes
+    assert "748749" not in resolved_codes
+    assert len(selection.pole_indexes) == 25
+    assert scene.new_pole_indexes
     croqui = tmp_path / "croqui.pdf"
     selection_json = tmp_path / "network_selection.json"
     render_croqui_geometrico(
@@ -95,6 +142,17 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
         selection_path=selection_json,
     )
     assert selection_json.exists()
+    selection_payload = json.loads(selection_json.read_text(encoding="utf-8"))
+    assert {
+        "631892",
+        "1317501",
+        "744770",
+        "748794",
+        "1291687",
+    } <= {
+        row["code"] for row in selection_payload["rendered_equipment"]
+    }
+    assert selection_payload["new_pole_indexes"]
     sem_areas = tmp_path / "croqui_sem_areas.pdf"
     render_croqui_geometrico(
         extraction,
@@ -111,8 +169,15 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
         assert "AREA DE TRABALHO" not in text
         assert "INSTALAR TRANSFORMADOR" not in text
         assert "ABRIR CIRCUITO DE BT" not in text
-        assert "1317501" not in text
-        assert "744770" not in text
+        assert {
+            "631892",
+            "1317501",
+            "744770",
+            "748794",
+            "1291687",
+        } <= set(text.split())
+        assert "1060277" not in text
+        assert "748749" not in text
         assert doc[0].get_text().count("Sim") == 9
         assert "Viabilidade: 100,0%" in doc[0].get_text()
         assert doc[0].get_pixmap(dpi=120, alpha=False).samples == baseline[0].get_pixmap(
@@ -123,7 +188,7 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
         baseline.close()
 
 
-def test_metadados_nao_reintroduzem_elementos_no_desenho(tmp_path):
+def test_metadados_nao_reintroduzem_areas_e_ativos_ficam_com_evidencia(tmp_path):
     extraction = base.get_extractor("projeto_pdf").extract("300001134401", PROJECT)
     croqui = tmp_path / "sem_areas.pdf"
     render_croqui_geometrico(
@@ -138,6 +203,6 @@ def test_metadados_nao_reintroduzem_elementos_no_desenho(tmp_path):
     with fitz.open(croqui) as doc:
         text = doc[0].get_text().upper()
         assert "AREA DE TRABALHO" not in text
-        assert "1317501" not in text
-        assert "744770" not in text
+        assert "1317501" in text
+        assert "744770" in text
         assert " SERRA" not in text

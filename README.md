@@ -12,13 +12,17 @@ PDF vetorial
 -> identificacao semantica
 -> grafo de conectividade
 -> subgrafo relacionado ao servico
--> somente linhas e postes
+-> linhas, postes e equipamentos comprovados
 -> croqui A4 horizontal
 ```
 
 Mapa, lotes, cotas, tabelas e carimbo nao participam da fonte geometrica. A
-identificacao semantica nao cria coordenadas. O desenho final nao adiciona
-areas de trabalho, contornos, legendas ou equipamentos inferidos.
+identificacao semantica nao cria coordenadas nem altera identificadores. O
+desenho final preserva os numeros e simbolos de transformadores, chaves e demais
+ativos comprovados no PDF recebido, alem de diferenciar postes existentes e
+postes a instalar. Areas de trabalho, contornos e observacoes operacionais nao
+sao adicionados. Ativos ausentes da entrada nunca sao inferidos a partir de uma
+OS ou de um caso do corpus.
 
 ## Login inicial
 

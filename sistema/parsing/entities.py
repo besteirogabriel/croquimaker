@@ -43,6 +43,7 @@ class ConductorSegment:
 class Pole:
     codigo: str
     position: Position
+    novo: bool = False
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,7 @@ class Transformer:
     position: Position
     kva: str = ""
     novo: bool = False
+    acao: str = ""
 
 
 @dataclass(frozen=True)
@@ -65,6 +67,7 @@ class ExistingEquipment:
     position: Position
     tipo: str = "EQUIPAMENTO"
     contexto: str = ""
+    acao: str = ""
 
 
 @dataclass

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from reportlab.lib.colors import black, red, white, HexColor
@@ -10,6 +10,11 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 
 from croquimaker.core.schema import normalizar_viabilidade, viabilidade_automatica
+from sistema.generation.equipment_scene import (
+    EquipmentScene,
+    SceneEquipment,
+    resolve_equipment_scene,
+)
 from sistema.parsing.entities import ExistingEquipment, Position, ProjectExtraction, Transformer
 from sistema.topology.network import NetworkSelection, select_service_network
 
@@ -198,11 +203,194 @@ def _footer(c: canvas.Canvas, projeto: dict) -> None:
     c.rect(x, y, w, len(questions) * row_h + 9, fill=0, stroke=1)
 
 
-def _draw_pole(c: canvas.Canvas, x: float, y: float) -> None:
+def _draw_pole(c: canvas.Canvas, x: float, y: float, *, new: bool = False) -> None:
     c.setStrokeColor(black)
+    c.setFillColor(black)
     c.setLineWidth(0.55)
+    if new:
+        c.wedge(x - 2.55, y - 2.55, x + 2.55, y + 2.55, 90, 180, fill=1, stroke=0)
     c.circle(x, y, 3.1, fill=0, stroke=1)
+    c.setFillColor(white)
     c.circle(x, y, 1.25, fill=0, stroke=1)
+    c.setFillColor(black)
+
+
+def _outward_vector(
+    x: float,
+    y: float,
+    center: tuple[float, float],
+    fallback_index: int,
+) -> tuple[float, float]:
+    dx = x - center[0]
+    dy = y - center[1]
+    length = (dx * dx + dy * dy) ** 0.5
+    if length < 1e-6:
+        directions = ((0.0, 1.0), (1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))
+        return directions[fallback_index % len(directions)]
+    return dx / length, dy / length
+
+
+def _draw_transformer_symbol(
+    c: canvas.Canvas,
+    x: float,
+    y: float,
+    dx: float,
+    dy: float,
+    *,
+    new: bool,
+    disconnected: bool,
+) -> tuple[float, float]:
+    px, py = -dy, dx
+    apex = (x + dx * 4.1, y + dy * 4.1)
+    base = (x + dx * 15.0, y + dy * 15.0)
+    left = (base[0] + px * 5.2, base[1] + py * 5.2)
+    right = (base[0] - px * 5.2, base[1] - py * 5.2)
+    c.setLineWidth(0.75)
+    path = c.beginPath()
+    path.moveTo(*apex)
+    path.lineTo(*left)
+    path.lineTo(*right)
+    path.close()
+    c.drawPath(path, fill=1 if new else 0, stroke=1)
+    if disconnected:
+        cut_x = x + dx * 7.0
+        cut_y = y + dy * 7.0
+        c.setLineWidth(1.0)
+        c.line(cut_x - px * 2.4, cut_y - py * 2.4, cut_x + px * 2.4, cut_y + py * 2.4)
+    return x + dx * 23.0, y + dy * 23.0
+
+
+def _draw_fuse_switch_symbol(
+    c: canvas.Canvas,
+    x: float,
+    y: float,
+    dx: float,
+    dy: float,
+    *,
+    open_switch: bool,
+) -> tuple[float, float]:
+    px, py = -dy, dx
+    hinge = (x + dx * 7.0, y + dy * 7.0)
+    contact = (x + dx * 16.0, y + dy * 16.0)
+    c.setLineWidth(0.8)
+    c.line(x + dx * 4.0, y + dy * 4.0, *hinge)
+    c.circle(*hinge, 1.25, fill=1, stroke=1)
+    blade_end = (
+        contact[0] + (px * 4.2 if open_switch else 0.0),
+        contact[1] + (py * 4.2 if open_switch else 0.0),
+    )
+    c.line(*hinge, *blade_end)
+    c.line(
+        contact[0] - px * 3.0,
+        contact[1] - py * 3.0,
+        contact[0] + px * 3.0,
+        contact[1] + py * 3.0,
+    )
+    c.line(
+        contact[0] + dx * 2.5 - px * 2.3,
+        contact[1] + dy * 2.5 - py * 2.3,
+        contact[0] + dx * 2.5 + px * 2.3,
+        contact[1] + dy * 2.5 + py * 2.3,
+    )
+    return x + dx * 25.0, y + dy * 25.0
+
+
+def _draw_generic_equipment(
+    c: canvas.Canvas,
+    x: float,
+    y: float,
+    dx: float,
+    dy: float,
+) -> tuple[float, float]:
+    cx = x + dx * 12.0
+    cy = y + dy * 12.0
+    c.setLineWidth(0.75)
+    c.rect(cx - 3.2, cy - 3.2, 6.4, 6.4, fill=0, stroke=1)
+    c.line(x + dx * 4.0, y + dy * 4.0, cx - dx * 3.2, cy - dy * 3.2)
+    return x + dx * 21.0, y + dy * 21.0
+
+
+def _draw_equipment(
+    c: canvas.Canvas,
+    equipment: SceneEquipment,
+    x: float,
+    y: float,
+    center: tuple[float, float],
+    fallback_index: int,
+) -> None:
+    dx, dy = _outward_vector(x, y, center, fallback_index)
+    kind = equipment.kind.upper()
+    state = equipment.state.upper()
+    color = red if equipment.new or state in {"INSTALAR", "INCLUIR", "SUBSTITUIR"} else black
+    c.setStrokeColor(color)
+    c.setFillColor(color)
+    if "TRANSFORMADOR" in kind:
+        label_x, label_y = _draw_transformer_symbol(
+            c,
+            x,
+            y,
+            dx,
+            dy,
+            new=equipment.new or state in {"INSTALAR", "INCLUIR"},
+            disconnected=state in {"ABRIR", "DESLIGAR"},
+        )
+    elif "FUS" in kind or "CHAVE" in kind:
+        label_x, label_y = _draw_fuse_switch_symbol(
+            c,
+            x,
+            y,
+            dx,
+            dy,
+            open_switch=state in {"ABRIR", "DESLIGAR", "NA"},
+        )
+    else:
+        label_x, label_y = _draw_generic_equipment(c, x, y, dx, dy)
+
+    c.setFont("Helvetica", 5.3)
+    if abs(dx) < 0.35:
+        c.drawCentredString(label_x, label_y + (2.0 if dy >= 0 else -5.5), equipment.code)
+    elif dx > 0:
+        c.drawString(label_x + 2.0, label_y - 1.8, equipment.code)
+    else:
+        c.drawRightString(label_x - 2.0, label_y - 1.8, equipment.code)
+    c.setStrokeColor(black)
+    c.setFillColor(black)
+
+
+def _draw_equipment_scene(
+    c: canvas.Canvas,
+    scene: EquipmentScene,
+    extraction: ProjectExtraction,
+    point,
+) -> None:
+    mapped_poles = {}
+    for pole_index in {
+        equipment.pole_index for equipment in scene.equipment
+    }:
+        pole = extraction.poles[pole_index]
+        mapped_poles[pole_index] = point(
+            pole.position.x,
+            _page_y(pole.position, extraction),
+        )
+    if not mapped_poles:
+        return
+    center = (
+        sum(value[0] for value in mapped_poles.values()) / len(mapped_poles),
+        sum(value[1] for value in mapped_poles.values()) / len(mapped_poles),
+    )
+    counts: dict[int, int] = {}
+    for equipment in scene.equipment:
+        pole_x, pole_y = mapped_poles[equipment.pole_index]
+        offset = counts.get(equipment.pole_index, 0)
+        counts[equipment.pole_index] = offset + 1
+        _draw_equipment(
+            c,
+            equipment,
+            pole_x,
+            pole_y,
+            center,
+            fallback_index=equipment.pole_index + offset,
+        )
 
 
 def _merge_metadata(extraction: ProjectExtraction, projeto: dict) -> dict[str, str]:
@@ -266,7 +454,7 @@ def render_croqui_geometrico(
     selection: NetworkSelection | None = None,
     selection_path: Path | None = None,
 ) -> Path:
-    """Renderiza somente condutores CAD e postes extraidos do PDF."""
+    """Renderiza a rede CAD e os ativos comprovados do serviço."""
 
     if not extraction.conductors:
         raise ValueError("Projeto sem condutores CAD azuis ou verdes")
@@ -274,6 +462,7 @@ def render_croqui_geometrico(
     selection = selection or select_service_network(extraction, projeto, page_no)
     if not selection.segment_ranges:
         raise ValueError("Nao foi possivel selecionar a rede relacionada ao servico")
+    equipment_scene = resolve_equipment_scene(extraction, projeto, selection)
     region = _selection_region(extraction, selection)
     target = (28.0, 98.0, PAGE_W - 56.0, 405.0)
     point, scale = _mapper(region, target)
@@ -281,8 +470,15 @@ def render_croqui_geometrico(
 
     if selection_path is not None:
         selection_path.parent.mkdir(parents=True, exist_ok=True)
+        selection_payload = selection.to_dict(extraction)
+        selection_payload["rendered_equipment"] = [
+            asdict(item) for item in equipment_scene.equipment
+        ]
+        selection_payload["new_pole_indexes"] = sorted(
+            equipment_scene.new_pole_indexes
+        )
         selection_path.write_text(
-            json.dumps(selection.to_dict(extraction), ensure_ascii=False, indent=2),
+            json.dumps(selection_payload, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
 
@@ -315,7 +511,14 @@ def render_croqui_geometrico(
         pole = extraction.poles[pole_index]
         y_top = _page_y(pole.position, extraction)
         px, py = point(pole.position.x, y_top)
-        _draw_pole(c, px, py)
+        _draw_pole(
+            c,
+            px,
+            py,
+            new=pole_index in equipment_scene.new_pole_indexes,
+        )
+
+    _draw_equipment_scene(c, equipment_scene, extraction, point)
 
     c.save()
     return out_path

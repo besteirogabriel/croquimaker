@@ -63,7 +63,39 @@ def _extract_metadata(doc: fitz.Document) -> dict[str, str]:
     return metadata
 
 
+def _extract_actions(doc: fitz.Document) -> dict[str, str]:
+    """Extract only explicit operational actions associated with asset codes."""
+
+    text = "\n".join(page.get_text() for page in doc)
+    compact = re.sub(r"\s+", " ", text)
+    actions: dict[str, str] = {}
+    action_pattern = re.compile(
+        r"\b(Abrir|Fechar|Desligar|Ligar|Instalar|Incluir|Retirar|Excluir|"
+        r"Substituir|Deslocar)\b"
+        r"(?:\s+(?:o|a|os|as|um|uma|Transformador|Religador|Chave|"
+        r"Fus[ií]vel|Faca|equipamento)){0,5}\s+"
+        r"(?:TR|FU|FC|RL|RG|OL|SC|OMR)?\s*(\d{6,7})\b",
+        re.I,
+    )
+    aliases = {
+        "DESLIGAR": "DESLIGAR",
+        "LIGAR": "LIGAR",
+        "ABRIR": "ABRIR",
+        "FECHAR": "FECHAR",
+        "INSTALAR": "INSTALAR",
+        "INCLUIR": "INSTALAR",
+        "RETIRAR": "RETIRAR",
+        "EXCLUIR": "RETIRAR",
+        "SUBSTITUIR": "SUBSTITUIR",
+        "DESLOCAR": "DESLOCAR",
+    }
+    for match in action_pattern.finditer(compact):
+        actions.setdefault(match.group(2), aliases[match.group(1).upper()])
+    return actions
+
+
 def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> None:
+    actions = _extract_actions(doc)
     occurrences: dict[str, list[tuple[int, float, float, str, float, Position]]] = defaultdict(list)
     for page_no, page in enumerate(doc):
         words = page.get_text("words")
@@ -112,6 +144,7 @@ def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> Non
                     position=position,
                     kva=kva_match.group(1).replace(",", ".") if kva_match else "",
                     novo=is_new,
+                    acao=actions.get(numero, "INSTALAR" if is_new else ""),
                 )
             )
             continue
@@ -120,9 +153,15 @@ def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> Non
         if re.search(r"\bR[123]\b|RELIG", normalized_context):
             tipo = "RELIGADOR"
         elif re.search(r"\b\d+K\b|FUS[IÍ]V|CHAVE", normalized_context):
-            tipo = "CHAVE"
+            tipo = "CHAVE_FUSIVEL"
         extraction.existing_equipment.append(
-            ExistingEquipment(numero=numero, position=position, tipo=tipo, contexto=all_context[:240])
+            ExistingEquipment(
+                numero=numero,
+                position=position,
+                tipo=tipo,
+                contexto=all_context[:240],
+                acao=actions.get(numero, ""),
+            )
         )
 
 

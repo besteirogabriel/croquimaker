@@ -2,11 +2,13 @@ from pathlib import Path
 
 from sistema.parsing.entities import (
     ConductorSegment,
+    ExistingEquipment,
     Pole,
     Position,
     ProjectExtraction,
     Transformer,
 )
+from sistema.generation.equipment_scene import resolve_equipment_scene
 from sistema.topology.network import build_network_graph, select_service_network
 
 
@@ -169,3 +171,52 @@ def test_selecao_preserva_mt_e_bt_paralelas_entre_os_mesmos_postes():
 
     assert selection.pole_indexes == {0, 1, 2}
     assert selection.segment_indexes == {0, 1}
+
+
+def test_cena_preserva_ids_do_pdf_sem_alias_ou_inferencia():
+    extraction = ProjectExtraction(
+        folder_id="arbitrary-equipment",
+        source_path=Path("arbitrary-equipment.pdf"),
+        page_sizes={0: (300.0, 200.0)},
+        conductors=[_segment(0, 20, 100, 280, 100)],
+        poles=[
+            Pole("P1", _position(20, 100)),
+            Pole("P2", _position(150, 100)),
+            Pole("P3", _position(280, 100)),
+        ],
+        transformers=[Transformer("8123456", _position(150, 100))],
+        existing_equipment=[
+            ExistingEquipment(
+                "7654321",
+                _position(280, 100),
+                tipo="CHAVE_FUSIVEL",
+            )
+        ],
+        metadata={"equipamento": "TR 8123456"},
+    )
+    projeto = {
+        "meta": {"equipamento": "TR 8123456"},
+        "equipamentos": [
+            {
+                "codigo": "8123456",
+                "tipo": "TRANSFORMADOR_RGE",
+                "estado": "ABRIR",
+            },
+            {
+                "codigo": "7654321",
+                "tipo": "CHAVE_FUSIVEL_SEM_CARGA",
+            },
+            {
+                "codigo": "7999999",
+                "tipo": "TRANSFORMADOR_RGE",
+            },
+        ],
+    }
+
+    selection = select_service_network(extraction, projeto, 0)
+    scene = resolve_equipment_scene(extraction, projeto, selection)
+
+    assert {item.code for item in scene.equipment} == {"8123456", "7654321"}
+    assert next(item for item in scene.equipment if item.code == "8123456").state == (
+        "ABRIR"
+    )

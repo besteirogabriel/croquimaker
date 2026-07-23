@@ -18,7 +18,7 @@ from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v6-automatic-viability"
+ENGINE_VERSION = "geometry-cad-v7-equipment-symbols"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "clean_projeto.pdf",

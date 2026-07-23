@@ -21,6 +21,7 @@ class SceneEquipment:
     pole_index: int
     new: bool = False
     evidence: str = "source_pdf"
+    direction: tuple[float, float] | None = None
 
 
 @dataclass(frozen=True)
@@ -174,6 +175,48 @@ def resolve_equipment_scene(
             state=_state(item, semantic_row),
             pole_index=pole_index,
             new=bool(getattr(item, "novo", False)),
+            direction=getattr(item, "placement_direction", None),
+        )
+
+    pole_by_name = {
+        pole.codigo.upper(): index for index, pole in enumerate(extraction.poles)
+    }
+    semantic_node_to_source_pole = {
+        str(row.get("no_id", "")).strip().upper(): pole_by_code[code]
+        for row in (
+            projeto.get("equipamentos", [])
+            if isinstance(projeto, dict)
+            else []
+        )
+        if isinstance(row, dict)
+        for code in [_numeric_code(row.get("codigo", ""))]
+        if code in pole_by_code and str(row.get("no_id", "")).strip()
+    }
+    for row_index, row in enumerate(
+        projeto.get("equipamentos", []) if isinstance(projeto, dict) else []
+    ):
+        if not isinstance(row, dict) or _numeric_code(row.get("codigo", "")):
+            continue
+        node_id = str(row.get("no_id", "")).strip().upper()
+        pole_index = semantic_node_to_source_pole.get(
+            node_id,
+            pole_by_name.get(node_id),
+        )
+        if pole_index is None or pole_index not in selection.pole_indexes:
+            continue
+        kind = str(row.get("tipo", "")).strip().upper()
+        if not kind:
+            continue
+        resolved[f"semantic:{row_index}:{pole_index}:{kind}"] = SceneEquipment(
+            code="",
+            kind=kind,
+            state=str(row.get("estado", "")).strip().upper(),
+            pole_index=pole_index,
+            new=any(
+                marker in str(row.get("estado", "")).upper()
+                for marker in ("INSTALAR", "INCLUIR", "SUBSTITUIR")
+            ),
+            evidence="semantic_project",
         )
 
     new_poles = {

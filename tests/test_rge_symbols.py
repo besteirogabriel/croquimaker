@@ -24,14 +24,29 @@ def test_catalogo_vem_da_aba_simbologia_do_excel_de_referencia():
         REFERENCE_WORKBOOK.read_bytes()
     ).hexdigest()
 
-    expected_symbols = {
+    required_symbols = {
         "POSTE_EXISTENTE",
         "POSTE_NOVO",
         "TRANSFORMADOR_RGE",
+        "TRANSFORMADOR_PARTICULAR",
         "CHAVE_FUSIVEL_SEM_ABERTURA_CARGA",
         "CHAVE_FUSIVEL_COM_ABERTURA_CARGA",
+        "CHAVE_FUSIVEL_RELIGADORA",
+        "CHAVE_FACA_SEM_ABERTURA_CARGA",
+        "CHAVE_FACA_COM_ABERTURA_CARGA",
+        "RELIGADOR",
+        "SECCIONALIZADORA",
+        "ATERRAMENTO_BT",
+        "ATERRAMENTO_AT",
+        "FIM_REDE_PRIMARIA",
+        "FIM_REDE_SECUNDARIA",
+        "ELEMENTO_RETIRAR",
+        "ELEMENTO_DESLOCAR",
+        "ESTAI",
     }
-    assert expected_symbols == set(catalog["symbols"])
+    assert catalog["version"] == 2
+    assert len(catalog["symbols"]) >= 40
+    assert required_symbols <= set(catalog["symbols"])
     assert all(
         symbol["sheet"] == "Simbologia" and symbol["paths"]
         for symbol in catalog["symbols"].values()
@@ -48,7 +63,10 @@ def test_mapeamento_nao_inventa_simbolo_generico():
         symbol_for_equipment("CHAVE_FUSIVEL_COM_CARGA")
         == "CHAVE_FUSIVEL_COM_ABERTURA_CARGA"
     )
-    assert symbol_for_equipment("RELIGADOR") is None
+    assert symbol_for_equipment("CHAVE_FUSIVEL_RELIGADORA") == "CHAVE_FUSIVEL_RELIGADORA"
+    assert symbol_for_equipment("CHAVE_FACA_SEM_CARGA") == "CHAVE_FACA_SEM_ABERTURA_CARGA"
+    assert symbol_for_equipment("RELIGADOR") == "RELIGADOR"
+    assert symbol_for_equipment("ATERRAMENTO_BT") == "ATERRAMENTO_BT"
     assert symbol_for_equipment("EQUIPAMENTO_DESCONHECIDO") is None
 
 
@@ -73,5 +91,16 @@ def test_posicionamento_fica_fora_dos_condutores():
         center=(10.0, -10.0),
         incident=[(-0.2, -1.0)],
     )
-    assert branch_endpoint_direction[0] < 0
-    assert branch_endpoint_direction[1] >= 0
+    assert branch_endpoint_direction == (0.0, 1.0)
+
+    for direction in (
+        transformer_direction,
+        endpoint_direction,
+        branch_endpoint_direction,
+    ):
+        assert direction in {
+            (1.0, 0.0),
+            (0.0, 1.0),
+            (-1.0, 0.0),
+            (0.0, -1.0),
+        }

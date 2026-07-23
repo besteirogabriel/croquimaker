@@ -94,9 +94,39 @@ def _extract_actions(doc: fitz.Document) -> dict[str, str]:
     return actions
 
 
+def _placement_direction(
+    pole_position: Position,
+    label_position: Position,
+    page_height: float,
+) -> tuple[float, float] | None:
+    """Preserve the orthogonal side evidenced by the source equipment label."""
+
+    dx = label_position.x - pole_position.x
+    dy = pole_position.y_pdf(page_height) - label_position.y_pdf(page_height)
+    if abs(dx) <= 1e-6 and abs(dy) <= 1e-6:
+        return None
+    if abs(dy) >= abs(dx):
+        return (0.0, 1.0 if dy > 0 else -1.0)
+    return (1.0 if dx > 0 else -1.0, 0.0)
+
+
 def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> None:
     actions = _extract_actions(doc)
-    occurrences: dict[str, list[tuple[int, float, float, str, float, Position]]] = defaultdict(list)
+    occurrences: dict[
+        str,
+        list[
+            tuple[
+                int,
+                float,
+                float,
+                str,
+                float,
+                Position,
+                Position,
+                tuple[float, float] | None,
+            ]
+        ],
+    ] = defaultdict(list)
     for page_no, page in enumerate(doc):
         words = page.get_text("words")
         page_height = page.rect.height
@@ -111,10 +141,31 @@ def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> Non
             if pole is None:
                 continue
             position = pole.position
-            occurrences[token].append((page_no, x, y, context, distance, position))
+            label_position = Position.from_pdf(page_no, x, y, page_height)
+            occurrences[token].append(
+                (
+                    page_no,
+                    x,
+                    y,
+                    context,
+                    distance,
+                    position,
+                    label_position,
+                    _placement_direction(position, label_position, page_height),
+                )
+            )
 
     for numero, rows in occurrences.items():
-        page_no, _, _, context, _, position = min(rows, key=lambda row: row[4])
+        (
+            page_no,
+            _,
+            _,
+            context,
+            _,
+            position,
+            label_position,
+            placement_direction,
+        ) = min(rows, key=lambda row: row[4])
         all_context = " ".join(row[3] for row in rows)
         normalized_context = all_context.upper()
         is_reference = bool(
@@ -145,6 +196,8 @@ def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> Non
                     kva=kva_match.group(1).replace(",", ".") if kva_match else "",
                     novo=is_new,
                     acao=actions.get(numero, "INSTALAR" if is_new else ""),
+                    label_position=label_position,
+                    placement_direction=placement_direction,
                 )
             )
             continue
@@ -161,6 +214,8 @@ def _extract_equipment(doc: fitz.Document, extraction: ProjectExtraction) -> Non
                 tipo=tipo,
                 contexto=all_context[:240],
                 acao=actions.get(numero, ""),
+                label_position=label_position,
+                placement_direction=placement_direction,
             )
         )
 

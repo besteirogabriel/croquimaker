@@ -53,6 +53,8 @@ class Transformer:
     kva: str = ""
     novo: bool = False
     acao: str = ""
+    label_position: Position | None = None
+    placement_direction: tuple[float, float] | None = None
 
 
 @dataclass(frozen=True)
@@ -68,6 +70,8 @@ class ExistingEquipment:
     tipo: str = "EQUIPAMENTO"
     contexto: str = ""
     acao: str = ""
+    label_position: Position | None = None
+    placement_direction: tuple[float, float] | None = None
 
 
 @dataclass

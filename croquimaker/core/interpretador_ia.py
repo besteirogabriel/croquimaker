@@ -25,10 +25,11 @@ def _system_prompt() -> str:
         "principal, todos os equipamentos relevantes, seus números, ações e os nós descritos no texto. "
         "Nunca invente coordenadas x/y e nunca redesenhe a rede. Deixe x e y vazios.\n\n"
         "RESTRIÇÃO DO CROQUI:\n"
-        "O desenho final contém linhas MT/BT, postes e equipamentos elétricos comprovados pelo projeto. "
-        "Não proponha áreas de trabalho LM/LV, contornos, destaques ou observações operacionais. "
+        "O desenho final contém linhas MT/BT, postes, equipamentos elétricos, áreas de trabalho e "
+        "observações operacionais comprovadas pelo projeto. "
         "Símbolos de transformadores, chaves, religadores e postes novos devem ser preservados quando "
-        "houver evidência no projeto.\n\n"
+        "houver evidência no projeto. Nunca crie número de equipamento, alias ou coordenada que não "
+        "esteja no arquivo recebido.\n\n"
         "REGRAS DE EXTRAÇÃO OBRIGATÓRIAS:\n"
         "- Use SOMENTE pontos com legenda técnica clara: P1, P2, P3 etc. Não use ruas, endereços, clientes, números soltos ou textos livres como nós.\n"
         "- Todo vão explícito Vx-y deve virar trecho Px -> Py. Exemplo V5-6 => de P5 para P6.\n"
@@ -56,10 +57,20 @@ def _system_prompt() -> str:
         "SECCIONAMENTO_SECUNDARIO, PASSAGEM_PRIMARIO, PASSAGEM_SECUNDARIO, PASSAGEM_PRIMARIO_SECUNDARIO, "
         "FIM_REDE_PRIMARIA, FIM_REDE_SECUNDARIA, CRUZAMENTO_COM_CONEXAO, CRUZAMENTO_SEM_CONEXAO, "
         "ENCABECAMENTO_PRIMARIO, ENCABECAMENTO_SECUNDARIO, ELEMENTO_RETIRAR, ELEMENTO_DESLOCAR, ESTAI, MEDIDOR_PRIMARIO.\n"
-        "Use codigo para números operativos: TR 689726, FU 626460, RL/R3 116079, FC 1110594.\n"
+        "Use codigo para o prefixo e o número operativo literalmente extraído, por exemplo "
+        "'TR <numero>', 'FU <numero>', 'RL <numero>' ou 'FC <numero>'.\n"
         "Extraia todos os códigos de equipamentos que pertençam ao trecho do serviço, não apenas o principal.\n"
         "Use estado para ABRIR, FECHAR, DESLIGAR, LIGAR, INSTALAR, RETIRAR, SUBSTITUIR, NA, NF, "
         "COM CARGA, SEM CARGA, FONTE ou CARGA quando a ação estiver explícita.\n\n"
+        "ÁREAS, ATERRAMENTOS E AÇÕES:\n"
+        "- Preserve áreas LM (Linha Morta) e LV (Linha Viva) quando a intervenção estiver explícita no projeto.\n"
+        "- Cada área deve listar em nos somente os P# que limitam ou recebem a intervenção. Não use coordenadas.\n"
+        "- Notas como 'ABRIR CIRCUITO DE BT', 'DESLIGAR', 'INSTALAR' e 'RETIRAR' devem entrar em textos, "
+        "ancoradas ao P# comprovado mais próximo, e também na observacao da área correspondente quando aplicável.\n"
+        "- Use ATERRAMENTO_BT ou ATERRAMENTO_AT sem codigo somente quando o projeto indicar aterramento, "
+        "ou quando ele marcar explicitamente os pontos de aterramento. Nunca invente o ponto por proximidade.\n"
+        "- A simbologia será aplicada pelo motor a partir da aba Simbologia do Excel; descreva o tipo técnico, "
+        "não desenhe ou renomeie o símbolo.\n\n"
         "VALIDAÇÃO FINAL ANTES DE RESPONDER:\n"
         "1) Nunca inventar nós que não aparecem como P#.\n"
         "2) Nunca criar trecho sem Vx-y explícito, exceto AUX para ligar equipamento visualmente quando necessário.\n"
@@ -123,7 +134,7 @@ def _run_codex(texto_pdf: str, image_paths: list[str]) -> dict:
             + "TEXTO EXTRAÍDO DO PDF:\n"
             + texto_pdf
             + "\n\nRetorne SOMENTE JSON válido, sem markdown, sem explicações. "
-            + "Estrutura obrigatória: {meta, nos, trechos, equipamentos, textos}. "
+            + "Estrutura obrigatória: {meta, nos, trechos, equipamentos, areas, textos}. "
             + "Preencha campos desconhecidos com string vazia."
         )
         cmd = [
@@ -168,5 +179,6 @@ def _fake_response(texto_pdf: str) -> dict:
         "nos": [{"id": f"P{i}", "tipo": "POSTE_EXISTENTE", "label": f"P{i}"} for i in ids],
         "trechos": [{"de": f"P{a}", "para": f"P{b}", "tipo": "MT", "cabo": ""} for a, b in spans],
         "equipamentos": [{"tipo": "TRANSFORMADOR_RGE", "codigo": "TR TESTE", "no_id": f"P{ids[0]}"}],
+        "areas": [],
         "textos": [],
     }

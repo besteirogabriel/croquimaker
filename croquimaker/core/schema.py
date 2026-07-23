@@ -2,7 +2,7 @@ import copy
 import re
 
 
-REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "textos"]
+REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "areas", "textos"]
 VIABILITY_ANSWERS = ("Sim", "Não", "Não Avaliado")
 DEFAULT_VIABILITY = ("Sim",) * 9 + ("Não",)
 
@@ -57,6 +57,20 @@ PROJECT_SCHEMA = {
                 "required": ["tipo", "codigo", "no_id", "estado", "observacao"],
             },
         },
+        "areas": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "nome": STRING_FIELD,
+                    "tipo": STRING_FIELD,
+                    "nos": STRING_FIELD,
+                    "observacao": STRING_FIELD,
+                },
+                "required": ["nome", "tipo", "nos", "observacao"],
+            },
+        },
         "textos": {
             "type": "array",
             "items": {
@@ -72,9 +86,6 @@ PROJECT_SCHEMA = {
 
 def sanitizar_projeto(obj: dict) -> dict:
     obj = copy.deepcopy(obj if isinstance(obj, dict) else {})
-    # Compatibilidade com respostas antigas: areas de trabalho nao fazem mais
-    # parte do contrato e nunca seguem para a geracao.
-    obj.pop("areas", None)
     for key in REQUIRED_KEYS:
         esperado_dict = key == "meta"
         val = obj.get(key)
@@ -87,6 +98,8 @@ def sanitizar_projeto(obj: dict) -> dict:
     obj["nos"] = _dedupe_by_id(_normalize_nodes(obj["nos"]))
     obj["trechos"] = _normalize_trechos(obj["trechos"])
     obj["equipamentos"] = _normalize_equipamentos(obj["equipamentos"])
+    obj["areas"] = _normalize_areas(obj["areas"])
+    obj["textos"] = _normalize_textos(obj["textos"])
 
     node_set = {n["id"] for n in obj["nos"]}
     for t in obj["trechos"]:
@@ -107,6 +120,15 @@ def sanitizar_projeto(obj: dict) -> dict:
     for eq in obj["equipamentos"]:
         if not eq.get("no_id") or eq["no_id"] not in node_set:
             eq["no_id"] = fallback
+
+    for area in obj["areas"]:
+        area["nos"] = " ".join(
+            node_id for node_id in _node_ids(area.get("nos", ""))
+            if node_id in node_set
+        )
+    for text in obj["textos"]:
+        if text.get("no_id") not in node_set:
+            text["no_id"] = ""
 
     obj["trechos"] = [
         t for t in obj["trechos"]
@@ -195,6 +217,43 @@ def _normalize_equipamentos(rows: list) -> list:
         if p:
             row["no_id"] = p
         out.append(row)
+    return out
+
+
+def _node_ids(value: str) -> list[str]:
+    return list(
+        dict.fromkeys(
+            f"P{int(number)}"
+            for number in re.findall(r"\bP\s*0*(\d+)\b", str(value), re.I)
+        )
+    )
+
+
+def _normalize_areas(rows: list) -> list:
+    out = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        out.append({
+            "nome": str(row.get("nome", "")).strip(),
+            "tipo": str(row.get("tipo", "")).strip().upper(),
+            "nos": " ".join(_node_ids(row.get("nos", ""))),
+            "observacao": str(row.get("observacao", "")).strip(),
+        })
+    return out
+
+
+def _normalize_textos(rows: list) -> list:
+    out = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        node_ids = _node_ids(row.get("no_id", ""))
+        out.append({
+            "texto": str(row.get("texto", "")).strip(),
+            "no_id": node_ids[0] if node_ids else "",
+            "tipo": str(row.get("tipo", "")).strip().upper(),
+        })
     return out
 
 

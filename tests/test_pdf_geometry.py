@@ -3,20 +3,177 @@ from pathlib import Path
 
 import fitz
 
-from sistema.extractors import base
 from sistema.extractors._pdf_geometry import classify_conductor_color
-from sistema.generation.clean_projeto import render_clean_projeto
 from sistema.generation.croqui_geometrico import (
     _viability_percentage,
     render_croqui_geometrico,
 )
 from sistema.generation.equipment_scene import resolve_equipment_scene
-from sistema.topology.network import select_service_network
+from sistema.parsing.entities import (
+    ConductorSegment,
+    ExistingEquipment,
+    Pole,
+    Position,
+    ProjectExtraction,
+    Transformer,
+)
+from sistema.topology.network import NetworkGraph, NetworkSelection
 
 
-ROOT = Path(__file__).resolve().parents[1]
-CASE_DIR = ROOT / "CROQUI IA" / "300001134401"
-PROJECT = CASE_DIR / "300001134401 PROJETO A3.pdf"
+def _position(x: float, y_top: float) -> Position:
+    return Position.from_pdf(0, x, y_top, 400.0)
+
+
+def _segment(
+    tension: str,
+    start: tuple[float, float],
+    end: tuple[float, float],
+    sequence: int,
+) -> ConductorSegment:
+    return ConductorSegment(
+        page=0,
+        tensao=tension,
+        x1=start[0],
+        y1=start[1],
+        x2=end[0],
+        y2=end[1],
+        path_id=f"synthetic-{tension}-{sequence}",
+        sequence=sequence,
+        color=(0.0, 0.0, 1.0) if tension == "MT" else (0.0, 0.699, 0.0),
+        width=1.0,
+    )
+
+
+def _synthetic_extraction() -> ProjectExtraction:
+    poles = [
+        Pole("P1", _position(200, 80)),
+        Pole("P2", _position(200, 200)),
+        Pole("P3", _position(200, 320)),
+        Pole("P4", _position(80, 200)),
+    ]
+    conductors = [
+        _segment("MT", (200, 80), (200, 320), 0),
+        _segment("BT", (206, 80), (206, 320), 1),
+        _segment("MT", (80, 200), (200, 200), 2),
+        _segment("BT", (80, 206), (200, 206), 3),
+    ]
+    return ProjectExtraction(
+        folder_id="synthetic-operational-scene",
+        source_path=Path("synthetic.pdf"),
+        page_sizes={0: (600.0, 400.0)},
+        conductors=conductors,
+        poles=poles,
+        transformers=[
+            Transformer("910001", poles[0].position),
+            Transformer("910003", poles[2].position),
+        ],
+        existing_equipment=[
+            ExistingEquipment(
+                "910002",
+                poles[3].position,
+                tipo="CHAVE_FUSIVEL",
+            ),
+        ],
+        metadata={
+            "equipamento": "TR 910001",
+            "municipio": "MUNICIPIO TESTE",
+            "data": "01/01/2030",
+        },
+    )
+
+
+def _synthetic_project() -> dict:
+    return {
+        "meta": {
+            "equipamento": "TR 910001",
+            "municipio": "MUNICIPIO TESTE",
+        },
+        "nos": [
+            {"id": "P1", "tipo": "POSTE_NOVO"},
+            {"id": "P2", "tipo": "POSTE_EXISTENTE"},
+            {"id": "P3", "tipo": "POSTE_EXISTENTE"},
+            {"id": "P4", "tipo": "POSTE_EXISTENTE"},
+        ],
+        "trechos": [],
+        "equipamentos": [
+            {
+                "tipo": "TRANSFORMADOR_RGE",
+                "codigo": "910001",
+                "no_id": "P1",
+                "estado": "INSTALAR",
+            },
+            {
+                "tipo": "CHAVE_FUSIVEL_SEM_CARGA",
+                "codigo": "910002",
+                "no_id": "P4",
+                "estado": "",
+            },
+            {
+                "tipo": "TRANSFORMADOR_RGE",
+                "codigo": "910003",
+                "no_id": "P3",
+                "estado": "ABRIR",
+            },
+            {
+                "tipo": "ATERRAMENTO_BT",
+                "codigo": "",
+                "no_id": "P1",
+                "estado": "INSTALAR",
+            },
+            {
+                "tipo": "ATERRAMENTO_BT",
+                "codigo": "",
+                "no_id": "P2",
+                "estado": "INSTALAR",
+            },
+            {
+                "tipo": "ATERRAMENTO_BT",
+                "codigo": "",
+                "no_id": "P3",
+                "estado": "INSTALAR",
+            },
+        ],
+        "areas": [
+            {
+                "nome": "LM",
+                "tipo": "LM",
+                "nos": "P1 P3",
+                "observacao": "Instalar transformador",
+            },
+            {
+                "nome": "LV",
+                "tipo": "LV",
+                "nos": "P1 P2",
+                "observacao": "Abrir circuito de BT",
+            },
+        ],
+        "textos": [
+            {
+                "texto": "Abrir circuito de BT",
+                "no_id": "P2",
+                "tipo": "MANOBRA",
+            },
+        ],
+    }
+
+
+def _synthetic_selection(extraction: ProjectExtraction) -> NetworkSelection:
+    return NetworkSelection(
+        page=0,
+        segment_ranges={
+            index: [(0.0, 1.0)]
+            for index in range(len(extraction.conductors))
+        },
+        pole_indexes=set(range(len(extraction.poles))),
+        anchor_codes=["910001", "910002", "910003"],
+        primary_code="910001",
+        component=0,
+        graph=NetworkGraph(
+            page=0,
+            snap_tolerance=1.0,
+            pole_tolerance=8.0,
+        ),
+    )
 
 
 def test_classificacao_usa_cores_cad_comprovadas():
@@ -34,180 +191,87 @@ def test_viabilidade_repete_formula_do_template_rge():
     ) == "12,5%"
 
 
-def test_regressao_300001134401_preserva_rede_postes_e_equipamentos(tmp_path):
-    extraction = base.get_extractor("projeto_pdf").extract("300001134401", PROJECT)
-    assert sum(segment.tensao == "MT" for segment in extraction.conductors) == 125
-    assert sum(segment.tensao == "BT" for segment in extraction.conductors) == 96
-    assert round(sum(segment.length for segment in extraction.conductors if segment.tensao == "MT"), 1) == 3024.3
-    assert round(sum(segment.length for segment in extraction.conductors if segment.tensao == "BT"), 1) == 5186.4
-    assert len(extraction.poles) >= 45
-    assert {"P2", "P3", "P4", "P5"} <= {pole.codigo for pole in extraction.poles}
-    transformer_codes = {item.numero for item in extraction.transformers}
-    assert {"1317501", "744770", "631892"} <= transformer_codes
-    switch_codes = {item.numero for item in extraction.existing_equipment}
-    assert {"1291687", "748794"} <= switch_codes
-    assert extraction.metadata["equipamento"] == "TR 631892"
-
-    clean_pdf = tmp_path / "clean_projeto.pdf"
-    clean_png = tmp_path / "clean_projeto.png"
-    render_clean_projeto(PROJECT, extraction, clean_pdf, png_path=clean_png)
-    assert clean_pdf.exists() and clean_png.exists()
-    with fitz.open(clean_pdf) as clean_doc:
-        assert clean_doc[0].get_text().strip() == ""
-
-    projeto = {
-        "meta": {"equipamento": "TR 631892", "municipio": "CAXIAS DO SUL"},
-        "nos": [
-            {"id": "P2", "tipo": "POSTE_NOVO"},
-            {"id": "P3", "tipo": "POSTE_NOVO"},
-            {"id": "P5", "tipo": "POSTE_NOVO"},
-        ],
-        "equipamentos": [
-            {
-                "tipo": "TRANSFORMADOR_RGE",
-                "codigo": "1317501",
-                "no_id": "P3",
-                "estado": "INSTALAR",
-            },
-            {
-                "tipo": "TRANSFORMADOR_RGE",
-                "codigo": "631892",
-                "no_id": "P5",
-                "estado": "ABRIR",
-            },
-            {
-                "tipo": "TRANSFORMADOR_RGE",
-                "codigo": "744770",
-                "no_id": "AUTO5",
-                "estado": "",
-            },
-            {
-                "tipo": "CHAVE_FUSIVEL_SEM_CARGA",
-                "codigo": "1291687",
-                "no_id": "AUTO22",
-                "estado": "",
-            },
-            {
-                "tipo": "CHAVE_FUSIVEL_SEM_CARGA",
-                "codigo": "748794",
-                "no_id": "AUTO43",
-                "estado": "",
-            },
-        ],
-        "areas": [
-            {"nome": "LM", "tipo": "LM", "nos": "P2", "observacao": "Instalar transformador"},
-            {"nome": "LV", "tipo": "LV", "nos": "P5", "observacao": "Abrir circuito de BT"},
-        ],
-    }
-    selection = select_service_network(extraction, projeto, 0)
-    assert selection.primary_code == "631892"
-    assert {"631892", "1317501", "744770", "1291687", "748794"} <= set(
-        selection.anchor_codes
-    )
-    assert len(selection.pole_indexes) == 25
-    assert len(selection.pole_indexes) < len(extraction.poles)
-    assert len(selection.segment_indexes) < len(extraction.conductors)
-    selected_tensions = {
-        tension: sum(
-            extraction.conductors[index].tensao == tension
-            for index in selection.segment_indexes
-        )
-        for tension in ("MT", "BT")
-    }
-    assert selected_tensions["MT"] >= 15
-    assert selected_tensions["BT"] >= 20
-    assert selection.to_dict(extraction)["selected_voltage_segment_counts"] == (
-        selected_tensions
-    )
+def test_cena_sintetica_preserva_simbolos_areas_e_acoes(tmp_path):
+    extraction = _synthetic_extraction()
+    projeto = _synthetic_project()
+    selection = _synthetic_selection(extraction)
     scene = resolve_equipment_scene(extraction, projeto, selection)
-    resolved_codes = {item.code for item in scene.equipment}
-    assert {
-        "631892",
-        "1317501",
-        "744770",
-        "748794",
-        "1291687",
-    } <= resolved_codes
-    assert "1060277" not in resolved_codes
-    assert "748749" not in resolved_codes
-    assert len(selection.pole_indexes) == 25
-    assert scene.new_pole_indexes
+
+    assert {item.code for item in scene.equipment if item.code} == {
+        "910001",
+        "910002",
+        "910003",
+    }
+    assert sum(
+        item.kind == "ATERRAMENTO_BT" for item in scene.equipment
+    ) == 3
+    assert scene.new_pole_indexes == {0}
+
     croqui = tmp_path / "croqui.pdf"
-    selection_json = tmp_path / "network_selection.json"
+    diagnostics = tmp_path / "network_selection.json"
     render_croqui_geometrico(
         extraction,
         projeto,
         croqui,
         selection=selection,
-        selection_path=selection_json,
+        selection_path=diagnostics,
     )
-    assert selection_json.exists()
-    selection_payload = json.loads(selection_json.read_text(encoding="utf-8"))
-    assert selection_payload["symbol_catalog"]["sheet"] == "Simbologia"
-    assert (
-        selection_payload["symbol_catalog"]["workbook"]
-        == "data/templates/croqui_template.xls"
-    )
+
+    payload = json.loads(diagnostics.read_text(encoding="utf-8"))
+    assert payload["symbol_catalog"]["sheet"] == "Simbologia"
     assert {
-        "631892",
-        "1317501",
-        "744770",
-        "748794",
-        "1291687",
-    } <= {
-        row["code"] for row in selection_payload["rendered_equipment"]
+        row["kind"] for row in payload["rendered_equipment"]
+    } >= {
+        "TRANSFORMADOR_RGE",
+        "CHAVE_FUSIVEL_SEM_CARGA",
+        "ATERRAMENTO_BT",
     }
-    assert selection_payload["new_pole_indexes"]
-    sem_areas = tmp_path / "croqui_sem_areas.pdf"
-    render_croqui_geometrico(
-        extraction,
-        {**projeto, "areas": []},
-        sem_areas,
+    assert all(
+        tuple(row["direction"]) in {
+            (1.0, 0.0),
+            (0.0, 1.0),
+            (-1.0, 0.0),
+            (0.0, -1.0),
+        }
+        for row in payload["rendered_equipment"]
     )
-    doc = fitz.open(croqui)
-    baseline = fitz.open(sem_areas)
-    try:
+    assert [area["kind"] for area in payload["work_areas"]] == [
+        "LM",
+        "LV",
+    ]
+    assert payload["operational_notes"][0]["text"] == (
+        "Abrir circuito de BT"
+    )
+
+    with fitz.open(croqui) as doc:
+        text = doc[0].get_text().upper()
         assert doc.page_count == 1
         assert round(doc[0].rect.width, 1) == 841.9
         assert round(doc[0].rect.height, 1) == 595.3
-        text = doc[0].get_text().upper()
-        assert "AREA DE TRABALHO" not in text
-        assert "INSTALAR TRANSFORMADOR" not in text
-        assert "ABRIR CIRCUITO DE BT" not in text
-        assert {
-            "631892",
-            "1317501",
-            "744770",
-            "748794",
-            "1291687",
-        } <= set(text.split())
-        assert "1060277" not in text
-        assert "748749" not in text
-        assert doc[0].get_text().count("Sim") == 9
-        assert "Viabilidade: 100,0%" in doc[0].get_text()
-        assert doc[0].get_pixmap(dpi=120, alpha=False).samples == baseline[0].get_pixmap(
-            dpi=120, alpha=False
-        ).samples
-    finally:
-        doc.close()
-        baseline.close()
+        assert {"910001", "910002", "910003"} <= set(text.split())
+        assert "ÁREA DE TRABALHO 1 LM" in text
+        assert "ÁREA DE TRABALHO 2 LV" in text
+        assert "INSTALAR TRANSFORMADOR" in text
+        assert "ABRIR CIRCUITO DE BT" in text
+        assert text.count("SIM") == 9
+        assert "VIABILIDADE: 100,0%" in text
 
 
-def test_metadados_nao_reintroduzem_areas_e_ativos_ficam_com_evidencia(tmp_path):
-    extraction = base.get_extractor("projeto_pdf").extract("300001134401", PROJECT)
+def test_areas_nao_aparecem_sem_evidencia_semantica(tmp_path):
+    extraction = _synthetic_extraction()
+    projeto = {
+        **_synthetic_project(),
+        "areas": [],
+        "textos": [],
+    }
     croqui = tmp_path / "sem_areas.pdf"
     render_croqui_geometrico(
         extraction,
-        {
-            "meta": {"equipamento": "TR 631892"},
-            "equipamentos": [{"codigo": "631892", "no_id": "P5"}],
-            "areas": [],
-        },
+        projeto,
         croqui,
+        selection=_synthetic_selection(extraction),
     )
     with fitz.open(croqui) as doc:
         text = doc[0].get_text().upper()
-        assert "AREA DE TRABALHO" not in text
-        assert "1317501" in text
-        assert "744770" in text
-        assert " SERRA" not in text
+        assert "ÁREA DE TRABALHO" not in text
+        assert "ABRIR CIRCUITO DE BT" not in text

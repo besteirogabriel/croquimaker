@@ -2,6 +2,7 @@ from croquimaker.core.schema import (
     assert_schema,
     normalizar_viabilidade,
     sanitizar_projeto,
+    viabilidade_automatica,
 )
 
 
@@ -28,3 +29,7 @@ def test_viabilidade_invalida_nunca_vira_confirmacao_implicita():
         "Não Avaliado",
         *(["Não Avaliado"] * 8),
     ]
+
+
+def test_viabilidade_automatica_segue_perfil_padrao_rge():
+    assert viabilidade_automatica() == ["Sim"] * 9 + ["Não"]

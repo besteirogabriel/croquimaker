@@ -6,14 +6,19 @@ import time
 from pathlib import Path
 
 from .interpretador_ia import interpretar_pdf
-from .schema import assert_schema, normalizar_viabilidade, sanitizar_projeto
+from .schema import (
+    assert_schema,
+    normalizar_viabilidade,
+    sanitizar_projeto,
+    viabilidade_automatica,
+)
 from sistema.extractors import base
 from sistema.generation.clean_projeto import render_clean_projeto
 from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v5-dual-voltage-viability"
+ENGINE_VERSION = "geometry-cad-v6-automatic-viability"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "clean_projeto.pdf",
@@ -43,7 +48,11 @@ def gerar(
     tempos = {}
     start = time.perf_counter()
     digest = sha256_file(caminho_pdf)
-    viability_answers = normalizar_viabilidade(viabilidade or [])
+    viability_answers = (
+        normalizar_viabilidade(viabilidade)
+        if viabilidade is not None
+        else viabilidade_automatica()
+    )
     options_digest = hashlib.sha256(
         json.dumps(viability_answers, ensure_ascii=False).encode("utf-8")
     ).hexdigest()[:12]

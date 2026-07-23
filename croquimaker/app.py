@@ -1,16 +1,15 @@
+import json
 import logging
 import mimetypes
 import os
 import queue
 import threading
 import uuid
-import json
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
 
 from .core.pipeline import gerar
-from .core.schema import normalizar_viabilidade
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 LOG = logging.getLogger(__name__)
@@ -41,7 +40,6 @@ def _job_public(job: dict) -> dict:
         "message": job["message"],
         "has_excel": bool(job.get("has_excel")),
         "result": job.get("result", {}),
-        "viabilidade": job.get("viabilidade", []),
     }
 
 
@@ -95,7 +93,6 @@ def _worker():
                 Path(job["input"]),
                 Path(job["dir"]),
                 progresso=progresso,
-                viabilidade=job.get("viabilidade"),
             )
             job["result"] = result
             job["has_excel"] = (Path(job["dir"]) / "croqui.xls").exists()
@@ -132,11 +129,6 @@ def criar_projeto():
     mime = f.mimetype or mimetypes.guess_type(f.filename)[0] or ""
     if mime not in {"application/pdf", "application/x-pdf", "application/octet-stream"}:
         return jsonify({"message": PUBLIC_MESSAGES["error"]}), 400
-    try:
-        raw_viability = json.loads(request.form.get("viabilidade", "[]"))
-    except json.JSONDecodeError:
-        return jsonify({"message": PUBLIC_MESSAGES["error"]}), 400
-    viability = normalizar_viabilidade(raw_viability)
     job_id = uuid.uuid4().hex
     job_dir = JOBS_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
@@ -151,7 +143,6 @@ def criar_projeto():
         "state": "queued",
         "message": PUBLIC_MESSAGES["queued"],
         "has_excel": False,
-        "viabilidade": viability,
     }
     _save_job(jobs[job_id])
     work_q.put(job_id)

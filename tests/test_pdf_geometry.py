@@ -113,6 +113,8 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
         assert "ABRIR CIRCUITO DE BT" not in text
         assert "1317501" not in text
         assert "744770" not in text
+        assert doc[0].get_text().count("Sim") == 9
+        assert "Viabilidade: 100,0%" in doc[0].get_text()
         assert doc[0].get_pixmap(dpi=120, alpha=False).samples == baseline[0].get_pixmap(
             dpi=120, alpha=False
         ).samples

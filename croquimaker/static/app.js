@@ -12,36 +12,6 @@ const xls = document.querySelector("#xls");
 const again = document.querySelector("#again");
 const error = document.querySelector("#error");
 const base = "/" + ["a", "pi"].join("") + "/projetos";
-const viabilityFields = document.querySelector("#viabilityFields");
-const viabilityQuestions = [
-  "Tipo de solo avaliado",
-  "Poste e equipamentos avaliados em campo",
-  "Compatibilidade do condutor para Linha Viva",
-  "Preparação da obra realizada",
-  "Veículo reserva disponível",
-  "Cliente concorda com a intervenção",
-  "Material disponível",
-  "Tempo de execução adequado",
-  "Documento reserva previsto",
-  "Documento cancelado ou reprogramado"
-];
-
-for (const [index, question] of viabilityQuestions.entries()) {
-  const label = document.createElement("label");
-  label.className = "viability-row";
-  const text = document.createElement("span");
-  text.textContent = `${index + 1}. ${question}`;
-  const select = document.createElement("select");
-  select.dataset.viability = String(index);
-  for (const value of ["Não Avaliado", "Sim", "Não"]) {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = value;
-    select.appendChild(option);
-  }
-  label.append(text, select);
-  viabilityFields.appendChild(label);
-}
 
 const widths = {
   "Recebendo projeto": "18%",
@@ -76,9 +46,6 @@ form.addEventListener("submit", async e => {
   progress.hidden = false;
   const data = new FormData();
   data.append("arquivo", file.files[0]);
-  data.append("viabilidade", JSON.stringify(
-    [...document.querySelectorAll("[data-viability]")].map(field => field.value)
-  ));
   try {
     const created = await fetch(base, { method: "POST", body: data });
     if (!created.ok) throw new Error();

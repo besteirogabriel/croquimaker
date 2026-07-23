@@ -9,7 +9,7 @@ from reportlab.lib.colors import black, red, white, HexColor
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 
-from croquimaker.core.schema import normalizar_viabilidade
+from croquimaker.core.schema import normalizar_viabilidade, viabilidade_automatica
 from sistema.parsing.entities import ExistingEquipment, Position, ProjectExtraction, Transformer
 from sistema.topology.network import NetworkSelection, select_service_network
 
@@ -157,8 +157,15 @@ def _footer(c: canvas.Canvas, projeto: dict) -> None:
         "Este documento já foi CANCELADO ou é uma Reprogramação?",
     ]
     viability = projeto.get("viabilidade", {}) if isinstance(projeto, dict) else {}
-    answers = normalizar_viabilidade(
-        viability.get("respostas", []) if isinstance(viability, dict) else []
+    viability_rows = (
+        viability.get("respostas")
+        if isinstance(viability, dict)
+        else None
+    )
+    answers = (
+        normalizar_viabilidade(viability_rows)
+        if viability_rows
+        else viabilidade_automatica()
     )
     percentage = _viability_percentage(answers)
     answer_x = x + w - 93

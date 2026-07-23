@@ -4,6 +4,7 @@ import re
 
 REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "textos"]
 VIABILITY_ANSWERS = ("Sim", "Não", "Não Avaliado")
+DEFAULT_VIABILITY = ("Sim",) * 9 + ("Não",)
 
 STRING_FIELD = {"type": "string"}
 
@@ -113,11 +114,17 @@ def sanitizar_projeto(obj: dict) -> dict:
         and t["de"] in node_set and t["para"] in node_set
         and t["de"] != t["para"]
     ]
+    viability = obj.get("viabilidade")
+    viability_rows = (
+        viability.get("respostas")
+        if isinstance(viability, dict)
+        else None
+    )
     obj["viabilidade"] = {
-        "respostas": normalizar_viabilidade(
-            (obj.get("viabilidade") or {}).get("respostas", [])
-            if isinstance(obj.get("viabilidade"), dict)
-            else []
+        "respostas": (
+            normalizar_viabilidade(viability_rows)
+            if viability_rows
+            else viabilidade_automatica()
         )
     }
     return obj
@@ -224,3 +231,9 @@ def normalizar_viabilidade(rows) -> list[str]:
         normalized.append(aliases.get(key, "Não Avaliado"))
     normalized.extend(["Não Avaliado"] * (10 - len(normalized)))
     return normalized
+
+
+def viabilidade_automatica() -> list[str]:
+    """Return the standard RGE viability profile used by generated croquis."""
+
+    return list(DEFAULT_VIABILITY)

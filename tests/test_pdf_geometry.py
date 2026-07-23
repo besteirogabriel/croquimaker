@@ -143,6 +143,11 @@ def test_regressao_300001134401_preserva_rede_postes_e_equipamentos(tmp_path):
     )
     assert selection_json.exists()
     selection_payload = json.loads(selection_json.read_text(encoding="utf-8"))
+    assert selection_payload["symbol_catalog"]["sheet"] == "Simbologia"
+    assert (
+        selection_payload["symbol_catalog"]["workbook"]
+        == "data/templates/croqui_template.xls"
+    )
     assert {
         "631892",
         "1317501",

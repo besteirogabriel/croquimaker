@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -14,6 +15,11 @@ from sistema.generation.equipment_scene import (
     EquipmentScene,
     SceneEquipment,
     resolve_equipment_scene,
+)
+from sistema.generation.rge_symbols import (
+    draw_rge_symbol,
+    load_rge_symbol_catalog,
+    symbol_for_equipment,
 )
 from sistema.parsing.entities import ExistingEquipment, Position, ProjectExtraction, Transformer
 from sistema.topology.network import NetworkSelection, select_service_network
@@ -204,110 +210,135 @@ def _footer(c: canvas.Canvas, projeto: dict) -> None:
 
 
 def _draw_pole(c: canvas.Canvas, x: float, y: float, *, new: bool = False) -> None:
-    c.setStrokeColor(black)
-    c.setFillColor(black)
-    c.setLineWidth(0.55)
-    if new:
-        c.wedge(x - 2.55, y - 2.55, x + 2.55, y + 2.55, 90, 180, fill=1, stroke=0)
-    c.circle(x, y, 3.1, fill=0, stroke=1)
-    c.setFillColor(white)
-    c.circle(x, y, 1.25, fill=0, stroke=1)
-    c.setFillColor(black)
+    draw_rge_symbol(
+        c,
+        "POSTE_NOVO" if new else "POSTE_EXISTENTE",
+        x,
+        y,
+    )
 
 
-def _outward_vector(
-    x: float,
-    y: float,
-    center: tuple[float, float],
-    fallback_index: int,
-) -> tuple[float, float]:
-    dx = x - center[0]
-    dy = y - center[1]
-    length = (dx * dx + dy * dy) ** 0.5
-    if length < 1e-6:
-        directions = ((0.0, 1.0), (1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))
-        return directions[fallback_index % len(directions)]
+def _unit(dx: float, dy: float) -> tuple[float, float] | None:
+    length = math.hypot(dx, dy)
+    if length <= 1e-9:
+        return None
     return dx / length, dy / length
 
 
-def _draw_transformer_symbol(
-    c: canvas.Canvas,
-    x: float,
-    y: float,
-    dx: float,
-    dy: float,
+def _incident_vectors(
+    extraction: ProjectExtraction,
+    selection: NetworkSelection,
+    pole_index: int,
+    point,
+) -> list[tuple[float, float]]:
+    pole = extraction.poles[pole_index]
+    page_height = extraction.page_sizes[selection.page][1]
+    pole_x = pole.position.x
+    pole_y = pole.position.y_pdf(page_height)
+    mapped_pole = point(pole_x, pole_y)
+    directions: list[tuple[float, float]] = []
+    attachment_tolerance = max(2.5, selection.graph.snap_tolerance * 2.0)
+
+    for segment_index, ranges in selection.segment_ranges.items():
+        segment = extraction.conductors[segment_index]
+        if segment.page != selection.page:
+            continue
+        for t0, t1 in ranges:
+            start = (
+                segment.x1 + (segment.x2 - segment.x1) * t0,
+                segment.y1 + (segment.y2 - segment.y1) * t0,
+            )
+            end = (
+                segment.x1 + (segment.x2 - segment.x1) * t1,
+                segment.y1 + (segment.y2 - segment.y1) * t1,
+            )
+            vx = end[0] - start[0]
+            vy = end[1] - start[1]
+            denominator = vx * vx + vy * vy
+            if denominator <= 1e-9:
+                continue
+            position = (
+                (pole_x - start[0]) * vx + (pole_y - start[1]) * vy
+            ) / denominator
+            position = max(0.0, min(1.0, position))
+            nearest = (
+                start[0] + vx * position,
+                start[1] + vy * position,
+            )
+            if (
+                math.hypot(nearest[0] - pole_x, nearest[1] - pole_y)
+                > attachment_tolerance
+            ):
+                continue
+            for endpoint in (start, end):
+                if (
+                    math.hypot(endpoint[0] - pole_x, endpoint[1] - pole_y)
+                    <= attachment_tolerance
+                ):
+                    continue
+                mapped = point(*endpoint)
+                direction = _unit(
+                    mapped[0] - mapped_pole[0],
+                    mapped[1] - mapped_pole[1],
+                )
+                if direction is None:
+                    continue
+                if any(
+                    direction[0] * current[0] + direction[1] * current[1] > 0.985
+                    for current in directions
+                ):
+                    continue
+                directions.append(direction)
+    return directions
+
+
+def _placement_direction(
+    pole: tuple[float, float],
+    center: tuple[float, float],
+    incident: list[tuple[float, float]],
     *,
-    new: bool,
-    disconnected: bool,
+    right_bias: float = 0.0,
+    conductor_penalty_weight: float = 3.0,
 ) -> tuple[float, float]:
-    px, py = -dy, dx
-    apex = (x + dx * 4.1, y + dy * 4.1)
-    base = (x + dx * 15.0, y + dy * 15.0)
-    left = (base[0] + px * 5.2, base[1] + py * 5.2)
-    right = (base[0] - px * 5.2, base[1] - py * 5.2)
-    c.setLineWidth(0.75)
-    path = c.beginPath()
-    path.moveTo(*apex)
-    path.lineTo(*left)
-    path.lineTo(*right)
-    path.close()
-    c.drawPath(path, fill=1 if new else 0, stroke=1)
-    if disconnected:
-        cut_x = x + dx * 7.0
-        cut_y = y + dy * 7.0
-        c.setLineWidth(1.0)
-        c.line(cut_x - px * 2.4, cut_y - py * 2.4, cut_x + px * 2.4, cut_y + py * 2.4)
-    return x + dx * 23.0, y + dy * 23.0
+    outward = _unit(pole[0] - center[0], pole[1] - center[1])
 
+    candidates = [
+        (math.cos(index * math.pi / 8), math.sin(index * math.pi / 8))
+        for index in range(16)
+    ]
+    if right_bias > 0:
+        candidates = [candidate for candidate in candidates if candidate[0] >= 0.35]
+    opposite = None
+    if incident:
+        opposite = _unit(
+            -sum(ray[0] for ray in incident),
+            -sum(ray[1] for ray in incident),
+        )
 
-def _draw_fuse_switch_symbol(
-    c: canvas.Canvas,
-    x: float,
-    y: float,
-    dx: float,
-    dy: float,
-    *,
-    open_switch: bool,
-) -> tuple[float, float]:
-    px, py = -dy, dx
-    hinge = (x + dx * 7.0, y + dy * 7.0)
-    contact = (x + dx * 16.0, y + dy * 16.0)
-    c.setLineWidth(0.8)
-    c.line(x + dx * 4.0, y + dy * 4.0, *hinge)
-    c.circle(*hinge, 1.25, fill=1, stroke=1)
-    blade_end = (
-        contact[0] + (px * 4.2 if open_switch else 0.0),
-        contact[1] + (py * 4.2 if open_switch else 0.0),
-    )
-    c.line(*hinge, *blade_end)
-    c.line(
-        contact[0] - px * 3.0,
-        contact[1] - py * 3.0,
-        contact[0] + px * 3.0,
-        contact[1] + py * 3.0,
-    )
-    c.line(
-        contact[0] + dx * 2.5 - px * 2.3,
-        contact[1] + dy * 2.5 - py * 2.3,
-        contact[0] + dx * 2.5 + px * 2.3,
-        contact[1] + dy * 2.5 + py * 2.3,
-    )
-    return x + dx * 25.0, y + dy * 25.0
+    def score(candidate: tuple[float, float]) -> float:
+        conductor_penalty = sum(
+            max(0.0, candidate[0] * ray[0] + candidate[1] * ray[1]) ** 2
+            for ray in incident
+        )
+        outward_score = (
+            candidate[0] * outward[0] + candidate[1] * outward[1]
+            if outward is not None
+            else 0.0
+        )
+        opposite_score = (
+            candidate[0] * opposite[0] + candidate[1] * opposite[1]
+            if opposite is not None
+            else 0.0
+        )
+        return (
+            -conductor_penalty_weight * conductor_penalty
+            + 1.6 * outward_score
+            + 0.55 * opposite_score
+            + right_bias * candidate[0]
+            + 0.01 * candidate[1]
+        )
 
-
-def _draw_generic_equipment(
-    c: canvas.Canvas,
-    x: float,
-    y: float,
-    dx: float,
-    dy: float,
-) -> tuple[float, float]:
-    cx = x + dx * 12.0
-    cy = y + dy * 12.0
-    c.setLineWidth(0.75)
-    c.rect(cx - 3.2, cy - 3.2, 6.4, 6.4, fill=0, stroke=1)
-    c.line(x + dx * 4.0, y + dy * 4.0, cx - dx * 3.2, cy - dy * 3.2)
-    return x + dx * 21.0, y + dy * 21.0
+    return max(candidates, key=score)
 
 
 def _draw_equipment(
@@ -315,36 +346,31 @@ def _draw_equipment(
     equipment: SceneEquipment,
     x: float,
     y: float,
-    center: tuple[float, float],
-    fallback_index: int,
+    direction: tuple[float, float],
 ) -> None:
-    dx, dy = _outward_vector(x, y, center, fallback_index)
+    dx, dy = direction
     kind = equipment.kind.upper()
     state = equipment.state.upper()
     color = red if equipment.new or state in {"INSTALAR", "INCLUIR", "SUBSTITUIR"} else black
-    c.setStrokeColor(color)
-    c.setFillColor(color)
-    if "TRANSFORMADOR" in kind:
-        label_x, label_y = _draw_transformer_symbol(
+    symbol_name = symbol_for_equipment(kind)
+    extent = (
+        draw_rge_symbol(
             c,
+            symbol_name,
             x,
             y,
-            dx,
-            dy,
-            new=equipment.new or state in {"INSTALAR", "INCLUIR"},
-            disconnected=state in {"ABRIR", "DESLIGAR"},
+            direction=direction,
+            tint=color,
+            fill_tint=(
+                color == red
+                and "TRANSFORMADOR" in kind
+            ),
         )
-    elif "FUS" in kind or "CHAVE" in kind:
-        label_x, label_y = _draw_fuse_switch_symbol(
-            c,
-            x,
-            y,
-            dx,
-            dy,
-            open_switch=state in {"ABRIR", "DESLIGAR", "NA"},
-        )
-    else:
-        label_x, label_y = _draw_generic_equipment(c, x, y, dx, dy)
+        if symbol_name is not None
+        else 0.0
+    )
+    label_x = x + dx * (extent + 3.0)
+    label_y = y + dy * (extent + 3.0)
 
     c.setFont("Helvetica", 5.3)
     if abs(dx) < 0.35:
@@ -361,6 +387,7 @@ def _draw_equipment_scene(
     c: canvas.Canvas,
     scene: EquipmentScene,
     extraction: ProjectExtraction,
+    selection: NetworkSelection,
     point,
 ) -> None:
     mapped_poles = {}
@@ -374,22 +401,49 @@ def _draw_equipment_scene(
         )
     if not mapped_poles:
         return
+    selected_poles = [
+        extraction.poles[index]
+        for index in selection.pole_indexes
+        if extraction.poles[index].position.page == selection.page
+    ]
+    selected_points = [
+        point(pole.position.x, _page_y(pole.position, extraction))
+        for pole in selected_poles
+    ]
     center = (
-        sum(value[0] for value in mapped_poles.values()) / len(mapped_poles),
-        sum(value[1] for value in mapped_poles.values()) / len(mapped_poles),
+        (
+            min(value[0] for value in selected_points)
+            + max(value[0] for value in selected_points)
+        )
+        / 2,
+        (
+            min(value[1] for value in selected_points)
+            + max(value[1] for value in selected_points)
+        )
+        / 2,
     )
-    counts: dict[int, int] = {}
     for equipment in scene.equipment:
         pole_x, pole_y = mapped_poles[equipment.pole_index]
-        offset = counts.get(equipment.pole_index, 0)
-        counts[equipment.pole_index] = offset + 1
+        direction = _placement_direction(
+            (pole_x, pole_y),
+            center,
+            _incident_vectors(
+                extraction,
+                selection,
+                equipment.pole_index,
+                point,
+            ),
+            right_bias=1.1 if "TRANSFORMADOR" in equipment.kind.upper() else 0.0,
+            conductor_penalty_weight=(
+                1.0 if "FUS" in equipment.kind.upper() else 3.0
+            ),
+        )
         _draw_equipment(
             c,
             equipment,
             pole_x,
             pole_y,
-            center,
-            fallback_index=equipment.pole_index + offset,
+            direction,
         )
 
 
@@ -477,6 +531,7 @@ def render_croqui_geometrico(
         selection_payload["new_pole_indexes"] = sorted(
             equipment_scene.new_pole_indexes
         )
+        selection_payload["symbol_catalog"] = load_rge_symbol_catalog()["source"]
         selection_path.write_text(
             json.dumps(selection_payload, ensure_ascii=False, indent=2),
             encoding="utf-8",
@@ -518,7 +573,7 @@ def render_croqui_geometrico(
             new=pole_index in equipment_scene.new_pole_indexes,
         )
 
-    _draw_equipment_scene(c, equipment_scene, extraction, point)
+    _draw_equipment_scene(c, equipment_scene, extraction, selection, point)
 
     c.save()
     return out_path

@@ -6,14 +6,14 @@ import time
 from pathlib import Path
 
 from .interpretador_ia import interpretar_pdf
-from .schema import assert_schema, sanitizar_projeto
+from .schema import assert_schema, normalizar_viabilidade, sanitizar_projeto
 from sistema.extractors import base
 from sistema.generation.clean_projeto import render_clean_projeto
 from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v4-service-subgraph"
+ENGINE_VERSION = "geometry-cad-v5-dual-voltage-viability"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "clean_projeto.pdf",
@@ -33,11 +33,21 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def gerar(caminho_pdf: Path, job_dir: Path, progresso=None) -> dict:
+def gerar(
+    caminho_pdf: Path,
+    job_dir: Path,
+    progresso=None,
+    *,
+    viabilidade: list[str] | None = None,
+) -> dict:
     tempos = {}
     start = time.perf_counter()
     digest = sha256_file(caminho_pdf)
-    cache_dir = CACHE_DIR / f"{ENGINE_VERSION}-{digest}"
+    viability_answers = normalizar_viabilidade(viabilidade or [])
+    options_digest = hashlib.sha256(
+        json.dumps(viability_answers, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()[:12]
+    cache_dir = CACHE_DIR / f"{ENGINE_VERSION}-{digest}-{options_digest}"
     job_dir.mkdir(parents=True, exist_ok=True)
 
     if (cache_dir / "croqui.pdf").exists():
@@ -80,6 +90,7 @@ def gerar(caminho_pdf: Path, job_dir: Path, progresso=None) -> dict:
 
     t = time.perf_counter()
     assert_schema(projeto)
+    projeto["viabilidade"] = {"respostas": viability_answers}
     projeto = sanitizar_projeto(projeto)
     (job_dir / "projeto.json").write_text(json.dumps(projeto, ensure_ascii=False, indent=2), encoding="utf-8")
     tempos["sanitizacao"] = time.perf_counter() - t

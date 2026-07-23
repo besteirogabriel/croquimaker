@@ -141,3 +141,31 @@ def test_cruzamento_mesma_tensao_e_dividido_sem_mudar_coordenadas():
         if graph.edges[edge_id].kind == "conductor"
     ]
     assert len(conductor_edges) == 4
+
+
+def test_selecao_preserva_mt_e_bt_paralelas_entre_os_mesmos_postes():
+    extraction = ProjectExtraction(
+        folder_id="parallel",
+        source_path=Path("parallel.pdf"),
+        page_sizes={0: (300.0, 200.0)},
+        conductors=[
+            _segment(0, 20, 98, 280, 98, "MT"),
+            _segment(1, 20, 102, 280, 102, "BT"),
+        ],
+        poles=[
+            Pole("P1", _position(20, 100)),
+            Pole("P2", _position(150, 100)),
+            Pole("P3", _position(280, 100)),
+        ],
+        transformers=[Transformer("631892", _position(150, 100))],
+        metadata={"equipamento": "TR 631892"},
+    )
+
+    selection = select_service_network(
+        extraction,
+        {"meta": {"equipamento": "TR 631892"}, "equipamentos": []},
+        0,
+    )
+
+    assert selection.pole_indexes == {0, 1, 2}
+    assert selection.segment_indexes == {0, 1}

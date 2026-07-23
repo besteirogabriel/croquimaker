@@ -1,4 +1,8 @@
-from croquimaker.core.schema import assert_schema, sanitizar_projeto
+from croquimaker.core.schema import (
+    assert_schema,
+    normalizar_viabilidade,
+    sanitizar_projeto,
+)
 
 
 def test_sanitizar_normaliza_vaos_e_cria_nos():
@@ -16,3 +20,11 @@ def test_sanitizar_normaliza_vaos_e_cria_nos():
     assert projeto["equipamentos"][0]["no_id"] in {"P1", "P2"}
     assert "areas" not in projeto
     assert_schema(projeto)
+
+
+def test_viabilidade_invalida_nunca_vira_confirmacao_implicita():
+    assert normalizar_viabilidade(["Sim", "talvez"]) == [
+        "Sim",
+        "Não Avaliado",
+        *(["Não Avaliado"] * 8),
+    ]

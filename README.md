@@ -65,6 +65,11 @@ pode ser posicionado, o diagnostico fica como `needs_review`; o motor nao comple
 a rede com coordenadas inventadas. O cache inclui a versao do motor, impedindo o
 reaproveitamento de resultados do gerador antigo.
 
+Antes do envio, a interface permite informar as dez respostas da avaliacao de
+viabilidade. Respostas ausentes permanecem como `Nao Avaliado`; o sistema nao
+confirma automaticamente verificacoes de seguranca que nao constam do projeto.
+O percentual reproduz a formula observada na planilha oficial RGE.
+
 O download de Excel permanece desabilitado. O arquivo anteriormente usado era
 uma copia de um croqui real de outro projeto e podia contaminar o resultado. Ele
 so deve voltar quando houver um template canonico vazio e um gerador que edite a

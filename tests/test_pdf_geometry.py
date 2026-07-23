@@ -5,7 +5,10 @@ import fitz
 from sistema.extractors import base
 from sistema.extractors._pdf_geometry import classify_conductor_color
 from sistema.generation.clean_projeto import render_clean_projeto
-from sistema.generation.croqui_geometrico import render_croqui_geometrico
+from sistema.generation.croqui_geometrico import (
+    _viability_percentage,
+    render_croqui_geometrico,
+)
 from sistema.topology.network import select_service_network
 
 
@@ -20,6 +23,13 @@ def test_classificacao_usa_cores_cad_comprovadas():
     assert classify_conductor_color((0, 0.578, 1)) is None
     assert classify_conductor_color((0.398, 0.066, 0)) is None
     assert classify_conductor_color((0, 0, 0)) is None
+
+
+def test_viabilidade_repete_formula_do_template_rge():
+    assert _viability_percentage(["Sim"] * 9 + ["Não"]) == "100,0%"
+    assert _viability_percentage(
+        ["Não", "Sim"] + ["Não Avaliado"] * 7 + ["Não"]
+    ) == "12,5%"
 
 
 def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
@@ -63,6 +73,18 @@ def test_regressao_300001134401_renderiza_somente_postes_e_linhas(tmp_path):
     assert len(selection.pole_indexes) == 25
     assert len(selection.pole_indexes) < len(extraction.poles)
     assert len(selection.segment_indexes) < len(extraction.conductors)
+    selected_tensions = {
+        tension: sum(
+            extraction.conductors[index].tensao == tension
+            for index in selection.segment_indexes
+        )
+        for tension in ("MT", "BT")
+    }
+    assert selected_tensions["MT"] >= 15
+    assert selected_tensions["BT"] >= 20
+    assert selection.to_dict(extraction)["selected_voltage_segment_counts"] == (
+        selected_tensions
+    )
     croqui = tmp_path / "croqui.pdf"
     selection_json = tmp_path / "network_selection.json"
     render_croqui_geometrico(

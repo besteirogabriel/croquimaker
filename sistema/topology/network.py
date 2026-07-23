@@ -85,8 +85,10 @@ class NetworkSelection:
                 }
             )
         ranges = []
+        voltage_counts: dict[str, int] = {}
         for segment_index in sorted(self.segment_ranges):
             segment = extraction.conductors[segment_index]
+            voltage_counts[segment.tensao] = voltage_counts.get(segment.tensao, 0) + 1
             for t0, t1 in self.segment_ranges[segment_index]:
                 ranges.append(
                     {
@@ -107,6 +109,7 @@ class NetworkSelection:
             "selected_ranges": ranges,
             "selected_pole_count": len(poles),
             "selected_segment_count": len(self.segment_indexes),
+            "selected_voltage_segment_counts": voltage_counts,
             "graph": self.graph.to_dict(),
         }
 
@@ -550,6 +553,94 @@ def _pole_neighbors(graph: NetworkGraph) -> dict[int, list[tuple[int, set[int], 
     return result
 
 
+def _pole_neighbors_by_tension(
+    graph: NetworkGraph,
+) -> dict[int, list[tuple[int, set[int], set[int], float]]]:
+    """Return direct pole spans without allowing a path to change voltage.
+
+    A pole can support both MT and BT. The general graph intentionally joins
+    those layers at the pole so the service component can be selected as one
+    network. For rendering, however, choosing only the shortest pole-to-pole
+    path drops the parallel layer. This traversal runs once per voltage and
+    stops at the next pole, preserving every CAD conductor that shares the
+    selected pole corridor.
+    """
+
+    tensions = sorted(
+        {
+            node.tension
+            for node in graph.nodes
+            if node.kind == "conductor" and node.tension
+        }
+    )
+    pole_node_to_index = {node: index for index, node in graph.pole_nodes.items()}
+    result: dict[int, list[tuple[int, set[int], set[int], float]]] = {
+        index: [] for index in graph.pole_nodes
+    }
+
+    for pole_index, start in graph.pole_nodes.items():
+        for tension in tensions:
+            distances = {start: 0.0}
+            previous: dict[int, tuple[int, int]] = {}
+            queue = [(0.0, start)]
+            reached: set[int] = set()
+            while queue:
+                distance, node = heapq.heappop(queue)
+                if distance != distances.get(node):
+                    continue
+                current = graph.nodes[node]
+                if node != start and current.kind == "pole":
+                    reached.add(node)
+                    continue
+
+                for neighbor, edge_id, weight in graph.adjacency[node]:
+                    edge = graph.edges[edge_id]
+                    target = graph.nodes[neighbor]
+                    if edge.kind == "conductor":
+                        if current.tension != tension or target.tension != tension:
+                            continue
+                    elif edge.kind == "attachment":
+                        conductor = target if target.kind == "conductor" else current
+                        if conductor.kind != "conductor" or conductor.tension != tension:
+                            continue
+                        if current.kind == "pole" and node != start:
+                            continue
+                    else:
+                        continue
+
+                    candidate = distance + weight
+                    if candidate + 1e-9 >= distances.get(neighbor, math.inf):
+                        continue
+                    distances[neighbor] = candidate
+                    previous[neighbor] = (node, edge_id)
+                    heapq.heappush(queue, (candidate, neighbor))
+
+            for pole_node in reached:
+                other_index = pole_node_to_index[pole_node]
+                nodes, edges = _restore_path(start, pole_node, previous)
+                result[pole_index].append(
+                    (other_index, nodes, edges, distances[pole_node])
+                )
+    return result
+
+
+def _include_parallel_networks(
+    graph: NetworkGraph,
+    selected_poles: set[int],
+    selected_nodes: set[int],
+    selected_edges: set[int],
+) -> None:
+    """Complete the selected corridor with every MT/BT span evidenced by CAD."""
+
+    spans = _pole_neighbors_by_tension(graph)
+    for pole_index in selected_poles:
+        for other, nodes, edges, _ in spans.get(pole_index, []):
+            if other not in selected_poles:
+                continue
+            selected_nodes.update(nodes)
+            selected_edges.update(edges)
+
+
 def _expand_context(
     graph: NetworkGraph,
     neighbors: dict[int, list[tuple[int, set[int], set[int], float]]],
@@ -696,6 +787,12 @@ def select_service_network(
     # intermediate supports that were not explicit equipment anchors.
     selected_poles = _poles_touching_nodes(graph, selected_nodes, component)
     selected_poles.update(context_poles)
+    _include_parallel_networks(
+        graph,
+        selected_poles,
+        selected_nodes,
+        selected_edges,
+    )
     return NetworkSelection(
         page=page,
         segment_ranges=_ranges_from_edges(graph, selected_edges),

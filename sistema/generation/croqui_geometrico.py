@@ -9,6 +9,7 @@ from reportlab.lib.colors import black, red, white, HexColor
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 
+from croquimaker.core.schema import normalizar_viabilidade
 from sistema.parsing.entities import ExistingEquipment, Position, ProjectExtraction, Transformer
 from sistema.topology.network import NetworkSelection, select_service_network
 
@@ -31,6 +32,13 @@ class SourceRect:
     @property
     def height(self) -> float:
         return self.y1 - self.y0
+
+
+def _viability_percentage(answers: list[str]) -> str:
+    """Match the RGE workbook formula: Sim answers in questions 1-8."""
+
+    score = sum(answer == "Sim" for answer in answers[:8]) / 8 * 100
+    return f"{score:.1f}%".replace(".", ",")
 
 
 def _numeric_code(value: str) -> str:
@@ -133,26 +141,41 @@ def _header(c: canvas.Canvas, metadata: dict[str, str]) -> None:
     c.drawString(x + 505, y + 5, str(fields[4][1])[:45])
 
 
-def _footer(c: canvas.Canvas) -> None:
+def _footer(c: canvas.Canvas, projeto: dict) -> None:
     x, y, w = 20, 20, PAGE_W - 40
     row_h = 5.7
     questions = [
-        "Foi realizada a avaliacao do TIPO DE SOLO para permitir executar esta Obra?",
-        "Foi realizada uma AVALIACAO EM CAMPO do Poste ou dos Equipamentos?",
-        "Foi realizada uma AVALIACAO EM CAMPO para verificar a compatibilidade dos condutores?",
-        "Caso seja necessario uma PREPARACAO para execucao da Obra, ela ja foi realizada?",
-        "Existe VEICULO RESERVA no dia do deslocamento, caso necessite?",
-        "Se a execucao afetar o CLIENTE, ele concorda com a intervencao?",
-        "O MATERIAL para esta obra esta disponivel?",
-        "O tempo para execucao esta adequado e evita atrasos?",
-        "Esta previsto outro DOCUMENTO RESERVA para esta obra?",
-        "Este documento ja foi CANCELADO ou e uma Reprogramacao?",
+        "Foi realizada a avaliação do TIPO DE SOLO para permitir executar esta Obra?",
+        "Foi realizada uma AVALIAÇÃO EM CAMPO do Poste ou dos Equipamentos para realizar as Manobras?",
+        "Foi realizada uma AVALIAÇÃO EM CAMPO para verificar a compatibilidade do condutor para Linha Viva?",
+        "Caso seja necessária uma PREPARAÇÃO para execução da Obra, ela já foi realizada?",
+        "Existe VEÍCULO RESERVA no dia do desligamento, caso necessite?",
+        "Se a execução afetar o CLIENTE, ele concorda com a intervenção?",
+        "O MATERIAL para esta obra está disponível?",
+        "O tempo para execução está adequado e evita possibilidades de ATRASOS?",
+        "Está previsto outro DOCUMENTO RESERVA para esta obra?",
+        "Este documento já foi CANCELADO ou é uma Reprogramação?",
     ]
+    viability = projeto.get("viabilidade", {}) if isinstance(projeto, dict) else {}
+    answers = normalizar_viabilidade(
+        viability.get("respostas", []) if isinstance(viability, dict) else []
+    )
+    percentage = _viability_percentage(answers)
+    answer_x = x + w - 93
     c.setFillColor(HexColor("#ffff8a"))
     c.rect(x, y + len(questions) * row_h, w, 9, fill=1, stroke=1)
     c.setFillColor(red)
     c.setFont("Helvetica-Bold", 5)
-    c.drawCentredString(x + w / 2, y + len(questions) * row_h + 2.5, "Avaliacao de Viabilidade - preenchimento obrigatorio")
+    c.drawCentredString(
+        x + w / 2,
+        y + len(questions) * row_h + 2.5,
+        "Avaliação de Viabilidade - preenchimento obrigatório",
+    )
+    c.drawRightString(
+        x + w - 3,
+        y + len(questions) * row_h + 2.5,
+        f"Viabilidade: {percentage}",
+    )
     for index, question in enumerate(questions):
         ry = y + (len(questions) - index - 1) * row_h
         c.setFillColor(white if index % 2 == 0 else LIGHT_GRAY)
@@ -160,8 +183,11 @@ def _footer(c: canvas.Canvas) -> None:
         c.setFillColor(black)
         c.setFont("Helvetica", 4.3)
         c.drawString(x + 2, ry + 1.4, question)
-        # Answers are project data. They remain blank until the source provides
-        # them instead of being silently copied to every generated croqui.
+        c.setFont("Helvetica-Bold", 4.3)
+        c.drawString(answer_x + 3, ry + 1.4, answers[index])
+    c.setStrokeColor(black)
+    c.setLineWidth(0.3)
+    c.line(answer_x, y, answer_x, y + len(questions) * row_h)
     c.rect(x, y, w, len(questions) * row_h + 9, fill=0, stroke=1)
 
 
@@ -257,7 +283,7 @@ def render_croqui_geometrico(
     c = canvas.Canvas(str(out_path), pagesize=(PAGE_W, PAGE_H), pageCompression=1)
     c.setTitle("Croqui")
     _header(c, metadata)
-    _footer(c)
+    _footer(c, projeto)
     c.setStrokeColor(black)
     c.rect(20, 20, PAGE_W - 40, PAGE_H - 40, fill=0, stroke=1)
 
@@ -272,7 +298,9 @@ def render_croqui_geometrico(
             ox2, oy2 = point(x2, y2)
             c.setStrokeColor(black)
             c.setLineWidth(max(0.45, min(1.0, scale * 0.8)))
-            c.setDash([] if segment.tensao == "MT" else [2.2, 1.6])
+            # Simbologia RGE: rede secundaria (BT) continua e rede primaria
+            # (MT) tracejada, conforme a planilha oficial de simbologia.
+            c.setDash([2.2, 1.6] if segment.tensao == "MT" else [])
             c.line(ox1, oy1, ox2, oy2)
     c.setDash([])
 

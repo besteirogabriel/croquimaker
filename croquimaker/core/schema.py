@@ -3,6 +3,7 @@ import re
 
 
 REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "textos"]
+VIABILITY_ANSWERS = ("Sim", "Não", "Não Avaliado")
 
 STRING_FIELD = {"type": "string"}
 
@@ -112,6 +113,13 @@ def sanitizar_projeto(obj: dict) -> dict:
         and t["de"] in node_set and t["para"] in node_set
         and t["de"] != t["para"]
     ]
+    obj["viabilidade"] = {
+        "respostas": normalizar_viabilidade(
+            (obj.get("viabilidade") or {}).get("respostas", [])
+            if isinstance(obj.get("viabilidade"), dict)
+            else []
+        )
+    }
     return obj
 
 
@@ -193,3 +201,26 @@ def _dedupe_by_id(rows: list) -> list:
         seen.add(pid)
         out.append(row)
     return out
+
+
+def normalizar_viabilidade(rows) -> list[str]:
+    """Normalize the ten mandatory RGE viability answers.
+
+    Missing or invalid answers become "Não Avaliado"; they must never turn
+    into an implicit safety attestation.
+    """
+
+    aliases = {
+        "sim": "Sim",
+        "nao": "Não",
+        "não": "Não",
+        "nao avaliado": "Não Avaliado",
+        "não avaliado": "Não Avaliado",
+    }
+    values = list(rows) if isinstance(rows, (list, tuple)) else []
+    normalized = []
+    for value in values[:10]:
+        key = re.sub(r"\s+", " ", str(value).strip().lower())
+        normalized.append(aliases.get(key, "Não Avaliado"))
+    normalized.extend(["Não Avaliado"] * (10 - len(normalized)))
+    return normalized

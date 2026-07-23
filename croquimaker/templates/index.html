@@ -15,6 +15,11 @@
           <input id="file" name="arquivo" type="file" accept="application/pdf,.pdf">
           <span id="fileText">Selecione ou arraste um PDF</span>
         </label>
+        <details class="viability">
+          <summary>Avaliação de viabilidade</summary>
+          <p>Confirme as respostas operacionais. Campos não confirmados permanecem como Não Avaliado.</p>
+          <div id="viabilityFields" class="viability-fields"></div>
+        </details>
         <button id="submit" type="submit">Gerar croqui</button>
       </form>
       <div id="progress" class="progress" hidden>

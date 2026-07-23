@@ -9,6 +9,12 @@ form { display:grid; gap:14px; }
 .drop { min-height:168px; border:2px dashed #9fb0a6; border-radius:8px; display:grid; place-items:center; text-align:center; padding:18px; color:var(--muted); background:#fbfdfc; cursor:pointer; transition:.16s ease; }
 .drop.active, .drop:hover { border-color:var(--accent); background:#f1f8f3; color:var(--ink); }
 input[type=file] { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+.viability { border:1px solid var(--line); border-radius:7px; padding:12px 14px; background:#fbfdfc; }
+.viability summary { cursor:pointer; font-weight:720; }
+.viability > p { margin:10px 0; color:var(--muted); font-size:13px; line-height:1.4; }
+.viability-fields { display:grid; gap:8px; }
+.viability-row { display:grid; grid-template-columns:minmax(0, 1fr) 126px; align-items:center; gap:12px; font-size:13px; line-height:1.25; }
+.viability-row select { width:100%; min-height:34px; border:1px solid var(--line); border-radius:5px; padding:0 7px; background:#fff; color:var(--ink); }
 button, .button { border:0; border-radius:6px; min-height:46px; display:inline-flex; align-items:center; justify-content:center; padding:0 18px; background:var(--accent); color:#fff; font-weight:720; text-decoration:none; cursor:pointer; font-size:15px; }
 button:disabled { opacity:.55; cursor:default; }
 .secondary { background:#29463a; }
@@ -19,4 +25,4 @@ button:disabled { opacity:.55; cursor:default; }
 .progress p, .result p { margin:10px 0 0; color:var(--muted); }
 .result { margin-top:20px; display:grid; gap:10px; }
 .error { margin:16px 0 0; color:#a32222; }
-@media (max-width: 520px) { body { padding:14px; } .panel { padding:20px; } .drop { min-height:138px; } }
+@media (max-width: 520px) { body { padding:14px; } .panel { padding:20px; } .drop { min-height:138px; } .viability-row { grid-template-columns:1fr; gap:5px; } }

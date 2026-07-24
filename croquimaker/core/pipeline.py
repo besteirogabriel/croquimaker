@@ -18,7 +18,7 @@ from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v10-operational-symbol-scene"
+ENGINE_VERSION = "geometry-cad-v11-symbols-without-annotations"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "clean_projeto.pdf",
@@ -95,6 +95,11 @@ def gerar(
         progresso=progresso,
         additional_image_paths=[str(job_dir / "clean_projeto.png")],
     )
+    # Áreas LM/LV e notas podem existir na interpretação semântica, porém não
+    # fazem parte do croqui atual. Esvaziá-las aqui também protege geradores e
+    # diagnósticos futuros contra a reintrodução acidental desses elementos.
+    projeto["areas"] = []
+    projeto["textos"] = []
     tempos["interpretacao"] = time.perf_counter() - t
 
     t = time.perf_counter()

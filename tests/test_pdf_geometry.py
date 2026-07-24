@@ -191,7 +191,7 @@ def test_viabilidade_repete_formula_do_template_rge():
     ) == "12,5%"
 
 
-def test_cena_sintetica_preserva_simbolos_areas_e_acoes(tmp_path):
+def test_cena_sintetica_preserva_simbolos_e_omite_anotacoes(tmp_path):
     extraction = _synthetic_extraction()
     projeto = _synthetic_project()
     selection = _synthetic_selection(extraction)
@@ -235,13 +235,8 @@ def test_cena_sintetica_preserva_simbolos_areas_e_acoes(tmp_path):
         }
         for row in payload["rendered_equipment"]
     )
-    assert [area["kind"] for area in payload["work_areas"]] == [
-        "LM",
-        "LV",
-    ]
-    assert payload["operational_notes"][0]["text"] == (
-        "Abrir circuito de BT"
-    )
+    assert payload["work_areas"] == []
+    assert payload["operational_notes"] == []
 
     with fitz.open(croqui) as doc:
         text = doc[0].get_text().upper()
@@ -249,21 +244,16 @@ def test_cena_sintetica_preserva_simbolos_areas_e_acoes(tmp_path):
         assert round(doc[0].rect.width, 1) == 841.9
         assert round(doc[0].rect.height, 1) == 595.3
         assert {"910001", "910002", "910003"} <= set(text.split())
-        assert "ÁREA DE TRABALHO 1 LM" in text
-        assert "ÁREA DE TRABALHO 2 LV" in text
-        assert "INSTALAR TRANSFORMADOR" in text
-        assert "ABRIR CIRCUITO DE BT" in text
+        assert "ÁREA DE TRABALHO" not in text
+        assert "INSTALAR" not in text
+        assert "ABRIR" not in text
         assert text.count("SIM") == 9
         assert "VIABILIDADE: 100,0%" in text
 
 
-def test_areas_nao_aparecem_sem_evidencia_semantica(tmp_path):
+def test_areas_e_textos_sao_ignorados_mesmo_quando_presentes(tmp_path):
     extraction = _synthetic_extraction()
-    projeto = {
-        **_synthetic_project(),
-        "areas": [],
-        "textos": [],
-    }
+    projeto = _synthetic_project()
     croqui = tmp_path / "sem_areas.pdf"
     render_croqui_geometrico(
         extraction,
@@ -275,3 +265,4 @@ def test_areas_nao_aparecem_sem_evidencia_semantica(tmp_path):
         text = doc[0].get_text().upper()
         assert "ÁREA DE TRABALHO" not in text
         assert "ABRIR CIRCUITO DE BT" not in text
+        assert "INSTALAR TRANSFORMADOR" not in text

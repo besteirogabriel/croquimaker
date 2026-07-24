@@ -20,9 +20,11 @@ Mapa, lotes, cotas, tabelas e carimbo nao participam da fonte geometrica. A
 identificacao semantica nao cria coordenadas nem altera identificadores. O
 desenho final preserva os numeros e simbolos de transformadores, chaves e demais
 ativos comprovados no PDF recebido, alem de diferenciar postes existentes e
-postes a instalar. Areas de trabalho, contornos e observacoes operacionais nao
-sao adicionados. Ativos ausentes da entrada nunca sao inferidos a partir de uma
-OS ou de um caso do corpus.
+postes a instalar. No desenho, cada ativo numerado recebe somente seu
+identificador; estados como instalar, abrir ou desligar controlam a simbologia
+sem gerar texto adicional. Areas de trabalho LM/LV, contornos, chamadas, caixas
+de texto e observacoes operacionais nao sao adicionados. Ativos ausentes da
+entrada nunca sao inferidos a partir de uma OS ou de um caso do corpus.
 
 ## Login inicial
 

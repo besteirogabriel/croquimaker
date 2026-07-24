@@ -51,6 +51,40 @@ Para usar outra porta:
 CROQUIMAKER_HOST_PORT=8082 docker compose up -d
 ```
 
+## Usuarios e projetos
+
+Na primeira inicializacao, o sistema cria exatamente oito contas:
+
+- `caxias1` e `caxias2`: acesso exclusivo ao projeto Caxias;
+- `vacaria1` e `vacaria2`: acesso exclusivo ao projeto Vacaria;
+- `admin1`, `admin2`, `admin3` e `admin4`: acesso aos dois projetos.
+
+As senhas sao armazenadas somente como hash. Se
+`CROQUIMAKER_BOOTSTRAP_PASSWORD` estiver vazio, cada conta recebe uma senha
+aleatoria diferente. Consulte as credenciais iniciais no proprio servidor:
+
+```bash
+docker compose exec web python -m croquimaker.auth show-initial-credentials
+```
+
+Depois da distribuicao, redefina as senhas necessarias:
+
+```bash
+docker compose exec web python -m croquimaker.auth set-password caxias1
+```
+
+Os jobs ficam fisicamente isolados:
+
+```text
+generated/projects/caxias/jobs/
+generated/projects/vacaria/jobs/
+```
+
+Usuarios regionais nao podem trocar de projeto. Administradores selecionam
+Caxias ou Vacaria no cabecalho; o backend aplica a mesma selecao ao upload,
+status e downloads. Para uma publicacao HTTPS, configure
+`CROQUIMAKER_COOKIE_SECURE=1`.
+
 ## Desenvolvimento e testes
 
 ```bash

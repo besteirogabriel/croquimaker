@@ -11,6 +11,7 @@ const pdf = document.querySelector("#pdf");
 const xls = document.querySelector("#xls");
 const again = document.querySelector("#again");
 const error = document.querySelector("#error");
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 const base = "/" + ["a", "pi"].join("") + "/projetos";
 
 const widths = {
@@ -47,7 +48,15 @@ form.addEventListener("submit", async e => {
   const data = new FormData();
   data.append("arquivo", file.files[0]);
   try {
-    const created = await fetch(base, { method: "POST", body: data });
+    const created = await fetch(base, {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: data
+    });
+    if (created.status === 401) {
+      window.location.assign("/login");
+      return;
+    }
     if (!created.ok) throw new Error();
     const body = await created.json();
     poll(body.job_id);
@@ -59,6 +68,10 @@ form.addEventListener("submit", async e => {
 async function poll(jobId) {
   try {
     const response = await fetch(`${base}/${jobId}`);
+    if (response.status === 401) {
+      window.location.assign("/login");
+      return;
+    }
     if (!response.ok) throw new Error();
     const body = await response.json();
     message.textContent = body.message;

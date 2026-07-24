@@ -5,9 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gerador de Croquis</title>
   <link rel="stylesheet" href="/static/styles.css">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
   <main class="shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Croquimaker</p>
+        <strong>{{ active_project_name }}</strong>
+      </div>
+      <div class="account">
+        {% if user.role == "admin" %}
+          <form method="post" action="/projeto-ativo" class="project-switcher">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label for="project_slug">Projeto</label>
+            <select id="project_slug" name="project_slug" onchange="this.form.submit()">
+              {% for slug, name in projects.items() %}
+                <option value="{{ slug }}" {% if slug == active_project %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        {% else %}
+          <span class="project-badge">{{ active_project_name }}</span>
+        {% endif %}
+        <div class="user-menu">
+          <span>{{ user.display_name }}</span>
+          <form method="post" action="/logout">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="text-button">Sair</button>
+          </form>
+        </div>
+      </div>
+    </header>
     <section class="panel">
       <h1>Gerador de Croquis</h1>
       <form id="form">

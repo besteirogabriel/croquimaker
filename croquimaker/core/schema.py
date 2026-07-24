@@ -3,6 +3,8 @@ import re
 
 
 REQUIRED_KEYS = ["meta", "nos", "trechos", "equipamentos", "areas", "textos"]
+VIABILITY_ANSWERS = ("Sim", "Não", "Não Avaliado")
+DEFAULT_VIABILITY = ("Sim",) * 9 + ("Não",)
 
 STRING_FIELD = {"type": "string"}
 
@@ -60,8 +62,13 @@ PROJECT_SCHEMA = {
             "items": {
                 "type": "object",
                 "additionalProperties": False,
-                "properties": {"nome": STRING_FIELD, "nos": STRING_FIELD, "tipo": STRING_FIELD, "observacao": STRING_FIELD},
-                "required": ["nome", "nos", "tipo", "observacao"],
+                "properties": {
+                    "nome": STRING_FIELD,
+                    "tipo": STRING_FIELD,
+                    "nos": STRING_FIELD,
+                    "observacao": STRING_FIELD,
+                },
+                "required": ["nome", "tipo", "nos", "observacao"],
             },
         },
         "textos": {
@@ -92,6 +99,7 @@ def sanitizar_projeto(obj: dict) -> dict:
     obj["trechos"] = _normalize_trechos(obj["trechos"])
     obj["equipamentos"] = _normalize_equipamentos(obj["equipamentos"])
     obj["areas"] = _normalize_areas(obj["areas"])
+    obj["textos"] = _normalize_textos(obj["textos"])
 
     node_set = {n["id"] for n in obj["nos"]}
     for t in obj["trechos"]:
@@ -113,12 +121,34 @@ def sanitizar_projeto(obj: dict) -> dict:
         if not eq.get("no_id") or eq["no_id"] not in node_set:
             eq["no_id"] = fallback
 
+    for area in obj["areas"]:
+        area["nos"] = " ".join(
+            node_id for node_id in _node_ids(area.get("nos", ""))
+            if node_id in node_set
+        )
+    for text in obj["textos"]:
+        if text.get("no_id") not in node_set:
+            text["no_id"] = ""
+
     obj["trechos"] = [
         t for t in obj["trechos"]
         if t.get("de") and t.get("para")
         and t["de"] in node_set and t["para"] in node_set
         and t["de"] != t["para"]
     ]
+    viability = obj.get("viabilidade")
+    viability_rows = (
+        viability.get("respostas")
+        if isinstance(viability, dict)
+        else None
+    )
+    obj["viabilidade"] = {
+        "respostas": (
+            normalizar_viabilidade(viability_rows)
+            if viability_rows
+            else viabilidade_automatica()
+        )
+    }
     return obj
 
 
@@ -190,18 +220,40 @@ def _normalize_equipamentos(rows: list) -> list:
     return out
 
 
+def _node_ids(value: str) -> list[str]:
+    return list(
+        dict.fromkeys(
+            f"P{int(number)}"
+            for number in re.findall(r"\bP\s*0*(\d+)\b", str(value), re.I)
+        )
+    )
+
+
 def _normalize_areas(rows: list) -> list:
     out = []
     for row in rows:
         if not isinstance(row, dict):
             continue
-        ids = []
-        for part in re.split(r"[|,;\s]+", str(row.get("nos", ""))):
-            p = _extract_p(part)
-            if p:
-                ids.append(p)
-        row["nos"] = "|".join(dict.fromkeys(ids))
-        out.append(row)
+        out.append({
+            "nome": str(row.get("nome", "")).strip(),
+            "tipo": str(row.get("tipo", "")).strip().upper(),
+            "nos": " ".join(_node_ids(row.get("nos", ""))),
+            "observacao": str(row.get("observacao", "")).strip(),
+        })
+    return out
+
+
+def _normalize_textos(rows: list) -> list:
+    out = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        node_ids = _node_ids(row.get("no_id", ""))
+        out.append({
+            "texto": str(row.get("texto", "")).strip(),
+            "no_id": node_ids[0] if node_ids else "",
+            "tipo": str(row.get("tipo", "")).strip().upper(),
+        })
     return out
 
 
@@ -215,3 +267,32 @@ def _dedupe_by_id(rows: list) -> list:
         seen.add(pid)
         out.append(row)
     return out
+
+
+def normalizar_viabilidade(rows) -> list[str]:
+    """Normalize the ten mandatory RGE viability answers.
+
+    Missing or invalid answers become "Não Avaliado"; they must never turn
+    into an implicit safety attestation.
+    """
+
+    aliases = {
+        "sim": "Sim",
+        "nao": "Não",
+        "não": "Não",
+        "nao avaliado": "Não Avaliado",
+        "não avaliado": "Não Avaliado",
+    }
+    values = list(rows) if isinstance(rows, (list, tuple)) else []
+    normalized = []
+    for value in values[:10]:
+        key = re.sub(r"\s+", " ", str(value).strip().lower())
+        normalized.append(aliases.get(key, "Não Avaliado"))
+    normalized.extend(["Não Avaliado"] * (10 - len(normalized)))
+    return normalized
+
+
+def viabilidade_automatica() -> list[str]:
+    """Return the standard RGE viability profile used by generated croquis."""
+
+    return list(DEFAULT_VIABILITY)

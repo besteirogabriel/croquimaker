@@ -1,10 +1,10 @@
+import json
 import logging
 import mimetypes
 import os
 import queue
 import threading
 import uuid
-import json
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
@@ -89,7 +89,11 @@ def _worker():
             job["state"] = "reading"
             job["message"] = PUBLIC_MESSAGES["reading"]
             _save_job(job)
-            result = gerar(Path(job["input"]), Path(job["dir"]), progresso=progresso)
+            result = gerar(
+                Path(job["input"]),
+                Path(job["dir"]),
+                progresso=progresso,
+            )
             job["result"] = result
             job["has_excel"] = (Path(job["dir"]) / "croqui.xls").exists()
             job["state"] = "done"

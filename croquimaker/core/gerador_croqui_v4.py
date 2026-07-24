@@ -37,7 +37,6 @@ C_FU     = HexColor("#1565C0")
 C_RL     = HexColor("#6A1B9A")
 C_AT     = HexColor("#33691E")
 C_DEL    = HexColor("#B71C1C")
-C_AREA   = HexColor("#F44336")
 C_VERDE  = HexColor("#1a5c2a")
 C_VERDE2 = HexColor("#e8f5e9")
 
@@ -52,26 +51,17 @@ def gerar_croqui_v4(projeto_json: dict, caminho_saida: str) -> str:
 
     nos_raw = projeto_json.get("nos", [])
     trs_raw = projeto_json.get("trechos", [])
-    eqs_raw = projeto_json.get("equipamentos", [])
-    ars_raw = projeto_json.get("areas", [])
-    txs_raw = projeto_json.get("textos", [])
-
     if not isinstance(nos_raw, list): nos_raw = list(nos_raw.values()) if isinstance(nos_raw, dict) else []
     if not isinstance(trs_raw, list): trs_raw = list(trs_raw.values()) if isinstance(trs_raw, dict) else []
-    if not isinstance(eqs_raw, list): eqs_raw = list(eqs_raw.values()) if isinstance(eqs_raw, dict) else []
-    if not isinstance(ars_raw, list): ars_raw = list(ars_raw.values()) if isinstance(ars_raw, dict) else []
 
     nos = {n["id"]: n for n in nos_raw if isinstance(n, dict) and n.get("id")}
     trechos = [t for t in trs_raw if isinstance(t, dict)]
-    equipamentos = [e for e in eqs_raw if isinstance(e, dict)]
-    areas = [a for a in ars_raw if isinstance(a, dict)]
 
     posicoes = _calcular_layout(nos, trechos)
 
     c = rl_canvas.Canvas(caminho_saida, pagesize=(PW, PH))
     _draw_header(c, meta)
-    _draw_croqui(c, nos, trechos, equipamentos, areas, posicoes)
-    _draw_legenda(c)
+    _draw_croqui(c, nos, trechos, posicoes)
     c.save()
     return caminho_saida
 
@@ -360,7 +350,7 @@ def _C(x, y, scale, tx, ty):
     return float(tx + x * scale), float(ty + y * scale)
 
 
-def _draw_croqui(c, nos: dict, trechos: list, equipamentos: list, areas: list, posicoes: dict):
+def _draw_croqui(c, nos: dict, trechos: list, posicoes: dict):
     if not posicoes:
         c.setFont("Helvetica", 11)
         c.setFillColor(black)
@@ -369,26 +359,6 @@ def _draw_croqui(c, nos: dict, trechos: list, equipamentos: list, areas: list, p
         return
 
     scale, tx, ty = _escala(posicoes)
-
-    # Índice de equipamentos por nó
-    eq_idx = defaultdict(list)
-    for eq in equipamentos:
-        eq_idx[eq.get("no_id","")].append(eq)
-
-    # — Áreas (retângulos tracejados) —
-    for area in areas:
-        ids = [p.strip() for p in str(area.get("nos","")).split("|") if p.strip()]
-        pts = [(posicoes[i][0], posicoes[i][1]) for i in ids if i in posicoes]
-        if len(pts) >= 2:
-            xs2 = [p[0] for p in pts]; ys2 = [p[1] for p in pts]
-            ax0,ay0 = _C(min(xs2)-12, min(ys2)-12, scale, tx, ty)
-            ax1,ay1 = _C(max(xs2)+12, max(ys2)+12, scale, tx, ty)
-            c.setStrokeColor(C_AREA); c.setLineWidth(1.2); c.setDash(7,4)
-            c.rect(ax0, ay0, ax1-ax0, ay1-ay0, fill=0, stroke=1)
-            c.setDash()
-            nome = area.get("nome","Área")[:35]
-            c.setFillColor(C_AREA); c.setFont("Helvetica-Bold", 6)
-            c.drawString(ax0+2, ay1+2, nome)
 
     # — Trechos —
     for t in trechos:
@@ -435,10 +405,10 @@ def _draw_croqui(c, nos: dict, trechos: list, equipamentos: list, areas: list, p
             cx, cy = _C(pxy[0], pxy[1], scale, tx, ty)
         except Exception:
             continue
-        _draw_no(c, cx, cy, nid, no, eq_idx.get(nid,[]), scale)
+        _draw_no(c, cx, cy, nid, no, scale)
 
 
-def _draw_no(c, cx, cy, nid, no: dict, eqs: list, scale: float):
+def _draw_no(c, cx, cy, nid, no: dict, scale: float):
     r = max(3, min(NODE_R, int(scale * 2.5)))
     novo = "NOVO" in str(no.get("tipo","")).upper()
 
@@ -457,22 +427,6 @@ def _draw_no(c, cx, cy, nid, no: dict, eqs: list, scale: float):
     c.setFillColor(black)
     c.drawCentredString(cx, cy - r - fs - 1, label)
 
-    # Equipamentos (acima do círculo)
-    ey = cy + r + 3
-    for eq in eqs:
-        tipo_eq = str(eq.get("tipo","")).upper()
-        codigo  = str(eq.get("codigo","")).strip()
-        sym, cor_eq = _simbolo_eq(tipo_eq)
-        if not sym:
-            continue
-        fs_eq = max(5, min(7, int(scale*3.5)))
-        c.setFont("Helvetica-Bold", fs_eq)
-        c.setFillColor(cor_eq)
-        txt = f"{sym} {codigo}"[:18]
-        c.drawCentredString(cx, ey, txt)
-        ey += fs_eq + 2
-
-
 def _estilo_trecho(tipo: str):
     if "RECOND" in tipo:  return C_RECON, 1.4, (8,3)
     if "NOVA"  in tipo:   return C_NOVA,  1.3, None
@@ -480,28 +434,6 @@ def _estilo_trecho(tipo: str):
     if tipo.startswith("BT"): return C_BT, 1.0, (5,3)
     if tipo == "AUX":     return C_AUX,  0.6, (2,2)
     return C_MT, 1.4, None
-
-
-def _simbolo_eq(tipo: str):
-    mapa = {
-        "TRANSFORMADOR_RGE":       ("TR",  C_TR),
-        "TRANSFORMADOR_PART":      ("TR*", C_TR),
-        "CHAVE_FUSIVEL_COM_CARGA": ("FU",  C_FU),
-        "CHAVE_FUSIVEL_SEM_CARGA": ("fu",  C_FU),
-        "CHAVE_FUSIVEL_RELIG":     ("FUR", C_FU),
-        "RELIGADOR":               ("RL",  C_RL),
-        "SECCIONALIZADORA":        ("SC",  C_RL),
-        "ATERRAMENTO_AT":          ("AT",  C_AT),
-        "ATERRAMENTO_BT":          ("at",  C_AT),
-        "ELEMENTO_RETIRAR":        ("RET", C_DEL),
-        "ELEMENTO_DESLOCAR":       ("DSL", C_DEL),
-        "BANCO_CAPACITOR":         ("BC",  HexColor("#00695C")),
-        "REGULADOR_TENSAO":        ("RT",  HexColor("#00695C")),
-    }
-    for key, val in mapa.items():
-        if tipo.startswith(key):
-            return val
-    return None, black
 
 
 # ─────────────────────────────────────────────

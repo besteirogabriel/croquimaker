@@ -51,6 +51,66 @@ Para usar outra porta:
 CROQUIMAKER_HOST_PORT=8082 docker compose up -d
 ```
 
+## Usuarios e projetos
+
+Na primeira inicializacao, o sistema cria exatamente oito contas:
+
+- `caxias1` e `caxias2`: acesso exclusivo ao projeto Caxias;
+- `vacaria1` e `vacaria2`: acesso exclusivo ao projeto Vacaria;
+- `admin1`, `admin2`, `admin3` e `admin4`: acesso aos dois projetos.
+
+As senhas sao armazenadas somente como hash. Se
+`CROQUIMAKER_BOOTSTRAP_PASSWORD` estiver vazio, cada conta recebe uma senha
+aleatoria diferente. Consulte as credenciais iniciais no proprio servidor:
+
+```bash
+docker compose exec web python -m croquimaker.auth show-initial-credentials
+```
+
+Depois da distribuicao, redefina as senhas necessarias:
+
+```bash
+docker compose exec web python -m croquimaker.auth set-password caxias1
+```
+
+Os projetos e todos os seus arquivos ficam fisicamente isolados:
+
+```text
+generated/projects/caxias/jobs/
+generated/projects/vacaria/jobs/
+```
+
+Usuarios regionais nao podem trocar de projeto. Administradores selecionam
+Caxias ou Vacaria no cabecalho; o backend aplica a mesma selecao ao upload,
+status e downloads. Para uma publicacao HTTPS, configure
+`CROQUIMAKER_COOKIE_SECURE=1`.
+
+## Persistencia, dashboard e auditoria
+
+Depois do login, o dashboard apresenta indicadores, projetos recentes e a
+atividade operacional. Os usuarios de Caxias e Vacaria visualizam somente os
+registros da propria unidade; administradores recebem a visao consolidada das
+duas unidades.
+
+Cada envio cria um registro no banco operacional antes de entrar na fila. O PDF
+de entrada, o resultado, o manifesto e os diagnosticos permanecem no volume
+`croquimaker_generated`, inclusive depois de `docker compose down` e de
+reinicializacoes do servidor. Processamentos interrompidos sao retomados quando
+a aplicacao volta a iniciar.
+
+Os arquivos recebem nomes individuais, por exemplo:
+
+```text
+PROJETO-CAXIAS-20260724T153000Z-A1B2C3D4E5.pdf
+CROQUI-CAXIAS-20260724T153000Z-A1B2C3D4E5.pdf
+```
+
+O banco registra unidade, responsavel, datas, estado, nome original, nomes
+tecnicos e hashes SHA-256 da entrada e da saida. A trilha de auditoria inclui
+acessos, troca de unidade, criacao, inicio, conclusao, falha e downloads. Os
+eventos sao encadeados por hash, e a tela de auditoria verifica a integridade da
+cadeia e permite exportar os registros visiveis em CSV.
+
 ## Desenvolvimento e testes
 
 ```bash

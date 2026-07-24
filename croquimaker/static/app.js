@@ -6,11 +6,14 @@ const submit = document.querySelector("#submit");
 const progress = document.querySelector("#progress");
 const message = document.querySelector("#message");
 const bar = document.querySelector("#bar");
+const progressPercent = document.querySelector("#progressPercent");
 const result = document.querySelector("#result");
 const pdf = document.querySelector("#pdf");
 const xls = document.querySelector("#xls");
 const again = document.querySelector("#again");
 const error = document.querySelector("#error");
+const resultFilename = document.querySelector("#resultFilename");
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 const base = "/" + ["a", "pi"].join("") + "/projetos";
 
 const widths = {
@@ -22,7 +25,9 @@ const widths = {
 };
 
 file.addEventListener("change", () => {
-  fileText.textContent = file.files[0]?.name || "Selecione ou arraste um PDF";
+  const selected = file.files[0];
+  fileText.textContent = selected?.name || "Arraste o projeto elétrico aqui";
+  drop.classList.toggle("has-file", Boolean(selected));
 });
 
 for (const event of ["dragenter", "dragover"]) {
@@ -35,6 +40,7 @@ drop.addEventListener("drop", e => {
   if (e.dataTransfer.files.length) {
     file.files = e.dataTransfer.files;
     fileText.textContent = file.files[0].name;
+    drop.classList.add("has-file");
   }
 });
 
@@ -47,7 +53,15 @@ form.addEventListener("submit", async e => {
   const data = new FormData();
   data.append("arquivo", file.files[0]);
   try {
-    const created = await fetch(base, { method: "POST", body: data });
+    const created = await fetch(base, {
+      method: "POST",
+      headers: { "X-CSRF-Token": csrfToken },
+      body: data
+    });
+    if (created.status === 401) {
+      window.location.assign("/login");
+      return;
+    }
     if (!created.ok) throw new Error();
     const body = await created.json();
     poll(body.job_id);
@@ -59,13 +73,22 @@ form.addEventListener("submit", async e => {
 async function poll(jobId) {
   try {
     const response = await fetch(`${base}/${jobId}`);
+    if (response.status === 401) {
+      window.location.assign("/login");
+      return;
+    }
     if (!response.ok) throw new Error();
     const body = await response.json();
     message.textContent = body.message;
-    bar.style.width = widths[body.message] || "50%";
+    const currentWidth = widths[body.message] || "50%";
+    bar.style.width = currentWidth;
+    progressPercent.textContent = currentWidth;
     if (body.state === "done") {
       progress.hidden = true;
       result.hidden = false;
+      resultFilename.textContent = body.output_filename
+        ? `${body.output_filename} foi salvo e está pronto para download.`
+        : "O arquivo técnico foi salvo e está pronto para download.";
       pdf.href = `${base}/${jobId}/croqui.pdf`;
       xls.href = `${base}/${jobId}/croqui.xls`;
       xls.hidden = !body.has_excel;
@@ -92,9 +115,11 @@ function reset(clearFile) {
   error.hidden = true;
   result.hidden = true;
   bar.style.width = "18%";
+  progressPercent.textContent = "18%";
   message.textContent = "Recebendo projeto";
   if (clearFile) {
     form.reset();
-    fileText.textContent = "Selecione ou arraste um PDF";
+    fileText.textContent = "Arraste o projeto elétrico aqui";
+    drop.classList.remove("has-file");
   }
 }

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171323">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}CroquiMaker{% endblock %} | JOBEL Engenharia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="app-page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="app-brand" href="{{ url_for('dashboard') }}" aria-label="JOBEL Engenharia - Início">
+        <span class="brand-logo brand-logo-header">
+          <img src="{{ url_for('static', filename='img/jobel_logo.png') }}" alt="JOBEL Engenharia">
+        </span>
+        <span class="product-divider" aria-hidden="true"></span>
+        <span class="product-name">
+          <strong>CroquiMaker</strong>
+          <small>Operação técnica</small>
+        </span>
+      </a>
+
+      <nav class="primary-nav" aria-label="Navegação principal">
+        <a href="{{ url_for('dashboard') }}" {% if page == "dashboard" %}class="active" aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+          Dashboard
+        </a>
+        <a href="{{ url_for('novo_projeto') }}" {% if page == "new" %}class="active" aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Novo projeto
+        </a>
+        <a href="{{ url_for('auditoria') }}" {% if page == "audit" %}class="active" aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          Auditoria
+        </a>
+      </nav>
+
+      <div class="account">
+        {% if user.role == "admin" %}
+          <form method="post" action="{{ url_for('selecionar_projeto') }}" class="project-switcher">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <label for="project_slug">Unidade para novos projetos</label>
+            <span class="select-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 21h16M6 21V5l6-3 6 3v16M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1"></path>
+              </svg>
+              <select id="project_slug" name="project_slug" onchange="this.form.submit()">
+                {% for slug, name in projects.items() %}
+                  <option value="{{ slug }}" {% if slug == active_project %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+              </select>
+            </span>
+          </form>
+        {% else %}
+          <div class="regional-project">
+            <span>Unidade</span>
+            <strong>{{ active_project_name }}</strong>
+          </div>
+        {% endif %}
+        <div class="account-separator" aria-hidden="true"></div>
+        <div class="user-menu">
+          <span class="user-avatar" aria-hidden="true">{{ user.display_name[:1] }}</span>
+          <span class="user-identity">
+            <strong>{{ user.display_name }}</strong>
+            <small>{% if user.role == "admin" %}Administrador{% else %}Usuário da unidade{% endif %}</small>
+          </span>
+          <form method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="logout-button" aria-label="Sair da plataforma" title="Sair">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 17l5-5-5-5M15 12H3M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    {% block content %}{% endblock %}
+
+    <footer class="app-footer">
+      <span>JOBEL Engenharia</span>
+      <span>CroquiMaker · Ambiente operacional</span>
+    </footer>
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

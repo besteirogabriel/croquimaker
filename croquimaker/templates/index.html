@@ -1,35 +1,169 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gerador de Croquis</title>
-  <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-  <main class="shell">
-    <section class="panel">
-      <h1>Gerador de Croquis</h1>
-      <form id="form">
+{% extends "base.html" %}
+{% block title %}Novo projeto{% endblock %}
+
+{% block content %}
+  <section class="workspace-heading">
+    <div>
+      <div class="breadcrumb">
+        <span>Operação</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        <strong>Novo projeto</strong>
+      </div>
+      <h1>Conversão de projeto em croqui</h1>
+      <p>Envie o projeto elétrico para gerar e arquivar os arquivos técnicos padronizados.</p>
+    </div>
+    <div class="status-chip">
+      <span class="status-dot"></span>
+      Sistema operacional
+    </div>
+  </section>
+
+  <div class="workspace-grid">
+    <section class="panel upload-panel">
+      <div class="panel-heading">
+        <span class="step-badge">01</span>
+        <div>
+          <h2>Novo processamento</h2>
+          <p>Selecione o arquivo de origem para iniciar a conversão.</p>
+        </div>
+      </div>
+
+      <form id="form" class="upload-form">
         <label id="drop" class="drop">
           <input id="file" name="arquivo" type="file" accept="application/pdf,.pdf">
-          <span id="fileText">Selecione ou arraste um PDF</span>
+          <span class="upload-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 16V4M7 9l5-5 5 5"></path>
+              <path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"></path>
+            </svg>
+          </span>
+          <span class="drop-copy">
+            <strong id="fileText">Arraste o projeto elétrico aqui</strong>
+            <span>ou clique para selecionar o arquivo</span>
+            <small>Formato aceito: PDF</small>
+          </span>
         </label>
-        <button id="submit" type="submit">Gerar croqui</button>
+        <button id="submit" type="submit" class="primary-button">
+          <span>Gerar croqui técnico</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </button>
       </form>
-      <div id="progress" class="progress" hidden>
+
+      <div id="progress" class="progress-card" hidden>
+        <div class="progress-heading">
+          <span class="processing-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+            </svg>
+          </span>
+          <div>
+            <strong>Processando projeto</strong>
+            <p id="message">Recebendo projeto</p>
+          </div>
+          <span class="progress-percent" id="progressPercent">18%</span>
+        </div>
         <div class="bar"><span id="bar"></span></div>
-        <p id="message">Recebendo projeto</p>
+        <p class="progress-note">O projeto ficará salvo mesmo após sair desta página.</p>
       </div>
-      <div id="result" class="result" hidden>
-        <p>Croqui concluído</p>
-        <a id="pdf" class="button" href="#">Baixar PDF</a>
-        <a id="xls" class="button secondary" href="#" hidden>Baixar Excel</a>
-        <button id="again" type="button" class="ghost">Processar outro projeto</button>
+
+      <div id="result" class="result-card" hidden>
+        <span class="result-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"></path>
+          </svg>
+        </span>
+        <div class="result-heading">
+          <h3>Croqui concluído e arquivado</h3>
+          <p id="resultFilename">O arquivo técnico está pronto para download.</p>
+        </div>
+        <div class="result-actions">
+          <a id="pdf" class="button primary-download" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path>
+              <path d="M14 2v6h6M12 12v6M9 15l3 3 3-3"></path>
+            </svg>
+            Baixar PDF
+          </a>
+          <a id="xls" class="button secondary-download" href="#" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path>
+              <path d="M14 2v6h6M8 13l4 5M12 13l-4 5"></path>
+            </svg>
+            Baixar Excel
+          </a>
+          <a href="{{ url_for('dashboard') }}" class="new-process-button link-button">Ver no dashboard</a>
+          <button id="again" type="button" class="new-process-button">Processar novo projeto</button>
+        </div>
       </div>
-      <p id="error" class="error" hidden>Não foi possível processar este projeto</p>
+
+      <div id="error" class="error-card" hidden role="alert">
+        <span class="error-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v6M12 17h.01"></path>
+          </svg>
+        </span>
+        <div>
+          <strong>Não foi possível processar este projeto</strong>
+          <p>O registro foi mantido no dashboard para acompanhamento e auditoria.</p>
+        </div>
+      </div>
     </section>
-  </main>
-  <script src="/static/app.js"></script>
-</body>
-</html>
+
+    <aside class="context-column">
+      <section class="panel context-card">
+        <div class="context-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 21h16M6 21V5l6-3 6 3v16M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1"></path>
+          </svg>
+        </div>
+        <span class="context-label">Unidade de trabalho</span>
+        <strong>{{ active_project_name }}</strong>
+        <p>O projeto, sua saída e o histórico ficarão vinculados exclusivamente a esta unidade.</p>
+      </section>
+
+      <section class="panel process-card">
+        <div class="side-heading">
+          <span>Fluxo do processo</span>
+          <small>4 etapas</small>
+        </div>
+        <ol class="process-list">
+          <li class="active">
+            <span>1</span>
+            <div>
+              <strong>Envio do projeto</strong>
+              <small>Documento técnico em PDF</small>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <strong>Leitura e geração</strong>
+              <small>Processamento do croqui</small>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <strong>Arquivo único</strong>
+              <small>Identificação individual da saída</small>
+            </div>
+          </li>
+          <li>
+            <span>4</span>
+            <div>
+              <strong>Registro permanente</strong>
+              <small>Histórico e auditoria</small>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </aside>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

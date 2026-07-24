@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <section class="workspace-heading dashboard-heading">
+    <div>
+      <div class="breadcrumb">
+        <span>Operação</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        <strong>Dashboard</strong>
+      </div>
+      <h1>Dashboard operacional</h1>
+      <p>
+        {% if user.role == "admin" %}
+          Visão consolidada dos projetos de Caxias e Vacaria.
+        {% else %}
+          Acompanhamento dos projetos vinculados à unidade {{ active_project_name }}.
+        {% endif %}
+      </p>
+    </div>
+    <a class="button dashboard-primary-action" href="{{ url_for('novo_projeto') }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      Novo projeto
+    </a>
+  </section>
+
+  <section class="metrics-grid" aria-label="Indicadores dos projetos">
+    <article class="metric-card">
+      <span class="metric-icon metric-icon-purple">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path>
+          <path d="M14 2v6h6"></path>
+        </svg>
+      </span>
+      <div>
+        <span>Total de projetos</span>
+        <strong>{{ stats.total }}</strong>
+      </div>
+    </article>
+    <article class="metric-card">
+      <span class="metric-icon metric-icon-green">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+      </span>
+      <div>
+        <span>Concluídos</span>
+        <strong>{{ stats.done }}</strong>
+      </div>
+    </article>
+    <article class="metric-card">
+      <span class="metric-icon metric-icon-blue">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path></svg>
+      </span>
+      <div>
+        <span>Em processamento</span>
+        <strong>{{ stats.processing }}</strong>
+      </div>
+    </article>
+    <article class="metric-card">
+      <span class="metric-icon metric-icon-red">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 7v6M12 17h.01"></path>
+        </svg>
+      </span>
+      <div>
+        <span>Com falha</span>
+        <strong>{{ stats.error }}</strong>
+      </div>
+    </article>
+  </section>
+
+  <div class="dashboard-grid">
+    <section class="panel dashboard-panel projects-panel">
+      <div class="dashboard-panel-heading">
+        <div>
+          <span class="section-kicker compact-kicker">Histórico persistente</span>
+          <h2>Projetos recentes</h2>
+        </div>
+        <span class="records-count">{{ recent_jobs|length }} registros exibidos</span>
+      </div>
+
+      {% if recent_jobs %}
+        <div class="data-table-wrapper">
+          <table class="data-table projects-table">
+            <thead>
+              <tr>
+                <th>Projeto</th>
+                <th>Unidade</th>
+                <th>Responsável</th>
+                <th>Status</th>
+                <th>Criação</th>
+                <th>Arquivo final</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for job in recent_jobs %}
+                <tr>
+                  <td>
+                    <span class="project-reference">#{{ job.id|short_id }}</span>
+                    <small title="{{ job.original_filename }}">{{ job.original_filename }}</small>
+                  </td>
+                  <td><span class="unit-badge">{{ projects[job.project_slug] }}</span></td>
+                  <td>{{ job.created_by }}</td>
+                  <td>
+                    <span class="state-badge state-{{ job.state }}">
+                      <span></span>{{ state_labels.get(job.state, job.state) }}
+                    </span>
+                  </td>
+                  <td>{{ job.created_at|date_br }}</td>
+                  <td>
+                    {% if job.state == "done" %}
+                      <a
+                        class="artifact-link"
+                        href="{{ url_for('baixar_arquivo_projeto', project_slug=job.project_slug, job_id=job.id, kind='pdf') }}"
+                        title="{{ job.output_pdf_filename }}"
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path>
+                        </svg>
+                        <span>{{ job.output_pdf_filename }}</span>
+                      </a>
+                    {% else %}
+                      <span class="pending-artifact">Aguardando conclusão</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-state-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path>
+              <path d="M14 2v6h6M8 13h8M8 17h5"></path>
+            </svg>
+          </span>
+          <strong>Nenhum projeto registrado</strong>
+          <p>O primeiro processamento aparecerá aqui e permanecerá salvo.</p>
+          <a href="{{ url_for('novo_projeto') }}">Criar primeiro projeto</a>
+        </div>
+      {% endif %}
+    </section>
+
+    <aside class="panel dashboard-panel audit-summary-panel">
+      <div class="dashboard-panel-heading">
+        <div>
+          <span class="section-kicker compact-kicker">Rastreabilidade</span>
+          <h2>Atividade recente</h2>
+        </div>
+        <span class="integrity-badge {% if not audit_integrity %}integrity-error{% endif %}">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+            {% if audit_integrity %}<path d="m9 12 2 2 4-4"></path>{% else %}<path d="m9 9 6 6M15 9l-6 6"></path>{% endif %}
+          </svg>
+          {% if audit_integrity %}Trilha íntegra{% else %}Verificação pendente{% endif %}
+        </span>
+      </div>
+
+      <ol class="audit-timeline">
+        {% for event in recent_events %}
+          <li>
+            <span class="audit-dot {% if event.outcome == 'failure' %}audit-dot-error{% endif %}"></span>
+            <div>
+              <strong>{{ event.action_label }}</strong>
+              <p>{{ event.actor_username }} · {{ event.project_name }}</p>
+              <time datetime="{{ event.occurred_at }}">{{ event.occurred_at|date_br }}</time>
+            </div>
+          </li>
+        {% else %}
+          <li class="audit-empty">Nenhuma atividade registrada.</li>
+        {% endfor %}
+      </ol>
+      <a class="audit-all-link" href="{{ url_for('auditoria') }}">
+        Ver auditoria completa
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+      </a>
+    </aside>
+  </div>
+{% endblock %}

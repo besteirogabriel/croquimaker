@@ -12,6 +12,7 @@ const pdf = document.querySelector("#pdf");
 const xls = document.querySelector("#xls");
 const again = document.querySelector("#again");
 const error = document.querySelector("#error");
+const resultFilename = document.querySelector("#resultFilename");
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 const base = "/" + ["a", "pi"].join("") + "/projetos";
 
@@ -85,6 +86,9 @@ async function poll(jobId) {
     if (body.state === "done") {
       progress.hidden = true;
       result.hidden = false;
+      resultFilename.textContent = body.output_filename
+        ? `${body.output_filename} foi salvo e está pronto para download.`
+        : "O arquivo técnico foi salvo e está pronto para download.";
       pdf.href = `${base}/${jobId}/croqui.pdf`;
       xls.href = `${base}/${jobId}/croqui.xls`;
       xls.hidden = !body.has_excel;

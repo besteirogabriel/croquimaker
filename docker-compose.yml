@@ -12,6 +12,7 @@ services:
       CROQUIMAKER_PROVIDER: ${CROQUIMAKER_PROVIDER:-codex}
       CROQUIMAKER_BOOTSTRAP_PASSWORD: ${CROQUIMAKER_BOOTSTRAP_PASSWORD:-}
       CROQUIMAKER_COOKIE_SECURE: ${CROQUIMAKER_COOKIE_SECURE:-0}
+      CROQUIMAKER_TIMEZONE: ${CROQUIMAKER_TIMEZONE:-America/Sao_Paulo}
     volumes:
       - croquimaker_generated:/app/generated
       - croquimaker_codex_auth:/codex-auth

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Auditoria{% endblock %}
+
+{% block content %}
+  <section class="workspace-heading dashboard-heading">
+    <div>
+      <div class="breadcrumb">
+        <span>Governança</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        <strong>Auditoria</strong>
+      </div>
+      <h1>Trilha de auditoria</h1>
+      <p>Histórico cronológico de acessos, projetos, processamentos e downloads.</p>
+    </div>
+    <a class="button dashboard-primary-action" href="{{ url_for('exportar_auditoria') }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path>
+      </svg>
+      Exportar CSV
+    </a>
+  </section>
+
+  <section class="audit-integrity-card {% if not audit_integrity %}audit-integrity-card-error{% endif %}">
+    <span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+        {% if audit_integrity %}<path d="m9 12 2 2 4-4"></path>{% else %}<path d="m9 9 6 6M15 9l-6 6"></path>{% endif %}
+      </svg>
+    </span>
+    <div>
+      <strong>
+        {% if audit_integrity %}Integridade da trilha confirmada{% else %}A trilha requer verificação administrativa{% endif %}
+      </strong>
+      <p>Os eventos são encadeados por hash para evidenciar qualquer alteração no histórico.</p>
+    </div>
+  </section>
+
+  <section class="panel dashboard-panel audit-table-panel">
+    <div class="dashboard-panel-heading">
+      <div>
+        <span class="section-kicker compact-kicker">Registros encadeados</span>
+        <h2>Eventos registrados</h2>
+      </div>
+      <span class="records-count">{{ events|length }} eventos exibidos</span>
+    </div>
+    <div class="data-table-wrapper">
+      <table class="data-table audit-table">
+        <thead>
+          <tr>
+            <th>Data e hora</th>
+            <th>Evento</th>
+            <th>Usuário</th>
+            <th>Unidade</th>
+            <th>Projeto</th>
+            <th>Resultado</th>
+            <th>Identificador de integridade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+            <tr>
+              <td>{{ event.occurred_at|date_br }}</td>
+              <td><strong>{{ event.action_label }}</strong></td>
+              <td>{{ event.actor_username }}</td>
+              <td>{{ event.project_name }}</td>
+              <td>{% if event.job_id %}#{{ event.job_id|short_id }}{% else %}—{% endif %}</td>
+              <td>
+                <span class="outcome-badge outcome-{{ event.outcome }}">
+                  {% if event.outcome == "success" %}Confirmado{% else %}Falha{% endif %}
+                </span>
+              </td>
+              <td><code title="{{ event.event_hash }}">{{ event.event_hash|short_hash }}</code></td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="empty-table-cell">Nenhum evento registrado.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

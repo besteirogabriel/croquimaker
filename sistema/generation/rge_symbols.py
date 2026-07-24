@@ -5,7 +5,7 @@ import math
 from functools import lru_cache
 from pathlib import Path
 
-from reportlab.lib.colors import Color, HexColor, black, white
+from reportlab.lib.colors import Color, HexColor
 from reportlab.pdfgen.canvas import Canvas
 
 
@@ -83,26 +83,11 @@ def _source_color(value: str | None) -> Color | None:
     return HexColor(value) if value else None
 
 
-def _tinted_color(value: str | None, tint: Color) -> Color | None:
-    source = _source_color(value)
-    if source is None:
-        return None
-    if (
-        abs(source.red) <= 1e-6
-        and abs(source.green) <= 1e-6
-        and abs(source.blue) <= 1e-6
-    ):
-        return tint
-    return source
-
-
 def _draw_path(
     canvas: Canvas,
     path_spec: dict,
     *,
-    tint: Color,
     scale: float,
-    fill_tint: bool,
 ) -> None:
     path = canvas.beginPath()
     for command in path_spec["commands"]:
@@ -118,10 +103,11 @@ def _draw_path(
         else:
             raise ValueError(f"Comando vetorial RGE desconhecido: {op}")
 
-    stroke = _tinted_color(path_spec.get("stroke"), tint)
-    fill = _tinted_color(path_spec.get("fill"), tint)
-    if (path_spec.get("fill") or "").lower() == "#ffffff":
-        fill = tint if fill_tint else white
+    # Stroke and fill are copied literally from the Simbologia sheet. Runtime
+    # state such as INSTALAR must never manufacture a color variant that is not
+    # present in the reference workbook.
+    stroke = _source_color(path_spec.get("stroke"))
+    fill = _source_color(path_spec.get("fill"))
     if stroke is not None:
         canvas.setStrokeColor(stroke)
         canvas.setLineWidth(max(0.35 / scale, float(path_spec.get("width") or 0.0)))
@@ -137,9 +123,7 @@ def draw_rge_symbol(
     y: float,
     *,
     direction: tuple[float, float] = (1.0, 0.0),
-    tint: Color = black,
     scale: float | None = None,
-    fill_tint: bool = False,
 ) -> float:
     """Draw a vector copied from the RGE workbook and return its outward extent."""
 
@@ -162,9 +146,7 @@ def draw_rge_symbol(
         _draw_path(
             canvas,
             path_spec,
-            tint=tint,
             scale=render_scale,
-            fill_tint=fill_tint,
         )
     canvas.restoreState()
 

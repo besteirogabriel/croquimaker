@@ -19,7 +19,7 @@ def test_pipeline_com_provedor_simulado(tmp_path, monkeypatch):
     doc.close()
     result = gerar(pdf, tmp_path / "job")
     assert result["sha256"]
-    assert result["engine"] == "geometry-cad-v12-verified-symbols-only"
+    assert result["engine"] == "geometry-cad-v13-exact-workbook-colors"
     assert (tmp_path / "job/croqui.pdf").exists()
     assert (tmp_path / "job/clean_projeto.pdf").exists()
     assert (tmp_path / "job/clean_projeto.png").exists()

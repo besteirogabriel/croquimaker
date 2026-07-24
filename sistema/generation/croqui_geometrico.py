@@ -396,19 +396,6 @@ def _draw_equipment(
 ) -> None:
     dx, dy = direction
     kind = equipment.kind.upper()
-    state = equipment.state.upper()
-    is_temporary_ground = kind in {"ATERRAMENTO_BT", "ATERRAMENTO_AT"}
-    color = (
-        red
-        if (
-            not is_temporary_ground
-            and (
-                equipment.new
-                or state in {"INSTALAR", "INCLUIR", "SUBSTITUIR"}
-            )
-        )
-        else black
-    )
     symbol_name = symbol_for_equipment(kind)
     extent = (
         draw_rge_symbol(
@@ -417,10 +404,6 @@ def _draw_equipment(
             x,
             y,
             direction=direction,
-            tint=color,
-            # O Excel define o transformador como triângulo vazado. Instalação
-            # muda a cor do traço, não o preenchimento da forma.
-            fill_tint=False,
         )
         if symbol_name is not None
         else 0.0
@@ -428,13 +411,13 @@ def _draw_equipment(
     label_x = x + dx * (extent + 3.0)
     label_y = y + dy * (extent + 3.0)
 
-    # O desenho mostra apenas o identificador do ativo. A ação/estado continua
-    # controlando a simbologia e a cor, mas não vira texto solto no croqui.
+    # O desenho mostra apenas o identificador do ativo. A ação/estado permanece
+    # como dado interno e nunca altera a simbologia extraída do Excel.
     label = equipment.code
 
     if label:
         c.setFont("Helvetica", 5.3)
-        c.setFillColor(color)
+        c.setFillColor(black)
         if abs(dx) < 0.35:
             c.drawCentredString(
                 label_x,

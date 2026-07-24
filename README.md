@@ -21,8 +21,10 @@ identificacao semantica nao cria coordenadas nem altera identificadores. O
 desenho final preserva os numeros e simbolos de transformadores, chaves e demais
 ativos comprovados no PDF recebido, alem de diferenciar postes existentes e
 postes a instalar. No desenho, cada ativo numerado recebe somente seu
-identificador; estados como instalar, abrir ou desligar controlam a simbologia
-sem gerar texto adicional. Areas de trabalho LM/LV, contornos, chamadas, caixas
+identificador; estados como instalar, abrir ou desligar são mantidos somente
+como dados internos e não alteram a aparência. Traço, preenchimento e cor são preservados
+literalmente da aba `Simbologia`, sem variantes geradas por estado. Areas de
+trabalho LM/LV, contornos, chamadas, caixas
 de texto e observacoes operacionais nao sao adicionados. Ativos ausentes da
 entrada nunca sao inferidos a partir de uma OS ou de um caso do corpus.
 

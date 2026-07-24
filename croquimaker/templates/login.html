@@ -3,31 +3,98 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Acesso | Croquimaker</title>
-  <link rel="stylesheet" href="/static/styles.css">
+  <meta name="theme-color" content="#171323">
+  <title>Acesso corporativo | JOBEL Engenharia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body class="login-page">
-  <main class="login-shell">
-    <section class="login-card">
-      <div class="brand-mark">CM</div>
-      <p class="eyebrow">Jobel Engenharia</p>
-      <h1>Acessar Croquimaker</h1>
-      <p class="login-copy">Entre com seu usuário para acessar os projetos autorizados.</p>
-      <form method="post" class="login-form">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        <label>
-          <span>Usuário</span>
-          <input name="username" type="text" autocomplete="username" required autofocus>
-        </label>
-        <label>
-          <span>Senha</span>
-          <input name="password" type="password" autocomplete="current-password" required>
-        </label>
-        {% if error %}
-          <p class="form-error" role="alert">{{ error }}</p>
-        {% endif %}
-        <button type="submit">Entrar</button>
-      </form>
+  <main class="login-layout">
+    <section class="login-brand-panel" aria-label="JOBEL Engenharia">
+      <div class="login-grid" aria-hidden="true"></div>
+      <div class="brand-content">
+        <div class="brand-logo brand-logo-login">
+          <img src="{{ url_for('static', filename='img/jobel_logo.png') }}" alt="JOBEL Engenharia">
+        </div>
+        <div class="brand-message">
+          <span class="brand-kicker">Plataforma de engenharia</span>
+          <h1>Precisão técnica do projeto ao croqui.</h1>
+          <p>Ambiente operacional para geração e padronização de croquis elétricos.</p>
+        </div>
+        <div class="brand-features" aria-label="Recursos da plataforma">
+          <div>
+            <span class="feature-number">01</span>
+            <span>Projetos organizados por unidade</span>
+          </div>
+          <div>
+            <span class="feature-number">02</span>
+            <span>Processamento técnico padronizado</span>
+          </div>
+          <div>
+            <span class="feature-number">03</span>
+            <span>Acesso seguro e controlado</span>
+          </div>
+        </div>
+      </div>
+      <p class="brand-footer">JOBEL Engenharia · CroquiMaker</p>
+    </section>
+
+    <section class="login-access-panel">
+      <div class="login-access-inner">
+        <div class="mobile-brand">
+          <div class="brand-logo">
+            <img src="{{ url_for('static', filename='img/jobel_logo.png') }}" alt="JOBEL Engenharia">
+          </div>
+        </div>
+        <div class="login-heading">
+          <span class="section-kicker">Acesso corporativo</span>
+          <h2>Bem-vindo</h2>
+          <p>Use suas credenciais para acessar o ambiente da sua unidade.</p>
+        </div>
+        <form method="post" class="login-form">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <label class="field">
+            <span class="field-label">Usuário</span>
+            <span class="field-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"></path>
+              </svg>
+              <input name="username" type="text" autocomplete="username" placeholder="Digite seu usuário" required autofocus>
+            </span>
+          </label>
+          <label class="field">
+            <span class="field-label">Senha</span>
+            <span class="field-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"></path>
+              </svg>
+              <input name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required>
+            </span>
+          </label>
+          {% if error %}
+            <p class="form-error" role="alert">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v6M12 17h.01"></path>
+              </svg>
+              {{ error }}
+            </p>
+          {% endif %}
+          <button type="submit" class="login-submit">
+            <span>Entrar na plataforma</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
+          </button>
+        </form>
+        <div class="security-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Ambiente restrito a colaboradores autorizados</span>
+        </div>
+      </div>
     </section>
   </main>
 </body>

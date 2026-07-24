@@ -30,6 +30,12 @@ class EquipmentScene:
     new_pole_indexes: frozenset[int]
 
 
+UNNUMBERED_SEMANTIC_SYMBOLS = frozenset({
+    "ATERRAMENTO_BT",
+    "ATERRAMENTO_AT",
+})
+
+
 def _numeric_code(value: str) -> str:
     match = re.search(r"\b(\d{6,7})\b", str(value))
     return match.group(1) if match else ""
@@ -205,7 +211,13 @@ def resolve_equipment_scene(
         if pole_index is None or pole_index not in selection.pole_indexes:
             continue
         kind = str(row.get("tipo", "")).strip().upper()
-        if not kind:
+        # Topology marks such as estai, passage, network end, sectioning and
+        # move/remove overlays need their own source geometry. Treating an
+        # unnumbered semantic row as equipment attached those marks to the
+        # nearest pole and created the stray red icons seen in the final PDF.
+        # Temporary grounds are the only workbook symbols intentionally
+        # allowed without an operating number.
+        if kind not in UNNUMBERED_SEMANTIC_SYMBOLS:
             continue
         resolved[f"semantic:{row_index}:{pole_index}:{kind}"] = SceneEquipment(
             code="",

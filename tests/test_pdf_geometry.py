@@ -132,6 +132,24 @@ def _synthetic_project() -> dict:
                 "no_id": "P3",
                 "estado": "INSTALAR",
             },
+            {
+                "tipo": "ESTAI",
+                "codigo": "",
+                "no_id": "P1",
+                "estado": "INSTALAR",
+            },
+            {
+                "tipo": "ELEMENTO_DESLOCAR",
+                "codigo": "",
+                "no_id": "P2",
+                "estado": "INSTALAR",
+            },
+            {
+                "tipo": "FIM_REDE_SECUNDARIA",
+                "codigo": "",
+                "no_id": "P3",
+                "estado": "INSTALAR",
+            },
         ],
         "areas": [
             {
@@ -205,6 +223,11 @@ def test_cena_sintetica_preserva_simbolos_e_omite_anotacoes(tmp_path):
     assert sum(
         item.kind == "ATERRAMENTO_BT" for item in scene.equipment
     ) == 3
+    assert not {
+        "ESTAI",
+        "ELEMENTO_DESLOCAR",
+        "FIM_REDE_SECUNDARIA",
+    } & {item.kind for item in scene.equipment}
     assert scene.new_pole_indexes == {0}
 
     croqui = tmp_path / "croqui.pdf"
@@ -225,6 +248,13 @@ def test_cena_sintetica_preserva_simbolos_e_omite_anotacoes(tmp_path):
         "TRANSFORMADOR_RGE",
         "CHAVE_FUSIVEL_SEM_CARGA",
         "ATERRAMENTO_BT",
+    }
+    assert not {
+        "ESTAI",
+        "ELEMENTO_DESLOCAR",
+        "FIM_REDE_SECUNDARIA",
+    } & {
+        row["kind"] for row in payload["rendered_equipment"]
     }
     assert all(
         tuple(row["direction"]) in {

@@ -18,7 +18,7 @@ from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v13-exact-workbook-colors"
+ENGINE_VERSION = "geometry-cad-v14-project-symbol-depara"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "clean_projeto.pdf",

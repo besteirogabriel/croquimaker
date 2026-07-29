@@ -32,6 +32,9 @@ def test_catalogo_vem_da_aba_simbologia_do_excel_de_referencia():
     ).hexdigest()
 
     required_symbols = {
+        "POSTE_CONCRETO",
+        "POSTE_MADEIRA",
+        "POSTE_DUPLO_T",
         "POSTE_EXISTENTE",
         "POSTE_NOVO",
         "TRANSFORMADOR_RGE",

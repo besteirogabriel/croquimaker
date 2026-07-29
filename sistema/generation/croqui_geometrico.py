@@ -21,7 +21,14 @@ from sistema.generation.rge_symbols import (
     load_rge_symbol_catalog,
     symbol_for_equipment,
 )
-from sistema.parsing.entities import ExistingEquipment, Position, ProjectExtraction, Transformer
+from sistema.extractors._pdf_geometry import point_segment_distance
+from sistema.parsing.entities import (
+    ExistingEquipment,
+    Position,
+    ProjectExtraction,
+    StructureType,
+    Transformer,
+)
 from sistema.topology.network import NetworkSelection, select_service_network
 
 
@@ -209,10 +216,17 @@ def _footer(c: canvas.Canvas, projeto: dict) -> None:
     c.rect(x, y, w, len(questions) * row_h + 9, fill=0, stroke=1)
 
 
-def _draw_pole(c: canvas.Canvas, x: float, y: float, *, new: bool = False) -> None:
+def _draw_pole(
+    c: canvas.Canvas,
+    x: float,
+    y: float,
+    *,
+    new: bool = False,
+    symbol_name: str = "POSTE_CONCRETO",
+) -> None:
     draw_rge_symbol(
         c,
-        "POSTE_NOVO" if new else "POSTE_EXISTENTE",
+        "POSTE_NOVO" if new else symbol_name,
         x,
         y,
     )
@@ -503,6 +517,75 @@ def _render_equipment_scene(
         _draw_equipment(c, equipment, pole_x, pole_y, direction)
 
 
+def _selected_structures(
+    extraction: ProjectExtraction,
+    selection: NetworkSelection,
+) -> list[StructureType]:
+    page_height = extraction.page_sizes[selection.page][1]
+    selected_poles = [
+        extraction.poles[index]
+        for index in selection.pole_indexes
+        if extraction.poles[index].position.page == selection.page
+    ]
+    selected_segments = [
+        extraction.conductors[index]
+        for index in selection.segment_ranges
+        if extraction.conductors[index].page == selection.page
+    ]
+    result = []
+    for structure in extraction.structure_types:
+        if structure.position.page != selection.page:
+            continue
+        x = structure.position.x
+        y = structure.position.y_pdf(page_height)
+        attached_to_selected_pole = any(
+            math.hypot(
+                pole.position.x - x,
+                pole.position.y_pdf(page_height) - y,
+            )
+            <= 6.0
+            for pole in selected_poles
+        )
+        on_selected_network = any(
+            point_segment_distance(x, y, segment) <= 4.0
+            for segment in selected_segments
+        )
+        if attached_to_selected_pole or on_selected_network:
+            result.append(structure)
+    return result
+
+
+def _render_structures(
+    c: canvas.Canvas,
+    structures: list[StructureType],
+    extraction: ProjectExtraction,
+    point,
+) -> None:
+    for structure in structures:
+        # A passagem já é formada pela própria rede contínua/tracejada e pelo
+        # perfil correto do poste. Redesenhar o bloco completo por cima faria
+        # um poste de madeira ou duplo T voltar a parecer um poste de concreto.
+        if structure.codigo in {
+            "PASSAGEM_PRIMARIO",
+            "PASSAGEM_SECUNDARIO",
+            "PASSAGEM_PRIMARIO_SECUNDARIO",
+        }:
+            continue
+        x, y = point(
+            structure.position.x,
+            _page_y(structure.position, extraction),
+        )
+        draw_rge_symbol(
+            c,
+            structure.codigo,
+            x,
+            y,
+            direction=structure.direction,
+        )
+    c.setStrokeColor(black)
+    c.setFillColor(black)
+
+
 def _merge_metadata(extraction: ProjectExtraction, projeto: dict) -> dict[str, str]:
     metadata = {
         "departamento": extraction.metadata.get("departamento", ""),
@@ -582,6 +665,7 @@ def render_croqui_geometrico(
         selection,
         point,
     )
+    resolved_structures = _selected_structures(extraction, selection)
     metadata = _merge_metadata(extraction, projeto)
 
     if selection_path is not None:
@@ -597,6 +681,22 @@ def render_croqui_geometrico(
         selection_payload["new_pole_indexes"] = sorted(
             equipment_scene.new_pole_indexes
         )
+        selection_payload["pole_symbol_mappings"] = [
+            {
+                "pole_index": pole_index,
+                "source_kind": extraction.poles[pole_index].project_kind,
+                "croqui_symbol": (
+                    "POSTE_NOVO"
+                    if pole_index in equipment_scene.new_pole_indexes
+                    else extraction.poles[pole_index].croqui_symbol
+                ),
+                "evidence": extraction.poles[pole_index].evidence,
+            }
+            for pole_index in sorted(selection.pole_indexes)
+        ]
+        selection_payload["rendered_structures"] = [
+            asdict(structure) for structure in resolved_structures
+        ]
         selection_payload["symbol_catalog"] = load_rge_symbol_catalog()["source"]
         selection_payload["work_areas"] = []
         selection_payload["operational_notes"] = []
@@ -639,8 +739,10 @@ def render_croqui_geometrico(
             px,
             py,
             new=pole_index in equipment_scene.new_pole_indexes,
+            symbol_name=pole.croqui_symbol,
         )
 
+    _render_structures(c, resolved_structures, extraction, point)
     _render_equipment_scene(c, resolved_equipment, extraction, point)
 
     c.save()

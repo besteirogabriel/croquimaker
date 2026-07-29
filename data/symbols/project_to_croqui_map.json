@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-07-29",
+  "purpose": "DE-PARA auditável entre objetos vetoriais do projeto e símbolos oficiais do croqui",
+  "rules": {
+    "POSTE_CIRCULAR_CONCRETO": {
+      "croqui_symbol": "POSTE_CONCRETO",
+      "reference_codes": [
+        "ICON-002",
+        "ICON-005",
+        "ICON-006",
+        "ICON-007"
+      ],
+      "action": "render"
+    },
+    "POSTE_CIRCULAR_MADEIRA": {
+      "croqui_symbol": "POSTE_MADEIRA",
+      "reference_codes": [
+        "ICON-004"
+      ],
+      "action": "render"
+    },
+    "POSTE_DUPLO_T": {
+      "croqui_symbol": "POSTE_DUPLO_T",
+      "reference_codes": [
+        "ICON-008"
+      ],
+      "action": "render"
+    },
+    "TRANSFORMADOR_COM_PARA_RAIO": {
+      "croqui_symbol": "TRANSFORMADOR_RGE",
+      "reference_codes": [
+        "ICON-009",
+        "ICON-011"
+      ],
+      "action": "render_core_component",
+      "components": [
+        "TRANSFORMADOR_RGE",
+        "PARA_RAIO"
+      ]
+    },
+    "CHAVE_FUSIVEL_COM_PARA_RAIO": {
+      "croqui_symbol": "CHAVE_FUSIVEL_SEM_ABERTURA_CARGA",
+      "reference_codes": [
+        "ICON-010"
+      ],
+      "action": "render_core_component",
+      "components": [
+        "CHAVE_FUSIVEL",
+        "PARA_RAIO"
+      ]
+    },
+    "POSTE_MADEIRA_COM_ESTAI": {
+      "croqui_symbol": "POSTE_MADEIRA",
+      "reference_codes": [
+        "ICON-016"
+      ],
+      "action": "render_core_component",
+      "ignored_components": [
+        "ESTAI"
+      ]
+    },
+    "POSTE_SUBSTITUIR": {
+      "croqui_symbol": "POSTE_NOVO",
+      "reference_codes": [
+        "ICON-018"
+      ],
+      "action": "render"
+    },
+    "CRUZAMENTO_MT_COM_CONEXAO": {
+      "croqui_symbol": "CRUZAMENTO_COM_CONEXAO",
+      "reference_codes": [
+        "ICON-019"
+      ],
+      "action": "render"
+    },
+    "CRUZAMENTO_BT_COM_CONEXAO": {
+      "croqui_symbol": "CRUZAMENTO_COM_CONEXAO",
+      "reference_codes": [
+        "ICON-020"
+      ],
+      "action": "render"
+    },
+    "CRUZAMENTO_SEM_CONEXAO": {
+      "croqui_symbol": "CRUZAMENTO_SEM_CONEXAO",
+      "reference_codes": [
+        "ICON-021"
+      ],
+      "action": "render"
+    },
+    "PASSAGEM_CONDUTOR_PRIMARIO": {
+      "croqui_symbol": "PASSAGEM_PRIMARIO",
+      "reference_codes": [
+        "ICON-022"
+      ],
+      "action": "render"
+    },
+    "PASSAGEM_CONDUTOR_SECUNDARIO": {
+      "croqui_symbol": "PASSAGEM_SECUNDARIO",
+      "reference_codes": [
+        "ICON-023"
+      ],
+      "action": "render"
+    },
+    "ENCABECAMENTO_PRIMARIO": {
+      "croqui_symbol": "ENCABECAMENTO_PRIMARIO",
+      "reference_codes": [
+        "ICON-024"
+      ],
+      "action": "render"
+    },
+    "ENCABECAMENTO_SECUNDARIO": {
+      "croqui_symbol": "ENCABECAMENTO_SECUNDARIO",
+      "reference_codes": [
+        "ICON-025"
+      ],
+      "action": "render"
+    }
+  }
+}

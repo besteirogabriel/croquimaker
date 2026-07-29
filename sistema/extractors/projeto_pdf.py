@@ -11,6 +11,10 @@ from sistema.extractors._pdf_geometry import (
     extract_conductor_segments,
     nearest_pole,
 )
+from sistema.extractors.project_symbols import (
+    detect_project_structures,
+    enrich_pole_profiles,
+)
 from sistema.parsing.entities import (
     ExistingEquipment,
     Position,
@@ -239,7 +243,12 @@ class ProjectPdfExtractor:
                 color_inventory=inventory,
                 metadata=_extract_metadata(doc),
             )
-            extraction.poles = detect_poles(doc, segments)
+            extraction.poles = enrich_pole_profiles(
+                doc,
+                detect_poles(doc, segments),
+                segments,
+            )
+            extraction.structure_types = detect_project_structures(doc, extraction)
             _extract_equipment(doc, extraction)
             if not extraction.metadata.get("equipamento"):
                 new_transformers = [item for item in extraction.transformers if item.novo]

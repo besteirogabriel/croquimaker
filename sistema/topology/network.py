@@ -192,6 +192,19 @@ def build_network_graph(
     cuts: dict[int, set[float]] = {index: {0.0, 1.0} for index in segment_indexes}
     pole_cuts: dict[int, list[tuple[int, float]]] = {}
 
+    def is_verified_non_connection(x: float, y: float) -> bool:
+        page_height = extraction.page_sizes[page][1]
+        return any(
+            structure.codigo == "CRUZAMENTO_SEM_CONEXAO"
+            and structure.position.page == page
+            and math.hypot(
+                structure.position.x - x,
+                structure.position.y_pdf(page_height) - y,
+            )
+            <= snap_tolerance * 1.5
+            for structure in extraction.structure_types
+        )
+
     for offset, first_index in enumerate(segment_indexes):
         first = extraction.conductors[first_index]
         for second_index in segment_indexes[:offset]:
@@ -199,6 +212,9 @@ def build_network_graph(
             if first.tensao != second.tensao:
                 continue
             for first_t, second_t in _intersection_parameters(first, second, snap_tolerance):
+                intersection_x, intersection_y = _point_at(first, first_t)
+                if is_verified_non_connection(intersection_x, intersection_y):
+                    continue
                 cuts[first_index].add(first_t)
                 cuts[second_index].add(second_t)
 

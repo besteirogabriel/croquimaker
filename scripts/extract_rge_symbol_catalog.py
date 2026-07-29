@@ -13,6 +13,27 @@ import fitz
 
 
 SYMBOL_SPECS = {
+    "POSTE_DUPLO_T": {
+        "symbol_page": 0,
+        "clip": (52.0, 131.0, 70.0, 150.0),
+        "anchor": "center",
+        "render_scale": 0.55,
+        "description": "Poste duplo T existente",
+    },
+    "POSTE_MADEIRA": {
+        "symbol_page": 0,
+        "clip": (84.0, 131.0, 104.0, 150.0),
+        "anchor": "center",
+        "render_scale": 0.55,
+        "description": "Poste circular de madeira existente",
+    },
+    "POSTE_CONCRETO": {
+        "symbol_page": 0,
+        "clip": (114.0, 131.0, 132.0, 150.0),
+        "anchor": "center",
+        "render_scale": 0.55,
+        "description": "Poste circular de concreto existente",
+    },
     "POSTE_EXISTENTE": {
         "symbol_page": 0,
         "clip": (114.0, 131.0, 132.0, 150.0),

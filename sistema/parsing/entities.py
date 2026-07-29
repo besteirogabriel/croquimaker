@@ -44,6 +44,9 @@ class Pole:
     codigo: str
     position: Position
     novo: bool = False
+    project_kind: str = "POSTE_CIRCULAR_CONCRETO"
+    croqui_symbol: str = "POSTE_CONCRETO"
+    evidence: str = "project_vector"
 
 
 @dataclass(frozen=True)
@@ -61,6 +64,11 @@ class Transformer:
 class StructureType:
     codigo: str
     position: Position
+    project_kind: str = ""
+    tension: str = ""
+    direction: tuple[float, float] = (1.0, 0.0)
+    evidence: str = "project_topology"
+    confidence: float = 1.0
 
 
 @dataclass(frozen=True)

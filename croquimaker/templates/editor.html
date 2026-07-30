@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Editor de croqui{% endblock %}
+
+{% block content %}
+  <section class="workspace-heading editor-heading">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('dashboard') }}">Projetos</a>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        <strong>Editor</strong>
+      </div>
+      <h1>Revisão técnica do croqui</h1>
+      <p>Edite a cena gerada e exporte uma revisão auditável sem executar novamente a interpretação.</p>
+    </div>
+    <div class="status-chip"><span class="status-dot"></span>Projeto #{{ job.id|short_id }}</div>
+  </section>
+
+  <div
+    id="editorApp"
+    class="croqui-editor"
+    data-project="{{ job.project_slug }}"
+    data-job="{{ job.id }}"
+  >
+    <div class="editor-toolbar panel">
+      <div class="toolbar-group">
+        <button type="button" data-action="select" class="tool active">Selecionar</button>
+        <button type="button" data-action="add-line" class="tool">Adicionar linha</button>
+        <button type="button" data-action="add-symbol" class="tool">Adicionar símbolo</button>
+        <button type="button" data-action="delete" class="tool danger">Excluir</button>
+      </div>
+      <div class="toolbar-group">
+        <button type="button" data-action="undo" class="tool">Desfazer</button>
+        <button type="button" data-action="redo" class="tool">Refazer</button>
+        <button type="button" data-action="fit" class="tool">Ajustar tela</button>
+        <a class="tool toolbar-link" href="{{ url_for('baixar_arquivo_projeto', project_slug=job.project_slug, job_id=job.id, kind='pdf') }}">PDF original</a>
+      </div>
+      <button type="button" data-action="export" class="primary-button editor-export">Exportar PDF revisado</button>
+    </div>
+
+    <div class="editor-layout">
+      <section class="panel editor-canvas-panel">
+        <div id="editorLoading" class="editor-loading">Carregando cena técnica...</div>
+        <div id="canvasViewport" class="canvas-viewport" hidden>
+          <svg id="croquiCanvas" aria-label="Croqui editável"></svg>
+        </div>
+      </section>
+
+      <aside class="panel properties-panel">
+        <div class="panel-heading">
+          <span class="step-badge">02</span>
+          <div><h2>Propriedades</h2><p id="selectionHint">Selecione um elemento.</p></div>
+        </div>
+        <form id="propertiesForm" hidden>
+          <label>ID<input id="propertyId" type="text" readonly></label>
+          <div id="lineProperties" hidden>
+            <label>Rede
+              <select id="propertyTension"><option value="BT">BT — contínua</option><option value="MT">MT — tracejada</option></select>
+            </label>
+          </div>
+          <div id="symbolProperties" hidden>
+            <label>Símbolo
+              <select id="propertySymbol">
+                {% for symbol in symbols %}<option value="{{ symbol }}">{{ symbol }}</option>{% endfor %}
+              </select>
+            </label>
+            <label>Código<input id="propertyCode" type="text" maxlength="40"></label>
+          </div>
+        </form>
+        <div class="editor-guidance">
+          <strong>Como editar</strong>
+          <p>Arraste símbolos e extremidades das linhas. Altere o tipo no painel. Clique duas vezes no canvas para inserir no modo ativo.</p>
+        </div>
+        <div id="exportResult" class="editor-export-result" hidden>
+          <strong>Revisão exportada</strong>
+          <a id="revisionDownload" href="#">Baixar PDF revisado</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='editor.js') }}"></script>
+{% endblock %}

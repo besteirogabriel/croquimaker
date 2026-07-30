@@ -18,9 +18,10 @@ from sistema.generation.croqui_geometrico import render_croqui_geometrico
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v14-project-symbol-depara"
+ENGINE_VERSION = "geometry-cad-v15-editor-crossing-color"
 JOB_ARTIFACTS = (
     "croqui.pdf",
+    "croqui_scene.json",
     "clean_projeto.pdf",
     "clean_projeto.png",
     "color_inventory.json",
@@ -117,6 +118,7 @@ def gerar(
         projeto,
         job_dir / "croqui.pdf",
         selection_path=job_dir / "network_selection.json",
+        scene_path=job_dir / "croqui_scene.json",
     )
     tempos["geracao_pdf"] = time.perf_counter() - t
 

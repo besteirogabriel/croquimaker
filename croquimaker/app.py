@@ -34,6 +34,11 @@ from flask import (
 from .auth import AuthPaths, AuthStore, PROJECTS, load_or_create_session_secret
 from .core.pipeline import gerar
 from .project_store import ProjectStore, ProjectStorePaths, utc_now
+from sistema.generation.croqui_geometrico import (
+    EDITABLE_SYMBOLS,
+    render_editable_scene_pdf,
+    validate_editable_scene,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 LOG = logging.getLogger(__name__)
@@ -68,6 +73,9 @@ AUDIT_ACTION_LABELS = {
     "project.completed": "Croqui concluído",
     "project.failed": "Processamento falhou",
     "artifact.downloaded": "Arquivo baixado",
+    "editor.opened": "Editor aberto",
+    "editor.revision_exported": "Revisão exportada",
+    "editor.revision_downloaded": "Revisão baixada",
     "audit.exported": "Auditoria exportada",
     "project.imported": "Projeto anterior indexado",
 }
@@ -671,6 +679,12 @@ def selecionar_projeto():
 def dashboard():
     visible_slugs = _visible_project_slugs()
     recent_jobs = project_store.list_jobs(visible_slugs, limit=12)
+    for job in recent_jobs:
+        job["editor_available"] = (
+            _project_jobs_dir(job["project_slug"])
+            / job["id"]
+            / "croqui_scene.json"
+        ).exists()
     recent_events = _decorate_events(
         project_store.list_events(
             visible_slugs,
@@ -861,6 +875,7 @@ def status(job_id):
     return jsonify(
         {
             "job_id": job_id,
+            "project": job["project_slug"],
             "state": job["state"],
             "message": job["message"],
             "has_excel": bool(job.get("has_excel")),
@@ -924,3 +939,139 @@ def baixar_arquivo_projeto(project_slug: str, job_id: str, kind: str):
     if project_slug not in PROJECTS or kind not in {"pdf", "xls"}:
         abort(404)
     return _send_artifact(project_slug, job_id, kind)
+
+
+def _editable_job(project_slug: str, job_id: str) -> tuple[dict, Path]:
+    if project_slug not in PROJECTS or not _can_access_project(project_slug):
+        abort(404)
+    job = _load_job(job_id, project_slug)
+    if not job or job.get("state") != "done":
+        abort(404)
+    job_dir = Path(job["dir"]).resolve()
+    scene_path = (job_dir / "croqui_scene.json").resolve()
+    if scene_path.parent != job_dir or not scene_path.exists():
+        abort(404)
+    return job, scene_path
+
+
+@app.get("/projetos/<project_slug>/<job_id>/editor")
+@login_required
+def editor_projeto(project_slug: str, job_id: str):
+    job, _ = _editable_job(project_slug, job_id)
+    _audit(
+        "editor.opened",
+        project_slug=project_slug,
+        job_id=job_id,
+        details={"output_filename": job["output_pdf_filename"]},
+    )
+    return render_template(
+        "editor.html",
+        job=job,
+        symbols=sorted(EDITABLE_SYMBOLS),
+        **_shell_context("editor"),
+    )
+
+
+@app.get("/api/unidades/<project_slug>/projetos/<job_id>/cena")
+@login_required
+def obter_cena_projeto(project_slug: str, job_id: str):
+    _, scene_path = _editable_job(project_slug, job_id)
+    try:
+        scene = validate_editable_scene(
+            json.loads(scene_path.read_text(encoding="utf-8"))
+        )
+    except (OSError, ValueError, json.JSONDecodeError):
+        abort(500)
+    return jsonify(scene)
+
+
+@app.post("/api/unidades/<project_slug>/projetos/<job_id>/revisoes")
+@login_required
+@csrf_required
+def exportar_revisao_projeto(project_slug: str, job_id: str):
+    job, _ = _editable_job(project_slug, job_id)
+    try:
+        scene = validate_editable_scene(request.get_json(force=True))
+    except (TypeError, ValueError):
+        return jsonify({"message": "A cena editada é inválida."}), 400
+
+    job_dir = Path(job["dir"]).resolve()
+    revisions_dir = job_dir / "revisions"
+    revisions_dir.mkdir(parents=True, exist_ok=True)
+    existing = [
+        int(match.group(1))
+        for path in revisions_dir.glob("revision-*.json")
+        for match in [re.fullmatch(r"revision-(\d{3})\.json", path.name)]
+        if match
+    ]
+    revision = max(existing, default=0) + 1
+    revision_id = f"{revision:03d}"
+    scene_path = revisions_dir / f"revision-{revision_id}.json"
+    base_name = Path(job["output_pdf_filename"]).stem
+    pdf_name = f"{base_name}-REV{revision_id}.pdf"
+    pdf_path = revisions_dir / pdf_name
+    scene_path.write_text(
+        json.dumps(scene, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    try:
+        render_editable_scene_pdf(scene, pdf_path)
+    except Exception:
+        scene_path.unlink(missing_ok=True)
+        pdf_path.unlink(missing_ok=True)
+        raise
+    scene_sha256 = _sha256_file(scene_path)
+    pdf_sha256 = _sha256_file(pdf_path)
+    _audit(
+        "editor.revision_exported",
+        project_slug=project_slug,
+        job_id=job_id,
+        details={
+            "revision": revision,
+            "filename": pdf_name,
+            "scene_sha256": scene_sha256,
+            "pdf_sha256": pdf_sha256,
+            "element_count": len(scene["elements"]),
+        },
+    )
+    return jsonify(
+        {
+            "revision": revision,
+            "filename": pdf_name,
+            "download_url": url_for(
+                "baixar_revisao_projeto",
+                project_slug=project_slug,
+                job_id=job_id,
+                revision=revision,
+            ),
+        }
+    ), 201
+
+
+@app.get(
+    "/api/unidades/<project_slug>/projetos/<job_id>/revisoes/<int:revision>.pdf"
+)
+@login_required
+def baixar_revisao_projeto(project_slug: str, job_id: str, revision: int):
+    job, _ = _editable_job(project_slug, job_id)
+    if not 1 <= revision <= 999:
+        abort(404)
+    revisions_dir = Path(job["dir"]).resolve() / "revisions"
+    scene_path = revisions_dir / f"revision-{revision:03d}.json"
+    matches = list(revisions_dir.glob(f"*-REV{revision:03d}.pdf"))
+    if not scene_path.exists() or len(matches) != 1:
+        abort(404)
+    pdf_path = matches[0].resolve()
+    if pdf_path.parent != revisions_dir.resolve():
+        abort(404)
+    _audit(
+        "editor.revision_downloaded",
+        project_slug=project_slug,
+        job_id=job_id,
+        details={
+            "revision": revision,
+            "filename": pdf_path.name,
+            "pdf_sha256": _sha256_file(pdf_path),
+        },
+    )
+    return send_file(pdf_path, as_attachment=True, download_name=pdf_path.name)

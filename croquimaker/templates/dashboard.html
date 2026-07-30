@@ -119,6 +119,14 @@
                         </svg>
                         <span>{{ job.output_pdf_filename }}</span>
                       </a>
+                      {% if job.editor_available %}
+                        <a
+                          class="artifact-link editor-project-link"
+                          href="{{ url_for('editor_projeto', project_slug=job.project_slug, job_id=job.id) }}"
+                        >
+                          Editar croqui
+                        </a>
+                      {% endif %}
                     {% else %}
                       <span class="pending-artifact">Aguardando conclusão</span>
                     {% endif %}

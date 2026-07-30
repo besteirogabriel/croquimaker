@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import fitz
+
 from sistema.extractors.project_symbols import (
+    _crossing_structures,
     classify_circular_pole,
     croqui_symbol_for_project_kind,
     load_project_symbol_mapping,
@@ -42,17 +45,20 @@ def _segment(
     start: tuple[float, float],
     end: tuple[float, float],
     sequence: int,
+    *,
+    tension: str = "BT",
+    color: tuple[float, float, float] = (0.0, 0.699, 0.0),
 ) -> ConductorSegment:
     return ConductorSegment(
         page=0,
-        tensao="BT",
+        tensao=tension,
         x1=start[0],
         y1=start[1],
         x2=end[0],
         y2=end[1],
         path_id=f"segment-{sequence}",
         sequence=sequence,
-        color=(0.0, 0.699, 0.0),
+        color=color,
         width=1.0,
     )
 
@@ -147,7 +153,6 @@ def test_projeto_revisado_produz_perfis_e_estruturas_sem_codigo_hardcoded():
     assert any(pole.novo and pole.croqui_symbol == "POSTE_NOVO" for pole in extraction.poles)
     assert {
         "CRUZAMENTO_COM_CONEXAO",
-        "CRUZAMENTO_SEM_CONEXAO",
         "PASSAGEM_PRIMARIO",
         "PASSAGEM_SECUNDARIO",
     } <= structure_symbols
@@ -184,3 +189,51 @@ def test_cruzamento_sem_conexao_nao_funde_as_duas_redes():
 
     assert len(graph.component_by_node.values()) == 4
     assert len(set(graph.component_by_node.values())) == 2
+
+
+def test_sobreposicao_de_cores_diferentes_nao_cria_cruzamento():
+    document = fitz.open()
+    document.new_page(width=200, height=200)
+    extraction = ProjectExtraction(
+        folder_id="different-colors",
+        source_path=Path("synthetic.pdf"),
+        page_sizes={0: (200.0, 200.0)},
+        conductors=[
+            _segment(
+                (20.0, 100.0),
+                (180.0, 100.0),
+                0,
+                tension="MT",
+                color=(0.0, 0.0, 1.0),
+            ),
+            _segment(
+                (100.0, 20.0),
+                (100.0, 180.0),
+                1,
+                tension="BT",
+                color=(0.0, 0.699, 0.0),
+            ),
+        ],
+    )
+
+    assert _crossing_structures(document, extraction) == []
+    document.close()
+
+
+def test_sobreposicao_da_mesma_cor_cria_cruzamento():
+    document = fitz.open()
+    document.new_page(width=200, height=200)
+    extraction = ProjectExtraction(
+        folder_id="same-color",
+        source_path=Path("synthetic.pdf"),
+        page_sizes={0: (200.0, 200.0)},
+        conductors=[
+            _segment((20.0, 100.0), (180.0, 100.0), 0),
+            _segment((100.0, 20.0), (100.0, 180.0), 1),
+        ],
+    )
+
+    structures = _crossing_structures(document, extraction)
+    assert len(structures) == 1
+    assert structures[0].codigo == "CRUZAMENTO_SEM_CONEXAO"
+    document.close()

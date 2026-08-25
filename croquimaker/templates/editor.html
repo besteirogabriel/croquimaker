@@ -56,6 +56,30 @@
             <label>Rede
               <select id="propertyTension"><option value="BT">BT — contínua</option><option value="MT">MT — tracejada</option></select>
             </label>
+            <label>Origem da linha
+              <select id="propertyStartSymbol"></select>
+            </label>
+            <label>Porta/saída de origem
+              <select id="propertyStartPort">
+                <option value="CENTER">Centro</option>
+                <option value="LEFT">Esquerda</option>
+                <option value="RIGHT">Direita</option>
+                <option value="TOP">Superior</option>
+                <option value="BOTTOM">Inferior</option>
+              </select>
+            </label>
+            <label>Destino da linha
+              <select id="propertyEndSymbol"></select>
+            </label>
+            <label>Porta/entrada de destino
+              <select id="propertyEndPort">
+                <option value="CENTER">Centro</option>
+                <option value="LEFT">Esquerda</option>
+                <option value="RIGHT">Direita</option>
+                <option value="TOP">Superior</option>
+                <option value="BOTTOM">Inferior</option>
+              </select>
+            </label>
           </div>
           <div id="symbolProperties" hidden>
             <label>Símbolo
@@ -68,7 +92,7 @@
         </form>
         <div class="editor-guidance">
           <strong>Como editar</strong>
-          <p>Arraste símbolos e extremidades das linhas. Altere o tipo no painel. Clique duas vezes no canvas para inserir no modo ativo.</p>
+          <p>Adicionar símbolo: selecione o tipo e clique uma vez no croqui. Adicionar linha: clique no início e no fim. Para ligar uma linha a uma porta específica, selecione a linha e escolha o símbolo e a porta de cada extremidade. CTRL+C e CTRL+V duplicam o símbolo selecionado.</p>
         </div>
         <div id="exportResult" class="editor-export-result" hidden>
           <strong>Revisão exportada</strong>

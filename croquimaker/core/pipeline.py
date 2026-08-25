@@ -15,10 +15,11 @@ from .schema import (
 from sistema.extractors import base
 from sistema.generation.clean_projeto import render_clean_projeto
 from sistema.generation.croqui_geometrico import render_croqui_geometrico
+from sistema.topology.btmit_guard import mark_unverified_crossings_as_non_connections
 
 LOG = logging.getLogger(__name__)
 CACHE_DIR = Path("generated/cache")
-ENGINE_VERSION = "geometry-cad-v15-editor-crossing-color"
+ENGINE_VERSION = "geometry-cad-v16-editor-ports-btmit-crossings"
 JOB_ARTIFACTS = (
     "croqui.pdf",
     "croqui_scene.json",
@@ -75,6 +76,15 @@ def gerar(
     extraction = extractor.extract(digest[:16], caminho_pdf)
     if not extraction.conductors:
         raise ValueError("Projeto sem geometria vetorial de rede")
+
+    # Um cruzamento visual entre vetores BT/MT não prova uma conexão elétrica.
+    # Antes de construir o grafo, marque interseções interior/interior sem poste
+    # ou símbolo explícito de conexão como CRUZAMENTO_SEM_CONEXAO. O gerador de
+    # topologia já respeita esse marcador e deixa de criar nós falsos no BTMIT.
+    protected_crossings = mark_unverified_crossings_as_non_connections(extraction)
+    if protected_crossings:
+        LOG.info("BTMIT: %s cruzamentos sem evidência protegidos contra conexão", protected_crossings)
+
     (job_dir / "extraction.json").write_text(
         json.dumps(extraction.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
     )

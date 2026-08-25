@@ -340,6 +340,28 @@ def _direction_for_segment(
     return (1.0, 0.0) if length <= 1e-9 else (dx / length, -dy / length)
 
 
+def _same_conductor_color(
+    first: ConductorSegment,
+    second: ConductorSegment,
+    *,
+    tolerance: float = 0.025,
+) -> bool:
+    """Return whether two crossing strokes belong to the same CAD color.
+
+    Voltage classification is intentionally insufficient here: a visual
+    crossing symbol is only valid when the actual source strokes have the
+    same color. Different colors represent independent overlaid networks.
+    """
+
+    first_color = normalize_rgb(first.color)
+    second_color = normalize_rgb(second.color)
+    return (
+        first_color is not None
+        and second_color is not None
+        and math.dist(first_color, second_color) <= tolerance
+    )
+
+
 def _crossing_structures(
     doc: fitz.Document,
     extraction: ProjectExtraction,
@@ -353,6 +375,11 @@ def _crossing_structures(
         ]
         for index, first in enumerate(segments):
             for second in segments[:index]:
+                # A blue/green (or otherwise differently coloured) overlap is
+                # not a crossing symbol. The networks merely pass over one
+                # another and must remain visually and topologically separate.
+                if not _same_conductor_color(first, second):
+                    continue
                 intersection = _segment_intersection(first, second)
                 if intersection is None:
                     continue

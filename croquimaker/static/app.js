@@ -9,6 +9,7 @@ const bar = document.querySelector("#bar");
 const progressPercent = document.querySelector("#progressPercent");
 const result = document.querySelector("#result");
 const pdf = document.querySelector("#pdf");
+const editor = document.querySelector("#editor");
 const xls = document.querySelector("#xls");
 const again = document.querySelector("#again");
 const error = document.querySelector("#error");
@@ -90,9 +91,11 @@ async function poll(jobId) {
         ? `${body.output_filename} foi salvo e está pronto para download.`
         : "O arquivo técnico foi salvo e está pronto para download.";
       pdf.href = `${base}/${jobId}/croqui.pdf`;
+      editor.href = `/projetos/${body.project}/${jobId}/editor`;
       xls.href = `${base}/${jobId}/croqui.xls`;
       xls.hidden = !body.has_excel;
       submit.disabled = false;
+      window.setTimeout(() => window.location.assign(editor.href), 650);
       return;
     }
     if (body.state === "error") throw new Error();

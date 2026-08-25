@@ -646,6 +646,7 @@ def render_croqui_geometrico(
     *,
     selection: NetworkSelection | None = None,
     selection_path: Path | None = None,
+    scene_path: Path | None = None,
 ) -> Path:
     """Renderiza a rede CAD e os ativos comprovados do serviço."""
 
@@ -667,6 +668,112 @@ def render_croqui_geometrico(
     )
     resolved_structures = _selected_structures(extraction, selection)
     metadata = _merge_metadata(extraction, projeto)
+    scene_elements: list[dict] = []
+    line_number = 0
+    for segment_index in sorted(selection.segment_ranges):
+        segment = extraction.conductors[segment_index]
+        for t0, t1 in selection.segment_ranges[segment_index]:
+            x1 = segment.x1 + (segment.x2 - segment.x1) * t0
+            y1 = segment.y1 + (segment.y2 - segment.y1) * t0
+            x2 = segment.x1 + (segment.x2 - segment.x1) * t1
+            y2 = segment.y1 + (segment.y2 - segment.y1) * t1
+            ox1, oy1 = point(x1, y1)
+            ox2, oy2 = point(x2, y2)
+            scene_elements.append(
+                {
+                    "id": f"line-{line_number}",
+                    "kind": "line",
+                    "x1": round(ox1, 4),
+                    "y1": round(PAGE_H - oy1, 4),
+                    "x2": round(ox2, 4),
+                    "y2": round(PAGE_H - oy2, 4),
+                    "tension": segment.tensao,
+                }
+            )
+            line_number += 1
+
+    for pole_index in sorted(selection.pole_indexes):
+        pole = extraction.poles[pole_index]
+        px, py = point(pole.position.x, _page_y(pole.position, extraction))
+        scene_elements.append(
+            {
+                "id": f"pole-{pole_index}",
+                "kind": "symbol",
+                "category": "pole",
+                "symbol": (
+                    "POSTE_NOVO"
+                    if pole_index in equipment_scene.new_pole_indexes
+                    else pole.croqui_symbol
+                ),
+                "x": round(px, 4),
+                "y": round(PAGE_H - py, 4),
+                "code": pole.codigo,
+                "direction": [1.0, 0.0],
+            }
+        )
+
+    for structure_index, structure in enumerate(resolved_structures):
+        if structure.codigo in {
+            "PASSAGEM_PRIMARIO",
+            "PASSAGEM_SECUNDARIO",
+            "PASSAGEM_PRIMARIO_SECUNDARIO",
+        }:
+            continue
+        sx, sy = point(
+            structure.position.x,
+            _page_y(structure.position, extraction),
+        )
+        scene_elements.append(
+            {
+                "id": f"structure-{structure_index}",
+                "kind": "symbol",
+                "category": "structure",
+                "symbol": structure.codigo,
+                "x": round(sx, 4),
+                "y": round(PAGE_H - sy, 4),
+                "code": "",
+                "direction": list(structure.direction),
+            }
+        )
+
+    for equipment_index, (equipment, direction) in enumerate(resolved_equipment):
+        pole = extraction.poles[equipment.pole_index]
+        ex, ey = point(pole.position.x, _page_y(pole.position, extraction))
+        equipment_symbol = symbol_for_equipment(equipment.kind)
+        if not equipment_symbol:
+            continue
+        scene_elements.append(
+            {
+                "id": f"equipment-{equipment_index}",
+                "kind": "symbol",
+                "category": "equipment",
+                "symbol": equipment_symbol,
+                "x": round(ex, 4),
+                "y": round(PAGE_H - ey, 4),
+                "code": equipment.code,
+                "direction": list(direction),
+            }
+        )
+
+    if scene_path is not None:
+        scene_path.parent.mkdir(parents=True, exist_ok=True)
+        scene_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "page": {"width": PAGE_W, "height": PAGE_H},
+                    "metadata": metadata,
+                    "viability": normalizar_viabilidade(
+                        (projeto.get("viabilidade") or {}).get("respostas")
+                        or viabilidade_automatica()
+                    ),
+                    "elements": scene_elements,
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
     if selection_path is not None:
         selection_path.parent.mkdir(parents=True, exist_ok=True)
@@ -745,5 +852,131 @@ def render_croqui_geometrico(
     _render_structures(c, resolved_structures, extraction, point)
     _render_equipment_scene(c, resolved_equipment, extraction, point)
 
+    c.save()
+    return out_path
+
+
+EDITABLE_SYMBOLS = frozenset(load_rge_symbol_catalog()["symbols"])
+
+
+def validate_editable_scene(payload: dict) -> dict:
+    """Validate and normalize a user-edited scene before persistence/export."""
+
+    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+        raise ValueError("Cena editável inválida")
+    raw_elements = payload.get("elements")
+    if not isinstance(raw_elements, list) or len(raw_elements) > 3000:
+        raise ValueError("Elementos da cena inválidos")
+    normalized: list[dict] = []
+    seen_ids: set[str] = set()
+    for index, raw in enumerate(raw_elements):
+        if not isinstance(raw, dict):
+            raise ValueError("Elemento inválido")
+        element_id = str(raw.get("id", ""))[:80]
+        if not element_id or element_id in seen_ids:
+            raise ValueError("Identificador de elemento inválido")
+        seen_ids.add(element_id)
+        kind = raw.get("kind")
+
+        def coordinate(name: str) -> float:
+            value = float(raw[name])
+            if not math.isfinite(value) or not -100.0 <= value <= max(PAGE_W, PAGE_H) + 100.0:
+                raise ValueError("Coordenada fora da página")
+            return round(value, 4)
+
+        if kind == "line":
+            tension = str(raw.get("tension", "")).upper()
+            if tension not in {"MT", "BT"}:
+                raise ValueError("Tipo de linha inválido")
+            normalized.append(
+                {
+                    "id": element_id,
+                    "kind": "line",
+                    "x1": coordinate("x1"),
+                    "y1": coordinate("y1"),
+                    "x2": coordinate("x2"),
+                    "y2": coordinate("y2"),
+                    "tension": tension,
+                }
+            )
+            continue
+        if kind != "symbol":
+            raise ValueError("Tipo de elemento inválido")
+        symbol = str(raw.get("symbol", "")).upper()
+        if symbol not in EDITABLE_SYMBOLS:
+            raise ValueError("Símbolo não permitido")
+        direction = raw.get("direction", [1.0, 0.0])
+        if not isinstance(direction, list) or len(direction) != 2:
+            raise ValueError("Direção inválida")
+        dx, dy = float(direction[0]), float(direction[1])
+        if not all(math.isfinite(value) for value in (dx, dy)):
+            raise ValueError("Direção inválida")
+        normalized.append(
+            {
+                "id": element_id,
+                "kind": "symbol",
+                "category": str(raw.get("category", "equipment"))[:30],
+                "symbol": symbol,
+                "x": coordinate("x"),
+                "y": coordinate("y"),
+                "code": str(raw.get("code", ""))[:40],
+                "direction": [round(dx, 6), round(dy, 6)],
+            }
+        )
+    metadata = {
+        key: str((payload.get("metadata") or {}).get(key, ""))[:120]
+        for key in ("departamento", "municipio", "equipamento", "data", "responsavel")
+    }
+    return {
+        "schema_version": 1,
+        "page": {"width": PAGE_W, "height": PAGE_H},
+        "metadata": metadata,
+        "viability": normalizar_viabilidade(payload.get("viability") or viabilidade_automatica()),
+        "elements": normalized,
+    }
+
+
+def render_editable_scene_pdf(scene: dict, out_path: Path) -> Path:
+    """Render a validated edited scene without rerunning project inference."""
+
+    scene = validate_editable_scene(scene)
+    project = {"viabilidade": {"respostas": scene["viability"]}}
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    c = canvas.Canvas(str(out_path), pagesize=(PAGE_W, PAGE_H), pageCompression=1)
+    c.setTitle("Croqui revisado")
+    _header(c, scene["metadata"])
+    _footer(c, project)
+    c.setStrokeColor(black)
+    c.rect(20, 20, PAGE_W - 40, PAGE_H - 40, fill=0, stroke=1)
+
+    for element in scene["elements"]:
+        if element["kind"] != "line":
+            continue
+        c.setStrokeColor(black)
+        c.setLineWidth(0.8)
+        c.setDash([2.2, 1.6] if element["tension"] == "MT" else [])
+        c.line(
+            element["x1"],
+            PAGE_H - element["y1"],
+            element["x2"],
+            PAGE_H - element["y2"],
+        )
+    c.setDash([])
+    for element in scene["elements"]:
+        if element["kind"] != "symbol":
+            continue
+        x = element["x"]
+        y = PAGE_H - element["y"]
+        draw_rge_symbol(
+            c,
+            element["symbol"],
+            x,
+            y,
+            direction=tuple(element["direction"]),
+        )
+        if element["code"] and element["category"] == "equipment":
+            c.setFillColor(black)
+            c.setFont("Helvetica-Bold", 5.5)
+            c.drawString(x + 7, y + 2, element["code"])
     c.save()
     return out_path
